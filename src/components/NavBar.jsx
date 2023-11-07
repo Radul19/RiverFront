@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
-import React from "react";
+import { View, Text, StyleSheet, Pressable, Keyboard } from "react-native";
+import React, { useEffect, useState } from "react";
 import t from "../components/stylesVar";
 
 import {
@@ -14,27 +14,46 @@ import {
 } from "./Icons";
 import { useNavigation } from "@react-navigation/native";
 
-const NavBar = ({active}) => {
+const NavBar = ({ active }) => {
   const nav = useNavigation();
   const goTo = (name) => {
     nav.navigate(name);
   };
-  return (
-    <View style={st.navbar_ctn}>
-      <Box goTo={goTo} name="Home">
-        {active === 0 ? <IconHomeFill /> : <IconHomeLine />}
-      </Box>
-      <Box goTo={goTo} name="Favorites">
-        {active === 1 ? <IconHeart /> : <IconHeartLine />}
-      </Box>
-      <Box goTo={goTo} name="Commerce">
-        {active === 2 ? <IconStall/> : <IconStallLine />}
-      </Box>
-      <Box goTo={goTo} name="Profile">
-        {active === 3 ? <IconUser /> : <IconUserLine />}
-      </Box>
-    </View>
-  );
+
+  const [keyboardStatus, setKeyboardStatus] = useState("");
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardStatus(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardStatus(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  if (!keyboardStatus) {
+    return (
+      <View style={st.navbar_ctn}>
+        <Box goTo={goTo} name="Home">
+          {active === 0 ? <IconHomeFill /> : <IconHomeLine />}
+        </Box>
+        <Box goTo={goTo} name="Favorites">
+          {active === 1 ? <IconHeart /> : <IconHeartLine />}
+        </Box>
+        <Box goTo={goTo} name="Commerce">
+          {active === 2 ? <IconStall /> : <IconStallLine />}
+        </Box>
+        <Box goTo={goTo} name="Profile">
+          {active === 3 ? <IconUser /> : <IconUserLine />}
+        </Box>
+      </View>
+    );
+  }
 };
 
 export default NavBar;

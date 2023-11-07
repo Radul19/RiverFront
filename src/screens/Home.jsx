@@ -2,8 +2,8 @@ import { View, ScrollView, StyleSheet, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import Text from "../components/Text";
 import t from "../components/stylesVar";
-import { SearchBar } from "../components/Inputs";
-import { Categories, ItemsCtn, ww } from "../components/DisplayItems";
+import { Avatar, SearchBar } from "../components/Inputs";
+import { Categories, ItemsCtn } from "../components/DisplayItems";
 import NavBar from "../components/NavBar";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
 import { searchItems } from "../api/general";
@@ -17,20 +17,20 @@ import {
 } from "../components/Icons";
 
 const resetCateg = {
-  all: true,
   home: false,
   clean: false,
   cloth: false,
   food: false,
   tech: false,
   others: false,
+  shops: false,
 };
 
 
 export default function Home() {
   const [searchBar, setSearchBar] = useState("");
   const [itemsData, setItemsData] = useState([]);
-  const [load, setload] = useState(false);
+  const [load, setLoad] = useState(false);
   const [filter, setFilter] = useState({
     name: "stars",
     status: 1,
@@ -38,9 +38,8 @@ export default function Home() {
   const [categ, setCateg] = useState(resetCateg);
 
   const handleCateg = (name) => {
-    if (name === "all") return setCateg(resetCateg);
     let value = categ[name];
-    setCateg({ ...categ, [name]: !value, all: false });
+    setCateg({ ...categ, [name]: !value });
   };
 
   const handleFilter = (n) => {
@@ -57,17 +56,15 @@ export default function Home() {
 
   const y = useSharedValue(-120);
   const toggleFilter = (val) => {
-    if (val) {
-      y.value = withSpring(0, { dampingRatio: 1, duration: 1000 });
-    } else {
-      y.value = withSpring(-120, { dampingRatio: 1, duration: 1000 });
-    }
+    const springTime = { dampingRatio: 1, duration: 1000 };
+    if (val) y.value = withSpring(0, springTime);
+    else y.value = withSpring(-120, springTime);
   };
 
   const executeSearch = async (text) => {
-    setload(true);
+    setLoad(true);
     let { status, data } = await searchItems(text, categ);
-    setload(false);
+    setLoad(false);
     if (status === 200) {
       setItemsData(data);
     }
@@ -88,8 +85,7 @@ export default function Home() {
       <ScrollView contentContainerStyle={st.ctn}>
         <Header />
         <SearchFilt {...{ toggleFilter, setSearchBar, searchBar }} />
-        <FiltersCtn {...{ filter, handleFilter }} />
-        <Animated.View style={[st.invisible, { marginTop: y }]} />
+        <FiltersCtn {...{ filter, handleFilter,y }} />
         <View style={st.down_ctn}>
           <Text style={st.subtitle}>Categorias</Text>
           <Categories {...{ handleCateg, categ }} />
@@ -105,7 +101,8 @@ const Header = () => {
   return (
     <View style={st.h_ctn}>
       <View style={{ flexDirection: "row", display: "flex", gap: 12 }}>
-        <View style={st.avatar} />
+        {/* <View style={st.avatar} /> */}
+        <Avatar num={0} size={42} />
         <View style={{ display: "flex", justifyContent: "center" }}>
           <Text style={st.small}>Bienvenido</Text>
           <Text style={st.username}>Invitado</Text>
@@ -145,8 +142,9 @@ const SearchFilt = ({ toggleFilter, setSearchBar, searchBar }) => {
   );
 };
 
-const FiltersCtn = ({ filter, handleFilter }) => {
+const FiltersCtn = ({ filter, handleFilter,y }) => {
   return (
+   <>
     <View style={st.filter_ctn}>
       <Animated.View
         style={{
@@ -168,6 +166,9 @@ const FiltersCtn = ({ filter, handleFilter }) => {
         />
       </Animated.View>
     </View>
+    
+    <Animated.View style={[st.invisible, { marginTop: y }]} />
+   </>
   );
 };
 
@@ -206,8 +207,6 @@ const FilterItem = ({ Icon, text, name, filter, handleFilter }) => {
     </Pressable>
   );
 };
-
-
 
 const st = StyleSheet.create({
   ctn: {
@@ -284,7 +283,7 @@ const st = StyleSheet.create({
     overflow: "hidden",
     zIndex: -100,
   },
-  filter_item:{
+  filter_item: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
@@ -293,5 +292,5 @@ const st = StyleSheet.create({
     paddingVertical: 12,
     borderBottomColor: t.four,
     borderBottomWidth: 1,
-  }
+  },
 });

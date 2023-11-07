@@ -510,18 +510,13 @@ export const IconDots = ({ size = 24, color = "#191919" }) => {
     </Svg>
   );
 };
-const loadKeyframe = new Keyframe({
-  0: {
-    transform: [{ rotate: "0deg" }],
-  },
-  100: {
-    transform: [{ rotate: "720deg" }],
-  },
-});
 export const IconLoad = ({ size = 24, color = "#191919" }) => {
   let deg = useSharedValue(0);
   React.useEffect(() => {
-    deg.value = withRepeat(withTiming(1, {duration:2000,easing:Easing.linear}), -1);
+    deg.value = withRepeat(
+      withTiming(1, { duration: 2000, easing: Easing.linear }),
+      -1
+    );
   }, []);
   const as = useAnimatedStyle(() => ({
     transform: [{ rotate: `${deg.value * 360}deg` }],
@@ -530,11 +525,14 @@ export const IconLoad = ({ size = 24, color = "#191919" }) => {
   return (
     <Animated.View
       // entering={loadKeyframe.duration(10000)}
-      style={[{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-      },as]}
+      style={[
+        {
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+        },
+        as,
+      ]}
     >
       <Svg
         width={size}
@@ -608,6 +606,19 @@ export const IconLoad = ({ size = 24, color = "#191919" }) => {
         />
       </Svg>
     </Animated.View>
+  );
+};
+export const IconArrowRight = ({ size = 24, color = "#191919" }) => {
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <Path d="M9 6L15 12L9 18" stroke={color} strokeWidth="2" />
+    </Svg>
   );
 };
 

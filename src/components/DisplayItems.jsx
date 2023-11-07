@@ -18,6 +18,7 @@ import {
   IconHome,
   IconJacket,
   IconLoad,
+  IconStall,
   IconStar,
   IconStarLine,
 } from "./Icons";
@@ -53,7 +54,6 @@ export const ItemsCtn = ({ data, load, filter = false }) => {
 };
 
 export const Item = ({ item }) => {
-  console.log(getStars(item));
   return (
     <View style={st.item_ctn}>
       <Image source={img} style={st.item_img} />
@@ -83,20 +83,20 @@ const StarsCtn = ({ stars }) => {
 };
 
 const categArray = [
-  { name: "all", text: "Todas", icon: IconFolders },
   { name: "home", text: "Hogar", icon: IconHome },
   { name: "clean", text: "Limpieza", icon: IconDrop },
   { name: "cloth", text: "Ropa", icon: IconJacket },
   { name: "food", text: "Comida", icon: IconHamburguer },
   { name: "tech", text: "Tecnologia", icon: IconCPU },
   { name: "others", text: "Otros", icon: IconDots },
+  { name: "shops", text: "Tiendas", icon: IconStall },
 ];
 
-export const Categories = ({ handleCateg, categ, all = true }) => {
+export const Categories = ({ handleCateg, categ, shop = true }) => {
   return (
     <ScrollView horizontal={true} contentContainerStyle={st.categ_ctn}>
       {categArray.map((item, index) => {
-        if (!all && index === 0) return null;
+        if (!shop && index === 6) return null;
         return <Category {...{ handleCateg, categ }} {...item} key={index} />;
       })}
     </ScrollView>

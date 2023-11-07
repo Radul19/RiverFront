@@ -5,6 +5,7 @@ import Commerce from './src/screens/Commerce'
 import Profile from './src/screens/Profile'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Register from './src/screens/Register';
 
 
 const Stack = createNativeStackNavigator();
@@ -26,6 +27,7 @@ export default function App() {
         <Stack.Navigator initialRouteName="Home" screenOptions={{
           headerShown: false
         }} >
+          <Stack.Screen name="Register" component={Register} />
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Favorites" component={Favorites} />
           <Stack.Screen name="Commerce" component={Commerce} />
