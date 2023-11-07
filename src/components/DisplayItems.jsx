@@ -7,40 +7,39 @@ import { IconStar, IconStarLine } from "./Icons";
 export const ww = Dimensions.get("window").width;
 export const wh = Dimensions.get("window").height;
 
-export const ItemsCtn = () => {
+export const ItemsCtn = ({ data, load }) => {
   return (
-    <View
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        flexDirection: "row",
-        paddingHorizontal: 20,
-        justifyContent: "space-between",
-        gap: 12,
-      }}
-    >
-      <Item />
-      <Item />
-      <Item />
-      <Item />
-      <Item />
-      <Item />
-      <Item />
-      <Item />
-    </View>
+    <>
+      {load && <Text style={{ paddingHorizontal: 20 }}>Loading...</Text>}
+      <View
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          flexDirection: "row",
+          paddingHorizontal: 20,
+          justifyContent: "space-between",
+          gap: 12,
+        }}
+      >
+        {data.map((item, index) => (
+          <Item item={item} key={item._id} />
+        ))}
+      </View>
+      {/* {load ? (
+      ) : (
+      )} */}
+    </>
   );
 };
 
-export const Item = () => {
+export const Item = ({ item }) => {
   return (
     <View style={st.item_ctn}>
       <Image source={img} style={st.item_img} />
-      <Text numberOfLines={1}>
-        Sandalia con nombre largo para hacer pruebas
-      </Text>
+      <Text numberOfLines={1}>{item.name}</Text>
       <View style={st.item_bottom}>
         <Text ff="Bold" style={{ fontSize: 16 }}>
-          $29.99
+          ${item.price.toFixed(2)}
         </Text>
         <StarsCtn />
       </View>

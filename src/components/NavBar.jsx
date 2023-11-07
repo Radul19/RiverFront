@@ -7,10 +7,14 @@ import {
   IconHeartLine,
   IconStallLine,
   IconUserLine,
+  IconHomeLine,
+  IconHeart,
+  IconStall,
+  IconUser,
 } from "./Icons";
 import { useNavigation } from "@react-navigation/native";
 
-const NavBar = () => {
+const NavBar = ({active}) => {
   const nav = useNavigation();
   const goTo = (name) => {
     nav.navigate(name);
@@ -18,16 +22,16 @@ const NavBar = () => {
   return (
     <View style={st.navbar_ctn}>
       <Box goTo={goTo} name="Home">
-        <IconHomeFill />
+        {active === 0 ? <IconHomeFill /> : <IconHomeLine />}
       </Box>
       <Box goTo={goTo} name="Favorites">
-        <IconHeartLine />
+        {active === 1 ? <IconHeart /> : <IconHeartLine />}
       </Box>
       <Box goTo={goTo} name="Commerce">
-        <IconStallLine />
+        {active === 2 ? <IconStall/> : <IconStallLine />}
       </Box>
       <Box goTo={goTo} name="Profile">
-        <IconUserLine />
+        {active === 3 ? <IconUser /> : <IconUserLine />}
       </Box>
     </View>
   );

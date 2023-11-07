@@ -1,12 +1,13 @@
 import { View, TextInput, StyleSheet} from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { IconZoom } from './Icons'
 
-export const SearchBar =()=> {
+export const SearchBar =({setSearchBar=()=>{},searchBar})=> {
+
   return (
     <View style={st.ctn} >
         <IconZoom/>
-        <TextInput style={st.input} placeholder='Buscar...' />
+        <TextInput style={st.input} placeholder='Buscar...' onChangeText={setSearchBar} value={searchBar} />
     </View>
   )
 }
@@ -24,6 +25,8 @@ const st = StyleSheet.create({
         flex:1
     },
     input:{
-        fontSize:14
+        fontSize:14,
+        fontFamily:'Regular',
+        width:'100%'
     }
 })
