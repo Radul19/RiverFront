@@ -1,6 +1,14 @@
 import { View, Text } from "react-native";
 import React from "react";
 import Svg, { G, Path, ClipPath, Rect, Defs, Circle } from "react-native-svg";
+import Animated, {
+  Easing,
+  Keyframe,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
 export const IconJewel = ({ size = 24, color = "#191919" }) => {
   return (
@@ -500,6 +508,106 @@ export const IconDots = ({ size = 24, color = "#191919" }) => {
         d="m16.5 11.995c0-1.242 1.008-2.25 2.25-2.25s2.25 1.008 2.25 2.25-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25zm-6.75 0c0-1.242 1.008-2.25 2.25-2.25s2.25 1.008 2.25 2.25-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25zm-6.75 0c0-1.242 1.008-2.25 2.25-2.25s2.25 1.008 2.25 2.25-1.008 2.25-2.25 2.25-2.25-1.008-2.25-2.25z"
       />
     </Svg>
+  );
+};
+const loadKeyframe = new Keyframe({
+  0: {
+    transform: [{ rotate: "0deg" }],
+  },
+  100: {
+    transform: [{ rotate: "720deg" }],
+  },
+});
+export const IconLoad = ({ size = 24, color = "#191919" }) => {
+  let deg = useSharedValue(0);
+  React.useEffect(() => {
+    deg.value = withRepeat(withTiming(1, {duration:2000,easing:Easing.linear}), -1);
+  }, []);
+  const as = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${deg.value * 360}deg` }],
+  }));
+
+  return (
+    <Animated.View
+      // entering={loadKeyframe.duration(10000)}
+      style={[{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+      },as]}
+    >
+      <Svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <Circle
+          cx="2.4"
+          cy="12"
+          r="2.4"
+          transform="rotate(-90 2.4 12)"
+          fill={color}
+          fillOpacity="0.8"
+        />
+        <Circle
+          cx="12.0001"
+          cy="21.6001"
+          r="2.4"
+          transform="rotate(-90 12.0001 21.6001)"
+          fill={color}
+          fillOpacity="0.6"
+        />
+        <Circle
+          cx="21.6"
+          cy="12"
+          r="2.4"
+          transform="rotate(-90 21.6 12)"
+          fill={color}
+          fillOpacity="0.4"
+        />
+        <Circle
+          cx="12.0001"
+          cy="2.4"
+          r="2.4"
+          transform="rotate(-90 12.0001 2.4)"
+          fill="#191919"
+        />
+        <Circle
+          cx="5.21174"
+          cy="18.7882"
+          r="2.4"
+          transform="rotate(-45 5.21174 18.7882)"
+          fill={color}
+          fillOpacity="0.7"
+        />
+        <Circle
+          cx="18.7882"
+          cy="18.7883"
+          r="2.4"
+          transform="rotate(-45 18.7882 18.7883)"
+          fill={color}
+          fillOpacity="0.5"
+        />
+        <Circle
+          cx="18.7882"
+          cy="5.21178"
+          r="2.4"
+          transform="rotate(-45 18.7882 5.21178)"
+          fill={color}
+          fillOpacity="0.3"
+        />
+        <Circle
+          cx="5.21174"
+          cy="5.21178"
+          r="2.4"
+          transform="rotate(-45 5.21174 5.21178)"
+          fill={color}
+          fillOpacity="0.9"
+        />
+      </Svg>
+    </Animated.View>
   );
 };
 

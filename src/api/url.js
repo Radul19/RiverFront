@@ -23,7 +23,7 @@ export const items = [
         owner_id:'0001',
         units_type:1,
         favorites:[],
-        reviews:[],
+        reviews:[{stars:4},{stars:5},{stars:2},{stars:3}],
         images:["a"],
     },{
         _id:"003",
