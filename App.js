@@ -3,14 +3,21 @@ import Home from './src/screens/Home'
 import Favorites from './src/screens/Favorites'
 import Commerce from './src/screens/Commerce'
 import Profile from './src/screens/Profile'
+import Login from './src/screens/Login'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Register from './src/screens/Register';
+import { useState } from 'react';
+import RegisterCommerce from './src/screens/RegisterCommerce';
 
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [userData, setUserData] = useState({
+    id:true,
+    commerce:false,
+  })
   const [fontsLoaded] = useFonts({
     'Bold': require('./assets/fonts/DMSans-Bold.ttf'),
     'Medium': require('./assets/fonts/DMSans-Medium.ttf'),
@@ -24,14 +31,14 @@ export default function App() {
 
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home" screenOptions={{
+        <Stack.Navigator initialRouteName="Commerce" screenOptions={{
           headerShown: false
         }} >
-          <Stack.Screen name="Register" component={Register} />
           <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Register" component={Register} />
           <Stack.Screen name="Favorites" component={Favorites} />
-          <Stack.Screen name="Commerce" component={Commerce} />
-          <Stack.Screen name="Profile" component={Profile} />
+          <Stack.Screen name="Commerce" component={userData.commerce? Commerce : RegisterCommerce} />
+          <Stack.Screen name="Profile" component={userData.id ? Profile : Login} />
           {/* <Stack.Screen name="Details" component={DetailsScreen} /> */}
         </Stack.Navigator>
       </NavigationContainer>

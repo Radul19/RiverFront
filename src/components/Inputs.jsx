@@ -1,5 +1,5 @@
 import { View, TextInput, StyleSheet, Image, Pressable } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import t from "../components/stylesVar";
 import { IconZoom } from "./Icons";
 import guest from "../images/guest.png";
@@ -11,6 +11,7 @@ import fem1 from "../images/fem1.png";
 import fem2 from "../images/fem2.png";
 import fem3 from "../images/fem3.png";
 import fem4 from "../images/fem4.png";
+import Text from "./Text";
 
 export const SearchBar = ({ setSearchBar = () => {}, searchBar }) => {
   return (
@@ -26,8 +27,15 @@ export const SearchBar = ({ setSearchBar = () => {}, searchBar }) => {
   );
 };
 
-export const Input = ({ placeholder = "", name = "", set,secure=false }) => {
-  const [value, setValue] = useState("");
+export const Input = ({
+  placeholder = "",
+  name = "",
+  set,
+  secure = false,
+  initialValue = "",
+  Icon = false
+}) => {
+  const [value, setValue] = useState(initialValue);
   useEffect(() => {
     let tm = setTimeout(() => {
       set((prev) => ({ ...prev, [name]: value }));
@@ -39,6 +47,7 @@ export const Input = ({ placeholder = "", name = "", set,secure=false }) => {
   }, [value]);
   return (
     <View style={st.input_ctn}>
+      {Icon && <Icon />}
       <TextInput
         style={st.input}
         placeholder={placeholder}
@@ -49,31 +58,35 @@ export const Input = ({ placeholder = "", name = "", set,secure=false }) => {
     </View>
   );
 };
+
 const arrAv = [1, 2, 3, 4, 5, 6, 7, 8];
-export const Avatars = ({ set}) => {
-  const [active, setActive] = useState(1);
+export const Avatars = ({ set, start = 1 }) => {
+  const [active, setActive] = useState(start);
   useEffect(() => {
-    set(active)
+    set(active);
     // let tm = setTimeout(() => {
     // }, 700);
-  
+
     // return () => {
     //   clearTimeout(tm)
     // }
-  }, [active])
-  
+  }, [active]);
+
   return (
     <View style={st.avatars_ctn}>
       {arrAv.map((num, index) => (
         <Pressable
-        onPress={()=>{setActive(num)}}
+          key={index}
+          onPress={() => {
+            setActive(num);
+          }}
           style={({ pressed }) => ({
             ...st.avatar_btn,
             opacity: pressed ? 0.5 : 1,
-            borderColor: active === num ? t.four : t.prime,
+            borderColor: active === num ? "#888" : t.prime,
           })}
         >
-          <Avatar num={num} key={index} />
+          <Avatar num={num} />
         </Pressable>
       ))}
     </View>
@@ -122,7 +135,65 @@ const getAvatar = (num) => {
   }
 };
 
+export const CodeInput = ({ set=()=>{} }) => {
+  const [input, setInput] = useState("");
+  const ref = useRef(null);
 
+  const focus = () => {
+    ref.current.focus();
+  };
+
+  const changeText = (text) => {
+    console.log(text);
+    if (text.match(/^[0-9]*$/)) {
+      setInput(text);
+    }
+  };
+
+  useEffect(() => {
+      set(input);
+  }, [input]);
+
+  return (
+    <>
+      <TextInput
+        ref={ref}
+        style={st.code_input}
+        maxLength={6}
+        onChangeText={changeText}
+        value={input}
+        keyboardType="number-pad"
+      />
+      <View style={st.code_ctn}>
+        <CodeText focus={focus} text={input[0]} />
+        <CodeText focus={focus} text={input[1]} />
+        <CodeText focus={focus} text={input[2]} />
+        <CodeText focus={focus} text={input[3]} />
+        <CodeText focus={focus} text={input[4]} />
+        <CodeText focus={focus} text={input[5]} />
+      </View>
+    </>
+  );
+};
+
+const CodeText = ({ text = false, focus }) => {
+  return (
+    <>
+      {text ? (
+        <Pressable
+          style={[st.code_box, { backgroundColor: t.four }]}
+          onPress={focus}
+        >
+          <Text style={{ color: t.prime }} fs={16} ff="Bold">
+            {text}
+          </Text>
+        </Pressable>
+      ) : (
+        <Pressable style={st.code_box} onPress={focus}></Pressable>
+      )}
+    </>
+  );
+};
 
 const st = StyleSheet.create({
   sb_ctn: {
@@ -145,6 +216,10 @@ const st = StyleSheet.create({
   input_ctn: {
     borderBottomWidth: 1,
     borderColor: t.four,
+    display:'flex',
+    flexDirection:'row',
+    gap:12,
+    alignItems:'center',
     // backgroundColor:'#123123'
   },
   input: {
@@ -165,5 +240,32 @@ const st = StyleSheet.create({
     borderRadius: 100,
     borderWidth: 1,
     // borderColor:t.four
+  },
+  code_ctn: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    flexDirection: "row",
+  },
+  code_box: {
+    borderWidth: 3,
+    borderColor: t.four,
+    borderRadius: 6,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    // padding:12,
+    height: 42,
+    width: 42,
+  },
+  code_input: {
+    position:'absolute',
+    opacity:0,
+    top:-1000,
+    // display: "none",
+  },
+  cc: {
+    color: t.four,
   },
 });

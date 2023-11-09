@@ -211,7 +211,7 @@ const FilterItem = ({ Icon, text, name, filter, handleFilter }) => {
 const st = StyleSheet.create({
   ctn: {
     // padding: 20,
-    paddingTop: 32,
+    paddingTop: 20,
     display: "flex",
     gap: 14,
   },
