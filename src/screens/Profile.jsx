@@ -18,6 +18,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { PrimaryBtn } from "../components/Btns";
 import { wh } from "../components/DisplayItems";
+import { InfoCommerce } from "./RegisterCommerce";
 
 const Profile = () => {
   const [page, setPage] = useState(1);
@@ -25,6 +26,7 @@ const Profile = () => {
     <View style={{ flex: 1, backgroundColor: t.prime }}>
       {page === 1 && <Info {...{ setPage }} />}
       {page === 2 && <UserProfile {...{ setPage }} />}
+      {page === 3 && <InfoCommerce {...{ setPage }} back={1} />}
       {page === 1 && <NavBar active={3} />}
     </View>
   );
@@ -37,7 +39,7 @@ const Info = ({ setPage }) => {
     setPage(2);
   };
   const goEditCommerce = () => {
-    // setPage(3)
+    setPage(3)
   };
   return (
     <ScrollView contentContainerStyle={st.ctn}>
@@ -140,9 +142,8 @@ const st = StyleSheet.create({
     padding: 20,
     display: "flex",
     gap: 14,
-    paddingHorizontal: 20,
-    // flex:1,
     minHeight:wh,
+    // flex:1,
     // alignItems: "center",
   },
   avatar_ctn: {

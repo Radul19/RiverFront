@@ -45,8 +45,8 @@ let commerceInfo = {
 const RegisterCommerce = ({ navigation }) => {
   const [page, setPage] = useState(3);
   const goToInv = () => {
-    console.log("yay");
-    // navigation.navigate('Inventory')
+    // console.log("yay");
+    navigation.navigate("Commerce");
   };
   return (
     <View style={{ flex: 1, backgroundColor: t.prime }}>
@@ -95,14 +95,15 @@ const CodePage = ({ setPage }) => {
   );
 };
 
-const InfoCommerce = ({ setPage, info = commerceInfo }) => {
+export const InfoCommerce = ({ setPage, info = commerceInfo,back=3 }) => {
   const { schedules: sch, ...allInfo } = info;
   // const [shape, setShape] = useState(1);
   const [inputs, setInputs] = useState(allInfo);
   const [schedules, setSchedules] = useState(sch);
 
   const goBack = () => {
-    console.log(schedules);
+    // console.log(schedules);
+    setPage(back)
   };
   const addSchedule = () => {
     let aux = [...schedules];
@@ -125,82 +126,84 @@ const InfoCommerce = ({ setPage, info = commerceInfo }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={[st.ctn, { paddingTop: 20 }]}>
-      <View style={st.header}>
-        <Pressable
-          onPress={goBack}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.5 : 1,
-            transform: [{ rotate: "180deg" }],
-            padding: 8,
-          })}
-        >
-          <IconArrowRight />
-        </Pressable>
-        <Text fs={32} ff="Bold">
-          Info. Comercial
-        </Text>
-      </View>
-      <Text {...subtitle}>Datos de identidad</Text>
-      <Input set={setInputs} name="name" placeholder="Nombre de empresa" />
-      <Input set={setInputs} name="phone" placeholder="Numero de telefono" />
-      <Input set={setInputs} name="description" placeholder="Description" />
-      <Text {...subtitle}>Logo</Text>
-      <View style={st.logo_ctn} />
-      <View style={st.subtitle_ctn}>
-        <Text {...subtitle}>Informacion Adicional</Text>
-        <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
-      </View>
-      <Input set={setInputs} name="email" placeholder="Correo" />
-      <Input set={setInputs} name="address" placeholder="Direccion" />
-      <Input set={setInputs} name="rif" placeholder="Rif" />
-      <View style={st.subtitle_ctn}>
-        <Text {...subtitle}>Horarios</Text>
-        <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
-        <Pressable
-          style={({ pressed }) => ({
-            marginLeft: "auto",
-            opacity: pressed ? 0.5 : 1,
-          })}
-          onPress={addSchedule}
-        >
-          <IconPlusBox />
-        </Pressable>
-      </View>
-      {schedules.map((item, index) => (
-        <ScheduleItem key={item._id} {...{ item, setSchedules }} />
-      ))}
-      <View style={st.subtitle_ctn}>
-        <Text {...subtitle}>Redes</Text>
-        <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
-      </View>
-      <Input
-        set={setInputs}
-        name="telegram"
-        placeholder="+584126452311"
-        Icon={IconTelegram}
-      />
-      <Input
-        set={setInputs}
-        name="whatsapp"
-        placeholder="+584126452311"
-        Icon={IconWhatsapp}
-      />
-      <Input
-        set={setInputs}
-        name="messenger"
-        placeholder="+584126452311"
-        Icon={IconMessenger}
-      />
-      <Input
-        set={setInputs}
-        name="instagram"
-        placeholder="@instagram"
-        Icon={IconInstagram}
-      />
-      <View style={{ marginTop: 42 }} />
-      <PrimaryBtn text="Confirmar" action={confirm} />
-    </ScrollView>
+    <Animated.View style={{ flex: 1 }} entering={FadeIn} exiting={FadeOut}>
+      <ScrollView contentContainerStyle={[st.ctn, { paddingTop: 20 }]}>
+        <View style={st.header}>
+          <Pressable
+            onPress={goBack}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.5 : 1,
+              transform: [{ rotate: "180deg" }],
+              padding: 8,
+            })}
+          >
+            <IconArrowRight />
+          </Pressable>
+          <Text fs={32} ff="Bold">
+            Info. Comercial
+          </Text>
+        </View>
+        <Text {...subtitle}>Datos de identidad</Text>
+        <Input set={setInputs} name="name" placeholder="Nombre de empresa" />
+        <Input set={setInputs} name="phone" placeholder="Numero de telefono" />
+        <Input set={setInputs} name="description" placeholder="Description" />
+        <Text {...subtitle}>Logo</Text>
+        <View style={st.logo_ctn} />
+        <View style={st.subtitle_ctn}>
+          <Text {...subtitle}>Informacion Adicional</Text>
+          <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
+        </View>
+        <Input set={setInputs} name="email" placeholder="Correo" />
+        <Input set={setInputs} name="address" placeholder="Direccion" />
+        <Input set={setInputs} name="rif" placeholder="Rif" />
+        <View style={st.subtitle_ctn}>
+          <Text {...subtitle}>Horarios</Text>
+          <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
+          <Pressable
+            style={({ pressed }) => ({
+              marginLeft: "auto",
+              opacity: pressed ? 0.5 : 1,
+            })}
+            onPress={addSchedule}
+          >
+            <IconPlusBox />
+          </Pressable>
+        </View>
+        {schedules.map((item, index) => (
+          <ScheduleItem key={item._id} {...{ item, setSchedules }} />
+        ))}
+        <View style={st.subtitle_ctn}>
+          <Text {...subtitle}>Redes</Text>
+          <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
+        </View>
+        <Input
+          set={setInputs}
+          name="telegram"
+          placeholder="+584126452311"
+          Icon={IconTelegram}
+        />
+        <Input
+          set={setInputs}
+          name="whatsapp"
+          placeholder="+584126452311"
+          Icon={IconWhatsapp}
+        />
+        <Input
+          set={setInputs}
+          name="messenger"
+          placeholder="+584126452311"
+          Icon={IconMessenger}
+        />
+        <Input
+          set={setInputs}
+          name="instagram"
+          placeholder="@instagram"
+          Icon={IconInstagram}
+        />
+        <View style={{ marginTop: 42 }} />
+        <PrimaryBtn text="Confirmar" action={confirm} />
+      </ScrollView>
+    </Animated.View>
   );
 };
 const traslateDay = (num) => {

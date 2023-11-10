@@ -68,16 +68,16 @@ export const Item = ({ item }) => {
   );
 };
 
-const StarsCtn = ({ stars }) => {
+export const StarsCtn = ({ stars,size=12 }) => {
   return (
     <View
       style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
     >
-      {stars >= 1 ? <IconStar size={12} /> : <IconStarLine size={12} />}
-      {stars >= 2 ? <IconStar size={12} /> : <IconStarLine size={12} />}
-      {stars >= 3 ? <IconStar size={12} /> : <IconStarLine size={12} />}
-      {stars >= 4 ? <IconStar size={12} /> : <IconStarLine size={12} />}
-      {stars >= 5 ? <IconStar size={12} /> : <IconStarLine size={12} />}
+      {stars >= 1 ? <IconStar size={size} /> : <IconStarLine size={size} />}
+      {stars >= 2 ? <IconStar size={size} /> : <IconStarLine size={size} />}
+      {stars >= 3 ? <IconStar size={size} /> : <IconStarLine size={size} />}
+      {stars >= 4 ? <IconStar size={size} /> : <IconStarLine size={size} />}
+      {stars >= 5 ? <IconStar size={size} /> : <IconStarLine size={size} />}
     </View>
   );
 };
@@ -151,6 +151,7 @@ const st = StyleSheet.create({
     gap: 12,
     paddingLeft: 20,
     paddingBottom: 12,
+    width:ww,
   },
   categ_box: {
     display: "flex",
