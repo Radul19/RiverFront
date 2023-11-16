@@ -1,10 +1,11 @@
 import { View, ScrollView, StyleSheet, Pressable } from "react-native";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Avatar, Avatars, Input } from "../components/Inputs";
 import Text from "../components/Text";
 import NavBar from "../components/NavBar";
 import {
   IconArrowRight,
+  IconCross,
   IconExit,
   IconStallLine,
   IconUserLine,
@@ -19,34 +20,51 @@ import Animated, {
 import { PrimaryBtn } from "../components/Btns";
 import { wh } from "../components/DisplayItems";
 import { InfoCommerce } from "./RegisterCommerce";
+import Context from "../components/Context";
+import { editUserData } from "../api/general";
+import { deleteLocalData } from "../helpers/localStorage";
 
 const Profile = () => {
+  const { userData, setUserData } = useContext(Context);
   const [page, setPage] = useState(1);
   return (
-    <View style={{ flex: 1, backgroundColor: t.prime }}>
-      {page === 1 && <Info {...{ setPage }} />}
-      {page === 2 && <UserProfile {...{ setPage }} />}
-      {page === 3 && <InfoCommerce {...{ setPage }} back={1} />}
+    <Animated.View
+      style={{ flex: 1, backgroundColor: t.prime }}
+      entering={FadeIn}
+      exiting={FadeOut}
+    >
+      {page === 1 && <Info {...{ setPage, userData, setUserData }} />}
+      {page === 2 && <UserProfile {...{ setPage, userData, setUserData }} />}
+      {page === 3 && <InfoCommerce {...{ setPage }} edit={true} />}
       {page === 1 && <NavBar active={3} />}
-    </View>
+    </Animated.View>
   );
 };
 
 export default Profile;
 
-const Info = ({ setPage }) => {
+const Info = ({ setPage, userData, setUserData }) => {
   const goEditProfile = () => {
     setPage(2);
   };
   const goEditCommerce = () => {
-    setPage(3)
+    setPage(3);
   };
+
+  const exit = async () => {
+    await deleteLocalData("@userToken");
+    setUserData({
+      _id: false,
+      commerce: false,
+    });
+  };
+
   return (
     <ScrollView contentContainerStyle={st.ctn}>
       <View style={st.avatar_ctn}>
-        <Avatar num={1} size={100} />
-        <Text {...{ fs: 16, ff: "Bold" }}>User_Name</Text>
-        <Text>gmail@gmail.com</Text>
+        <Avatar num={userData.avatar} size={100} />
+        <Text {...{ fs: 16, ff: "Bold" }}>{userData.name}</Text>
+        <Text>{userData.email}</Text>
       </View>
       <View style={st.options_ctn}>
         <Options
@@ -54,12 +72,14 @@ const Info = ({ setPage }) => {
           text="Informacion Personal"
           action={goEditProfile}
         />
-        <Options
-          Icon={IconStallLine}
-          text="Informacion comercial"
-          action={goEditCommerce}
-        />
-        <Options Icon={IconExit} text="Cerrar Sesion" />
+        {userData.commerce && (
+          <Options
+            Icon={IconStallLine}
+            text="Informacion comercial"
+            action={goEditCommerce}
+          />
+        )}
+        <Options Icon={IconExit} text="Cerrar Sesion" action={exit} />
       </View>
     </ScrollView>
   );
@@ -84,11 +104,12 @@ const Options = ({ text, Icon, action }) => {
   );
 };
 
-const UserProfile = ({ setPage }) => {
+const UserProfile = ({ setPage, userData, setUserData }) => {
+  const [error, setError] = useState(false);
   const [inputs, setInputs] = useState({
-    avatars: 1,
-    email: "",
-    name: "",
+    avatar: userData.avatar,
+    email: userData.email,
+    name: userData.name,
   });
   const goBack = () => {
     setPage(1);
@@ -98,18 +119,36 @@ const UserProfile = ({ setPage }) => {
     setInputs({ ...inputs, avatar: num });
   };
 
-  const confirm = ()=>{
+  const confirm = async () => {
+    const info = {
+      user_id: userData._id,
+      name: inputs.name,
+      email: inputs.email,
+      avatar: inputs.avatar,
+    };
+    const { status, data } = await editUserData(info);
+    if (status === 200) {
+      setUserData((prev) => ({
+        ...prev,
+        name: info.name,
+        email: info.email,
+        avatar: info.avatar,
+      }));
+      setPage(1);
+    } else {
+      setError(data.msg);
+    }
     // console.log(inputs)
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        setPage(1);
-        resolve("yay");
-      }, 2000);
-    });
-  }
+    // return new Promise((resolve, reject) => {
+    //   setTimeout(() => {
+    //     setPage(1);
+    //     resolve("yay");
+    //   }, 2000);
+    // });
+  };
 
   return (
-    <Animated.View entering={FadeIn} style={{flex:1}} exiting={FadeOut} >
+    <Animated.View entering={FadeIn} style={{ flex: 1 }} exiting={FadeOut}>
       <ScrollView contentContainerStyle={st.ctn}>
         <View style={st.header}>
           <Pressable
@@ -126,12 +165,25 @@ const UserProfile = ({ setPage }) => {
             Info. Personal
           </Text>
         </View>
-        <Text style={{textAlign:'center'}} ff="Medium" fs={16} >Selecciona un avatar</Text>
-        <Avatars set={updtAvatar} start={1} />
-        <Input name="name" placeholder="Nombre" set={setInputs} initialValue={'User_nameHere'} />
-        <Input name="email" placeholder="Correo" set={setInputs} initialValue={'gmail@gmail.com'} />
-        <View style={{marginTop:'auto'}} />
-        <PrimaryBtn text='Confirmar' action={confirm} />
+        <Text style={{ textAlign: "center" }} ff="Medium" fs={16}>
+          Selecciona un avatar
+        </Text>
+        <Avatars set={updtAvatar} start={userData.avatar} />
+        <Input
+          name="name"
+          placeholder="Nombre"
+          set={setInputs}
+          initialValue={inputs.name}
+        />
+        <Input
+          name="email"
+          placeholder="Correo"
+          set={setInputs}
+          initialValue={inputs.email}
+        />
+        <View style={{ marginTop: "auto" }} />
+        {error && <ErrorText text={error} />}
+        <PrimaryBtn text="Confirmar" action={confirm} />
       </ScrollView>
     </Animated.View>
   );
@@ -142,7 +194,7 @@ const st = StyleSheet.create({
     padding: 20,
     display: "flex",
     gap: 14,
-    minHeight:wh,
+    minHeight: wh,
     // flex:1,
     // alignItems: "center",
   },
@@ -174,3 +226,18 @@ const st = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+const ErrorText = ({ text }) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        gap: 6,
+        alignItems: "center",
+      }}
+    >
+      <IconCross color="#F20000" size={16} />
+      <Text style={{ color: "#F20000" }}>{text}</Text>
+    </View>
+  );
+};

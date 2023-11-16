@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView, Pressable } from "react-native";
+import { View, StyleSheet, ScrollView, Pressable, Image } from "react-native";
 import React, { useState } from "react";
 import Text from "../components/Text";
 import { ww, wh, Categories } from "../components/DisplayItems";
@@ -8,32 +8,82 @@ import { Input } from "../components/Inputs";
 import { PrimaryBtn } from "../components/Btns";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import ItemPage from "./ItemPage";
+import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
 
-const NewItem = ({navigation}) => {
-  const [page, setPage] = useState(1)
+const leftInfo = {
+  _id: "_",
+  owner_id: "_",
+  favorites: [],
+  reviews: [],
+};
+
+const emptyInputs = {
+  name: "",
+  price: "",
+  description: "",
+  // unit: "",
+  images: [],
+}
+
+const NewItem = ({ navigation }) => {
+  const [page, setPage] = useState(1);
+  const [inputs, setInputs] = useState(emptyInputs);
+  const [categ, setCateg] = useState([]);
+
+  const resetAll = ()=>{
+    setPage(1)
+    setInputs(emptyInputs)
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: t.prime }}>
-      {page === 1 && <Form {...{setPage}} />}
-      {page === 2 && <ItemPage preview={true} {...{navigation}} />}
+      {page === 1 && <Form {...{ setPage, navigation, inputs, setInputs,categ, setCateg }} />}
+      {page === 2 && <ItemPage preview={{
+        ...inputs,
+        ...leftInfo,
+        categories:categ
+      }} {...{ navigation,resetAll }} />}
     </View>
   );
 };
 
 export default NewItem;
 
-const Form = ({setPage}) => {
-  const goBack = () => {};
+const Form = ({ setPage, navigation, inputs, setInputs,categ, setCateg }) => {
+  const goBack = () => navigation.goBack();
 
-  const [inputs, setInputs] = useState({
-    name: "",
-    price: "",
-    description: "",
-    categories: [],
-    unit: "",
-  });
+  
+  const handleCateg = (name) => {
+    let indexOf = categ.indexOf(name);
+    let aux = [...categ];
+    if (!(indexOf === -1)) {
+      aux.splice(indexOf, 1);
+    } else aux.push(name);
+    setCateg(aux);
+  };
+
+  const pickImage = async (index) => {
+    // No permissions request is necessary for launching the image library
+    let result = await launchImageLibraryAsync({
+      mediaTypes: MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      let aux = [...inputs.images];
+      aux[index] = result.assets[0].uri;
+      setInputs({ ...inputs, images: aux });
+    }
+  };
+
+  const pickOne = () => pickImage(0);
+  const pickTwo = () => pickImage(1);
+  const pickThree = () => pickImage(3);
 
   const confirm = () => {
-    setPage(2)
+    setPage(2);
   };
   return (
     <Animated.View entering={FadeIn} style={{ flex: 1 }} exiting={FadeOut}>
@@ -60,27 +110,31 @@ const Form = ({setPage}) => {
           <Text fs={16} ff="Bold">
             Imagenes
           </Text>
-          <View>
-            <Text>img</Text>
+          <View style={st.images_ctn}>
+            {inputs.images.length >= 0 && (
+              <Pressable style={st.image} onPress={pickOne}>
+                <Image source={{ uri: inputs.images[0] }} style={st.img} />
+              </Pressable>
+            )}
+            {inputs.images.length >= 1 && (
+              <Pressable style={st.image} onPress={pickTwo}>
+                <Image source={{ uri: inputs.images[1] }} style={st.img} />
+              </Pressable>
+            )}
+            {inputs.images.length >= 2 && (
+              <Pressable style={st.image} onPress={pickThree}>
+                <Image source={{ uri: inputs.images[2] }} style={st.img} />
+              </Pressable>
+            )}
           </View>
           <Text fs={16} ff="Bold">
             Categorias
           </Text>
         </View>
         <View>
-          <Categories
-            categ={{
-              home: false,
-              clean: false,
-              cloth: false,
-              food: false,
-              tech: false,
-              others: false,
-              shops: false,
-            }}
-          />
+          <Categories {...{ handleCateg, categ }} />
         </View>
-        <View style={{ gap: 14, paddingHorizontal: 20 }}>
+        {/* <View style={{ gap: 14, paddingHorizontal: 20 }}>
           <Text fs={16} ff="Bold">
             Unidades
           </Text>
@@ -93,7 +147,7 @@ const Form = ({setPage}) => {
             <UnitsItem set={setInputs} active={inputs.unit} text="12 units" />
             <UnitsItem set={setInputs} active={inputs.unit} text="+" />
           </View>
-        </View>
+        </View> */}
         <View style={{ paddingHorizontal: 20, marginTop: "auto" }}>
           <PrimaryBtn action={confirm} text="Vista Previa" />
         </View>
@@ -124,7 +178,6 @@ const UnitsItem = ({ text, active, set }) => {
   );
 };
 
-
 const st = StyleSheet.create({
   ctn: {
     display: "flex",
@@ -154,6 +207,25 @@ const st = StyleSheet.create({
     opacity: pressed ? 0.5 : 1,
     backgroundColor: t.prime,
   }),
+  image: ({ pressed }) => ({
+    width: (ww - 64) / 3,
+    height: (ww - 64) / 3,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: t.third,
+    borderRadius: 6,
+    overflow: "hidden",
+    opacity: pressed ? 0.5 : 1,
+  }),
+  images_ctn: {
+    flexDirection: "row",
+    gap: 12,
+    // justifyContent:'space-between'
+  },
+  img: {
+    width: "100%",
+    height: "100%",
+  },
 });
 
 const unitSt = {

@@ -1,21 +1,31 @@
 import { View, ScrollView, StyleSheet, Pressable } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import t from "../components/stylesVar";
 import Text from "../components/Text";
 import NavBar from "../components/NavBar";
 import { SearchBar } from "../components/Inputs";
 import { ItemsCtn } from "../components/DisplayItems";
-import { searchItems } from "../api/general";
+import { searchFavorites, searchItems } from "../api/general";
+import Context from "../components/Context";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const Favorites = () => {
+  const { userData } = useContext(Context);
   const [show, setShow] = useState(true);
   const [load, setLoad] = useState(false);
-  const [itemsData, setItemsData] = useState([]);
+  const [itemsData, setItemsData] = useState({
+    items: [],
+    markets: [],
+  });
   const [searchBar, setSearchBar] = useState("");
 
-  const executeSearch = async (text) => {
+  const executeSearch = async () => {
     setLoad(true);
-    let { status, data } = await searchItems(text, {});
+    const info = {
+      text: searchBar,
+      user_id: userData._id,
+    };
+    let { status, data } = await searchFavorites(info);
     setLoad(false);
     if (status === 200) {
       setItemsData(data);
@@ -24,7 +34,7 @@ const Favorites = () => {
 
   useEffect(() => {
     let tm = setTimeout(() => {
-      executeSearch(searchBar);
+      executeSearch();
     }, 700);
 
     return () => {
@@ -39,7 +49,11 @@ const Favorites = () => {
           <Btns {...{ show, setShow }} />
           <SearchBar {...{ setSearchBar, searchBar }} />
         </View>
-        <ItemsCtn data={itemsData} load={load} />
+        {show ? (
+          <ItemsCtn data={itemsData.items} load={load} />
+        ) : (
+          <ItemsCtn data={itemsData.markets} load={load} />
+        )}
       </ScrollView>
       <NavBar active={1} />
     </View>
@@ -88,10 +102,12 @@ const Btns = ({ show, setShow }) => {
   );
 };
 
+
 const st = StyleSheet.create({
-  ctn: { paddingTop: 48, paddingBottom: 64, display: "flex", gap: 14 },
+  ctn: { paddingTop: 32, paddingBottom: 64, display: "flex", gap: 14 },
   view: { paddingHorizontal: 20, display: "flex", gap: 14 },
   btns_ctn: {
+    paddingBottom: 12,
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",

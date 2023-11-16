@@ -1,11 +1,12 @@
-import { View, ScrollView, Pressable, StyleSheet } from "react-native";
+import { View, ScrollView, Pressable, StyleSheet, Image } from "react-native";
 import Text from "../components/Text";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import t from "../components/stylesVar";
 import {
   IconArrowRight,
   IconCross,
   IconInstagram,
+  IconLoad,
   IconMessenger,
   IconPlusBox,
   IconTelegram,
@@ -24,6 +25,9 @@ import Animated, {
 import NavBar from "../components/NavBar";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import moment from "moment/moment";
+import Context from "../components/Context";
+import { codeExist, registerCommerce } from "../api/general";
+import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
 
 let commerceInfo = {
   name: "",
@@ -32,6 +36,7 @@ let commerceInfo = {
   email: "",
   rif: "",
   address: "",
+  logo: false,
   schedules: [
     {
       since: new Date(1699524011003),
@@ -42,7 +47,16 @@ let commerceInfo = {
   ],
 };
 
-const RegisterCommerce = ({ navigation }) => {
+const RegisterCommerce = ({ navigation, route }) => {
+  const { userData } = useContext(Context);
+  const [code, setCode] = useState("");
+
+  useEffect(() => {
+    if (!userData._id) {
+      navigation.navigate("Profile");
+    }
+  }, [route]);
+
   const [page, setPage] = useState(3);
   const goToInv = () => {
     // console.log("yay");
@@ -50,19 +64,23 @@ const RegisterCommerce = ({ navigation }) => {
   };
   return (
     <View style={{ flex: 1, backgroundColor: t.prime }}>
-      {page === 3 && <CodePage {...{ setPage }} />}
+      {page === 3 && <CodePage {...{ setPage, code, setCode }} />}
       {page === 2 && <InfoCommerce {...{ setPage }} />}
-      {page === 1 && <SuccessPage {...{ setPage, goToInv }} />}
+      {/* {page === 1 && <SuccessPage {...{ page,setPage, goToInv }} />} */}
       {page === 3 && <NavBar active={2} />}
     </View>
   );
 };
 
-const CodePage = ({ setPage }) => {
-  const [code, setCode] = useState("");
-  const confirm = () => {
-    console.log(code);
-    setPage(2);
+const CodePage = ({ setPage, code, setCode }) => {
+  const [load, setLoad] = useState(false);
+  const confirm = async () => {
+    setLoad(true);
+    const { status, data } = await codeExist(code);
+    setLoad(false);
+    console.log(status);
+    console.log(data);
+    if (status === 200 && data) setPage(2);
   };
   return (
     <ScrollView contentContainerStyle={st.ctn}>
@@ -83,7 +101,11 @@ const CodePage = ({ setPage }) => {
               Continuar
             </Text>
             <View style={st.btn_login}>
-              <IconArrowRight color={t.prime} />
+              {load ? (
+                <IconLoad color={t.prime} />
+              ) : (
+                <IconArrowRight color={t.prime} />
+              )}
             </View>
           </Pressable>
         </Animated.View>
@@ -95,15 +117,23 @@ const CodePage = ({ setPage }) => {
   );
 };
 
-export const InfoCommerce = ({ setPage, info = commerceInfo,back=3 }) => {
+export const InfoCommerce = ({
+  page = false,
+  setPage,
+  info = commerceInfo,
+  edit = false
+}) => {
+  const { setUserData } = useContext(Context);
   const { schedules: sch, ...allInfo } = info;
   // const [shape, setShape] = useState(1);
   const [inputs, setInputs] = useState(allInfo);
   const [schedules, setSchedules] = useState(sch);
+  const [idk, setIdk] = useState(false);
+  const [modal, setModal] = useState(false)
 
   const goBack = () => {
-    // console.log(schedules);
-    setPage(back)
+    if(edit) return setPage(1)
+    setPage(3);
   };
   const addSchedule = () => {
     let aux = [...schedules];
@@ -117,93 +147,148 @@ export const InfoCommerce = ({ setPage, info = commerceInfo,back=3 }) => {
   };
 
   const confirm = async () => {
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        setPage(1);
-        resolve();
-      }, 2000);
+    if(!edit){
+      const marketInfo = {
+        ...inputs,
+        schedules,
+      };
+      const { status, data } = await registerCommerce(marketInfo);
+      if (status === 200) {
+        setIdk(data);
+        setModal(true);
+      }
+    }else{
+      
+    }
+  };
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await launchImageLibraryAsync({
+      mediaTypes: MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
     });
+
+    if (!result.canceled) {
+      setInputs({ ...inputs, logo: result.assets[0].uri });
+    }
+  };
+
+  const goToInv = () => {
+    setUserData((prev) => ({ ...prev, commerce: idk }));
   };
 
   return (
-    <Animated.View style={{ flex: 1 }} entering={FadeIn} exiting={FadeOut}>
-      <ScrollView contentContainerStyle={[st.ctn, { paddingTop: 20 }]}>
-        <View style={st.header}>
-          <Pressable
-            onPress={goBack}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.5 : 1,
-              transform: [{ rotate: "180deg" }],
-              padding: 8,
-            })}
-          >
-            <IconArrowRight />
-          </Pressable>
-          <Text fs={32} ff="Bold">
-            Info. Comercial
-          </Text>
-        </View>
-        <Text {...subtitle}>Datos de identidad</Text>
-        <Input set={setInputs} name="name" placeholder="Nombre de empresa" />
-        <Input set={setInputs} name="phone" placeholder="Numero de telefono" />
-        <Input set={setInputs} name="description" placeholder="Description" />
-        <Text {...subtitle}>Logo</Text>
-        <View style={st.logo_ctn} />
-        <View style={st.subtitle_ctn}>
-          <Text {...subtitle}>Informacion Adicional</Text>
-          <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
-        </View>
-        <Input set={setInputs} name="email" placeholder="Correo" />
-        <Input set={setInputs} name="address" placeholder="Direccion" />
-        <Input set={setInputs} name="rif" placeholder="Rif" />
-        <View style={st.subtitle_ctn}>
-          <Text {...subtitle}>Horarios</Text>
-          <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
-          <Pressable
-            style={({ pressed }) => ({
-              marginLeft: "auto",
-              opacity: pressed ? 0.5 : 1,
-            })}
-            onPress={addSchedule}
-          >
-            <IconPlusBox />
-          </Pressable>
-        </View>
-        {schedules.map((item, index) => (
-          <ScheduleItem key={item._id} {...{ item, setSchedules }} />
-        ))}
-        <View style={st.subtitle_ctn}>
-          <Text {...subtitle}>Redes</Text>
-          <Text style={{ fontSize: 12, color: t.third }}>{"(Opcional)"}</Text>
-        </View>
-        <Input
-          set={setInputs}
-          name="telegram"
-          placeholder="+584126452311"
-          Icon={IconTelegram}
-        />
-        <Input
-          set={setInputs}
-          name="whatsapp"
-          placeholder="+584126452311"
-          Icon={IconWhatsapp}
-        />
-        <Input
-          set={setInputs}
-          name="messenger"
-          placeholder="+584126452311"
-          Icon={IconMessenger}
-        />
-        <Input
-          set={setInputs}
-          name="instagram"
-          placeholder="@instagram"
-          Icon={IconInstagram}
-        />
-        <View style={{ marginTop: 42 }} />
-        <PrimaryBtn text="Confirmar" action={confirm} />
-      </ScrollView>
-    </Animated.View>
+    <>
+      {modal ? (
+        <SuccessPage {...{ setPage, goToInv }} />
+      ) : (
+        <Animated.View style={{ flex: 1 }} entering={FadeIn} exiting={FadeOut}>
+          <ScrollView contentContainerStyle={[st.ctn, { paddingTop: 20 }]}>
+            <View style={st.header}>
+              <Pressable
+                onPress={goBack}
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.5 : 1,
+                  transform: [{ rotate: "180deg" }],
+                  padding: 8,
+                })}
+              >
+                <IconArrowRight />
+              </Pressable>
+              <Text fs={32} ff="Bold">
+                Info. Comercial
+              </Text>
+            </View>
+            <Text {...subtitle}>Datos de identidad</Text>
+            <Input
+              set={setInputs}
+              name="name"
+              placeholder="Nombre de empresa"
+            />
+            <Input
+              set={setInputs}
+              name="phone"
+              placeholder="Numero de telefono"
+            />
+            <Input
+              set={setInputs}
+              name="description"
+              placeholder="Description"
+            />
+            <Text {...subtitle}>Logo</Text>
+            <Pressable style={st.logo_ctn} onPress={pickImage}>
+              {inputs.logo ? (
+                <Image source={{ uri: inputs.logo }} style={st.logo} />
+              ) : (
+                <Text {...{ ff: "Medium", fs: 32 }}>+</Text>
+              )}
+            </Pressable>
+            <View style={st.subtitle_ctn}>
+              <Text {...subtitle}>Informacion Adicional</Text>
+              <Text style={{ fontSize: 12, color: t.third }}>
+                {"(Opcional)"}
+              </Text>
+            </View>
+            <Input set={setInputs} name="email" placeholder="Correo" />
+            <Input set={setInputs} name="address" placeholder="Direccion" />
+            <Input set={setInputs} name="rif" placeholder="Rif" />
+            <View style={st.subtitle_ctn}>
+              <Text {...subtitle}>Horarios</Text>
+              <Text style={{ fontSize: 12, color: t.third }}>
+                {"(Opcional)"}
+              </Text>
+              <Pressable
+                style={({ pressed }) => ({
+                  marginLeft: "auto",
+                  opacity: pressed ? 0.5 : 1,
+                })}
+                onPress={addSchedule}
+              >
+                <IconPlusBox />
+              </Pressable>
+            </View>
+            {schedules.map((item, index) => (
+              <ScheduleItem key={item._id} {...{ item, setSchedules }} />
+            ))}
+            <View style={st.subtitle_ctn}>
+              <Text {...subtitle}>Redes</Text>
+              <Text style={{ fontSize: 12, color: t.third }}>
+                {"(Opcional)"}
+              </Text>
+            </View>
+            <Input
+              set={setInputs}
+              name="telegram"
+              placeholder="+584126452311"
+              Icon={IconTelegram}
+            />
+            <Input
+              set={setInputs}
+              name="whatsapp"
+              placeholder="+584126452311"
+              Icon={IconWhatsapp}
+            />
+            <Input
+              set={setInputs}
+              name="messenger"
+              placeholder="+584126452311"
+              Icon={IconMessenger}
+            />
+            <Input
+              set={setInputs}
+              name="instagram"
+              placeholder="@instagram"
+              Icon={IconInstagram}
+            />
+            <View style={{ marginTop: 42 }} />
+            <PrimaryBtn text="Confirmar" action={confirm} />
+          </ScrollView>
+        </Animated.View>
+      )}
+    </>
   );
 };
 const traslateDay = (num) => {
@@ -432,12 +517,22 @@ const st = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  logo_ctn: {
+  logo_ctn: ({ pressed }) => ({
     height: 200,
     width: 200,
     alignSelf: "center",
-    backgroundColor: t.third,
+    // backgroundColor: t.third,
     borderRadius: 12,
+    opacity: pressed ? 0.5 : 1,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  }),
+  logo: {
+    width: "100%",
+    height: "100%",
   },
   logo_btn: ({ pressed }) => ({
     opacity: pressed ? 0.5 : 1,

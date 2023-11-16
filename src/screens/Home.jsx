@@ -16,15 +16,27 @@ import {
   IconStar,
 } from "../components/Icons";
 
-const resetCateg = {
-  home: false,
-  clean: false,
-  cloth: false,
-  food: false,
-  tech: false,
-  others: false,
-  shops: false,
-};
+// const resetCateg = {
+//   home: false,
+//   clean: false,
+//   cloth: false,
+//   food: false,
+//   tech: false,
+//   others: false,
+//   shops: false,
+// };
+
+const resetCateg = [
+  'home',
+  'clean',
+  'cloth',
+  'food',
+  'tech',
+  'others',
+  'deportes',
+  'deportes',
+  'tiendas',
+]
 
 
 export default function Home() {
@@ -35,11 +47,15 @@ export default function Home() {
     name: "stars",
     status: 1,
   });
-  const [categ, setCateg] = useState(resetCateg);
+  const [categ, setCateg] = useState([]);
 
   const handleCateg = (name) => {
-    let value = categ[name];
-    setCateg({ ...categ, [name]: !value });
+    let indexOf = categ.indexOf(name)
+    let aux = [...categ]
+    if(!(indexOf === -1)) {
+      aux.splice(indexOf,1) 
+    }else aux.push(name)
+    setCateg(aux);
   };
 
   const handleFilter = (n) => {
@@ -61,9 +77,9 @@ export default function Home() {
     else y.value = withSpring(-120, springTime);
   };
 
-  const executeSearch = async (text) => {
+  const executeSearch = async () => {
     setLoad(true);
-    let { status, data } = await searchItems(text, categ);
+    let { status, data } = await searchItems(searchBar, categ);
     setLoad(false);
     if (status === 200) {
       setItemsData(data);
@@ -72,7 +88,7 @@ export default function Home() {
 
   useEffect(() => {
     let tm = setTimeout(() => {
-      executeSearch(searchBar, categ);
+      executeSearch();
     }, 700);
 
     return () => {

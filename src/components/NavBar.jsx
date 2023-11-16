@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable, Keyboard } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import t from "../components/stylesVar";
 
 import {
@@ -13,11 +13,24 @@ import {
   IconUser,
 } from "./Icons";
 import { useNavigation } from "@react-navigation/native";
+import Context from "./Context";
 
 const NavBar = ({ active }) => {
+  const { userData } = useContext(Context);
   const nav = useNavigation();
-  const goTo = (name) => {
-    nav.navigate(name);
+  const goHome = () => {
+    nav.navigate("Home");
+  };
+  const goFav = () => {
+    if(!userData._id) return goProfile() 
+    nav.navigate("Favorites");
+  };
+  const goMarket = () => {
+    if(!userData._id) return goProfile() 
+    nav.navigate("Commerce");
+  };
+  const goProfile = () => {
+    nav.navigate("Profile");
   };
 
   const [keyboardStatus, setKeyboardStatus] = useState("");
@@ -39,18 +52,18 @@ const NavBar = ({ active }) => {
   if (!keyboardStatus) {
     return (
       <View style={st.navbar_ctn}>
-        <Box goTo={goTo} name="Home">
+        <Pressable style={st.btn} onPress={goHome}>
           {active === 0 ? <IconHomeFill /> : <IconHomeLine />}
-        </Box>
-        <Box goTo={goTo} name="Favorites">
+        </Pressable>
+        <Pressable style={st.btn} onPress={goFav}>
           {active === 1 ? <IconHeart /> : <IconHeartLine />}
-        </Box>
-        <Box goTo={goTo} name="Commerce">
+        </Pressable>
+        <Pressable style={st.btn} onPress={goMarket}>
           {active === 2 ? <IconStall /> : <IconStallLine />}
-        </Box>
-        <Box goTo={goTo} name="Profile">
+        </Pressable>
+        <Pressable style={st.btn} onPress={goProfile}>
           {active === 3 ? <IconUser /> : <IconUserLine />}
-        </Box>
+        </Pressable>
       </View>
     );
   }
@@ -97,4 +110,5 @@ const st = StyleSheet.create({
 
     elevation: 24,
   },
+  btn: ({ pressed }) => ({ opacity: pressed ? 0.5 : 1 }),
 });

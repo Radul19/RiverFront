@@ -144,7 +144,6 @@ export const CodeInput = ({ set=()=>{} }) => {
   };
 
   const changeText = (text) => {
-    console.log(text);
     if (text.match(/^[0-9]*$/)) {
       setInput(text);
     }

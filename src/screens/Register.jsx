@@ -5,7 +5,7 @@ import {
   Keyboard,
   Pressable,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import t from "../components/stylesVar";
 import Text from "../components/Text";
 import { Avatars, Input } from "../components/Inputs";
@@ -13,8 +13,12 @@ import { PrimaryBtn } from "../components/Btns";
 import { IconArrowRight } from "../components/Icons";
 import { wh, ww } from "../components/DisplayItems";
 import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
+import { register } from "../api/general";
+import Context from '../components/Context'
+import { storeLocalData } from "../helpers/localStorage";
 
 const Register = ({ navigation }) => {
+  const {setUserData} = useContext(Context)
   const [modal, setModal] = useState(false);
   const [inputs, setInputs] = useState({
     name: "",
@@ -30,14 +34,29 @@ const Register = ({ navigation }) => {
   };
 
   const confirm = async () => {
-    console.log('wtf')
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        console.log('wtf')
+    if (inputs.password === inputs.confirmPass) {
+      console.log(inputs);
+      const info = {
+        name: inputs.name,
+        email: inputs.name,
+        card_id: inputs.card_id,
+        password: inputs.password,
+        avatar: inputs.avatar,
+      };
+      const {status,data} = await register(info)
+      if(status===200){
+        storeLocalData('@userToken',data.token)
+        setUserData(data)
         setModal(true);
-        resolve("yay");
-      }, 2000);
-    });
+      }
+    }
+
+    // return new Promise((resolve, reject) => {
+    //   setTimeout(() => {
+    //     setModal(true);
+    //     resolve("yay");
+    //   }, 2000);
+    // });
   };
 
   const goBack = () => {
@@ -70,7 +89,7 @@ const Register = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.prime }}>
-      {modal && <SuccessModal {...{goToProfile}} />}
+      {modal && <SuccessModal {...{ goToProfile }} />}
       <ScrollView contentContainerStyle={st.ctn}>
         <View style={st.header}>
           <Pressable
@@ -108,7 +127,7 @@ const Register = ({ navigation }) => {
         />
         <Text style={st.subtitle}>Selecciona un avatar</Text>
         <Avatars set={updtAvatar} />
-        <View style={{ marginTop: 'auto' }} />
+        <View style={{ marginTop: "auto" }} />
         {/* {!keyboardStatus && <PrimaryBtn text="Confirmar" action={confirm} />} */}
         <PrimaryBtn text="Confirmar" action={confirm} />
       </ScrollView>
@@ -120,7 +139,7 @@ export default Register;
 
 const SuccessModal = ({ goToProfile }) => {
   return (
-    <Animated.View style={st.scc_modal} entering={FadeIn} >
+    <Animated.View style={st.scc_modal} entering={FadeIn}>
       <View style={st.sub_ctn}>
         <Text ff="Bold" fs={32} style={st.tc}>
           Cuenta registrada!
@@ -144,12 +163,12 @@ const SuccessModal = ({ goToProfile }) => {
 
 const st = StyleSheet.create({
   ctn: {
-    paddingTop: 32,
+    paddingTop: 20,
     paddingBottom: 24,
     display: "flex",
     gap: 14,
     paddingHorizontal: 20,
-    minHeight:wh,
+    minHeight: wh,
   },
   subtitle: {
     fontFamily: "Medium",
