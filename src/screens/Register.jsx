@@ -6,19 +6,21 @@ import {
   Pressable,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import t from "../components/stylesVar";
+import { v } from "../components/stylesVar";
 import Text from "../components/Text";
-import { Avatars, Input } from "../components/Inputs";
+import { Avatars, Input, InputCardId, regex_email, regex_num, regex_textnum } from "../components/Inputs";
 import { PrimaryBtn } from "../components/Btns";
-import { IconArrowRight } from "../components/Icons";
-import { wh, ww } from "../components/DisplayItems";
+import { IconArrowRight, IconCross } from "../components/Icons";
+import { HeaderBtn, wh, ww } from "../components/DisplayItems";
 import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
 import { register } from "../api/general";
-import Context from '../components/Context'
+import Context from "../components/Context";
 import { storeLocalData } from "../helpers/localStorage";
+import Scroll from "../components/Scroll";
 
 const Register = ({ navigation }) => {
-  const {setUserData} = useContext(Context)
+  const [error, setError] = useState(false);
+  const { setUserData } = useContext(Context);
   const [modal, setModal] = useState(false);
   const [inputs, setInputs] = useState({
     name: "",
@@ -33,34 +35,40 @@ const Register = ({ navigation }) => {
     setInputs({ ...inputs, avatar: num });
   };
 
-  const confirm = async () => {
-    if (inputs.password === inputs.confirmPass) {
-      console.log(inputs);
-      const info = {
-        name: inputs.name,
-        email: inputs.name,
-        card_id: inputs.card_id,
-        password: inputs.password,
-        avatar: inputs.avatar,
-      };
-      const {status,data} = await register(info)
-      if(status===200){
-        storeLocalData('@userToken',data.token)
-        setUserData(data)
-        setModal(true);
-      }
-    }
+  const validateData = () => {
+    setError(false);
+    if (inputs.name.length < 3)
+      return "El nombre debe tener almenos 3 caracteres";
+    if (!regex_email.test(inputs.email)) return "Ingrese un correo válido";
+    if (inputs.card_id.length < 9) return "Ingrese una cédula válida";
+    let noDots = inputs.card_id.replaceAll(".", "");
+    if (!regex_num.test(noDots)) return "La cedula solo debe contener numeros";
+    if (inputs.password.length < 6)
+      return "La contraseña debe tener almenos 6 caracteres";
+    if (inputs.password !== inputs.confirmPass)
+      return "Las contraseñas no coinciden";
 
-    // return new Promise((resolve, reject) => {
-    //   setTimeout(() => {
-    //     setModal(true);
-    //     resolve("yay");
-    //   }, 2000);
-    // });
+    return false;
+  };
+
+  const confirm = async () => {
+    let validation = validateData();
+    if (validation) return setError(validation);
+    const {confirmPass,...allData} = inputs
+    const { status, data } = await register(allData);
+    if (status === 200) {
+      storeLocalData("@userToken", data.token);
+      setUserData(data);
+      setModal(true);
+    } else {
+      // console.log(data.msg);
+      setError(data.msg);
+    }
   };
 
   const goBack = () => {
     navigation.goBack();
+    // setModal(true);
   };
   const goToProfile = () => {
     navigation.navigate("Profile");
@@ -88,27 +96,13 @@ const Register = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: t.prime }}>
+    <>
       {modal && <SuccessModal {...{ goToProfile }} />}
-      <ScrollView contentContainerStyle={st.ctn}>
-        <View style={st.header}>
-          <Pressable
-            onPress={goBack}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.5 : 1,
-              transform: [{ rotate: "180deg" }],
-              padding: 8,
-            })}
-          >
-            <IconArrowRight />
-          </Pressable>
-          <Text fs={32} ff="Bold">
-            Registro
-          </Text>
-        </View>
-        <Input name="name" placeholder="Nombre" set={setInputs} />
+      <Scroll>
+        <HeaderBtn text="Registro" onPress={goBack} />
+        <Input name="name" placeholder="Nombre" set={setInputs} regex={regex_textnum} />
         <Input name="email" placeholder="Correo" set={setInputs} />
-        <Input
+        <InputCardId
           name="card_id"
           placeholder="Cédula de Identidad"
           set={setInputs}
@@ -125,13 +119,14 @@ const Register = ({ navigation }) => {
           placeholder="Confirmar Contraseña"
           set={setInputs}
         />
-        <Text style={st.subtitle}>Selecciona un avatar</Text>
+        <Text style={st.subtitle}>Selecciona un avatar?</Text>
         <Avatars set={updtAvatar} />
         <View style={{ marginTop: "auto" }} />
         {/* {!keyboardStatus && <PrimaryBtn text="Confirmar" action={confirm} />} */}
+        {error && <ErrorText text={error} />}
         <PrimaryBtn text="Confirmar" action={confirm} />
-      </ScrollView>
-    </View>
+      </Scroll>
+    </>
   );
 };
 
@@ -149,7 +144,7 @@ const SuccessModal = ({ goToProfile }) => {
           o comercios de tu gusto
         </Text>
         <Pressable style={st.btn_ctn} onPress={goToProfile}>
-          <Text style={{ fontSize: 20, color: t.prime }} ff="Medium">
+          <Text style={{ fontSize: 20, color: v.prime }} ff="Medium">
             Ver perfil
           </Text>
           <View style={st.btn_login}>
@@ -184,7 +179,7 @@ const st = StyleSheet.create({
   scc_modal: {
     width: ww,
     height: wh,
-    backgroundColor: t.four,
+    backgroundColor: v.four,
     position: "absolute",
     display: "flex",
     padding: 20,
@@ -212,7 +207,23 @@ const st = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: t.prime,
+    backgroundColor: v.prime,
   },
-  tc: { color: t.prime },
+  tc: { color: v.prime },
 });
+
+const ErrorText = ({ text }) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        gap: 6,
+        alignItems: "center",
+        // height: 18,
+      }}
+    >
+      <IconCross color="#F20000" size={16} />
+      <Text style={{ color: "#F20000" }}>{text}</Text>
+    </View>
+  );
+};

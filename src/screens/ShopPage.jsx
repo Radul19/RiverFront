@@ -9,7 +9,7 @@ import {
   wh,
   ww,
 } from "../components/DisplayItems";
-import t from "../components/stylesVar";
+import {v} from "../components/stylesVar";
 import {
   IconArrowRight,
   IconBag,
@@ -73,7 +73,7 @@ const ShopPage = () => {
   }, [searchBar]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: t.prime }}>
+    <View style={{ flex: 1, backgroundColor: v.prime }}>
       <ScrollView contentContainerStyle={st.ctn}>
         <View style={st.img_ctn}>
           <Pressable style={st.back_btn}>
@@ -96,7 +96,7 @@ const ShopPage = () => {
           <Pressable style={st.reviews_btn}>
             <StarsCtn stars={4} size={20} />
             <Text ff="Bold">4.0</Text>
-            <Text style={{ color: t.third }}>{"(29 reseñas)"}</Text>
+            <Text style={{ color: v.third }}>{"(29 reseñas)"}</Text>
           </Pressable>
           <Text ff="Bold" fs={32}>
             $29.99
@@ -145,26 +145,26 @@ const ShopPage = () => {
       <Animated.View style={[st.x, { width }]}>
         <View style={st.btn_ctn}>
           <Pressable style={st.icon}>
-            <IconTelegram color={t.prime} />
+            <IconTelegram color={v.prime} />
           </Pressable>
           <Pressable style={st.icon}>
-            <IconWhatsapp color={t.prime} />
+            <IconWhatsapp color={v.prime} />
           </Pressable>
           <Pressable style={st.icon}>
-            <IconMessenger color={t.prime} />
+            <IconMessenger color={v.prime} />
           </Pressable>
           <Pressable style={st.icon}>
-            <IconInstagram color={t.prime} />
+            <IconInstagram color={v.prime} />
           </Pressable>
           <Pressable style={st.icon}>
-            <IconBubble color={t.prime} />
+            <IconBubble color={v.prime} />
           </Pressable>
 
           <Pressable style={st.contact_btn} onPress={toggle}>
             {openBtn ? (
-              <IconCross color={t.prime} />
+              <IconCross color={v.prime} />
             ) : (
-              <IconBag color={t.prime} />
+              <IconBag color={v.prime} />
             )}
           </Pressable>
         </View>
@@ -192,7 +192,7 @@ const st = StyleSheet.create({
     transform: [{ rotate: "180deg" }],
     padding: 8,
     borderRadius: 12,
-    backgroundColor: t.prime,
+    backgroundColor: v.prime,
     top: 20,
     left: 20,
     zIndex: 300,
@@ -202,7 +202,7 @@ const st = StyleSheet.create({
     position: "absolute",
     padding: 8,
     borderRadius: 12,
-    backgroundColor: t.prime,
+    backgroundColor: v.prime,
     top: 20,
     right: 20,
     zIndex: 300,
@@ -219,7 +219,7 @@ const st = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     flex: 1,
-    backgroundColor: t.prime,
+    backgroundColor: v.prime,
     display: "flex",
     gap: 12,
     padding: 20,
@@ -243,7 +243,7 @@ const st = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "flex-end",
     // justifyContent: "center",
-    backgroundColor: t.four,
+    backgroundColor: v.four,
     borderRadius: 12,
     // width: 52,
     width: 320,
@@ -255,7 +255,7 @@ const st = StyleSheet.create({
     alignSelf: "center",
     right: 0,
     padding: 14,
-    backgroundColor: t.four,
+    backgroundColor: v.four,
     display: "flex",
     flexDirection: "row",
     alignItems: "center",

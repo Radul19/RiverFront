@@ -1,13 +1,12 @@
-import { View, ScrollView, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import t from "../components/stylesVar";
+import { v } from "../components/stylesVar";
 import Text from "../components/Text";
-import NavBar from "../components/NavBar";
 import { SearchBar } from "../components/Inputs";
 import { ItemsCtn } from "../components/DisplayItems";
 import { searchFavorites, searchItems } from "../api/general";
 import Context from "../components/Context";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Scroll from "../components/Scroll";
 
 const Favorites = () => {
   const { userData } = useContext(Context);
@@ -43,20 +42,15 @@ const Favorites = () => {
   }, [searchBar]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: t.prime }}>
-      <ScrollView contentContainerStyle={st.ctn}>
-        <View style={st.view}>
-          <Btns {...{ show, setShow }} />
-          <SearchBar {...{ setSearchBar, searchBar }} />
-        </View>
-        {show ? (
-          <ItemsCtn data={itemsData.items} load={load} />
-        ) : (
-          <ItemsCtn data={itemsData.markets} load={load} />
-        )}
-      </ScrollView>
-      <NavBar active={1} />
-    </View>
+    <Scroll nav={2}>
+      <Btns {...{ show, setShow }} />
+      <SearchBar {...{ setSearchBar, searchBar }} />
+      {show ? (
+        <ItemsCtn data={itemsData.items} load={load} />
+      ) : (
+        <ItemsCtn data={itemsData.markets} load={load} />
+      )}
+    </Scroll>
   );
 };
 
@@ -73,11 +67,11 @@ const Btns = ({ show, setShow }) => {
           ...st.btn,
           borderTopLeftRadius: 12,
           borderBottomLeftRadius: 12,
-          backgroundColor: show ? t.four : t.prime,
+          backgroundColor: show ? v.four : v.prime,
           opacity: pressed ? 0.5 : 1,
         })}
       >
-        <Text ff="Bold" style={{ color: show ? t.prime : t.four }}>
+        <Text ff="Bold" style={{ color: show ? v.prime : v.four }}>
           Articulos
         </Text>
       </Pressable>
@@ -90,11 +84,11 @@ const Btns = ({ show, setShow }) => {
           ...st.btn,
           borderTopRightRadius: 12,
           borderBottomRightRadius: 12,
-          backgroundColor: !show ? t.four : t.prime,
+          backgroundColor: !show ? v.four : v.prime,
           opacity: pressed ? 0.5 : 1,
         })}
       >
-        <Text ff="Bold" style={{ color: !show ? t.prime : t.four }}>
+        <Text ff="Bold" style={{ color: !show ? v.prime : v.four }}>
           Vendedores
         </Text>
       </Pressable>
@@ -102,10 +96,7 @@ const Btns = ({ show, setShow }) => {
   );
 };
 
-
 const st = StyleSheet.create({
-  ctn: { paddingTop: 32, paddingBottom: 64, display: "flex", gap: 14 },
-  view: { paddingHorizontal: 20, display: "flex", gap: 14 },
   btns_ctn: {
     paddingBottom: 12,
     display: "flex",
@@ -114,7 +105,7 @@ const st = StyleSheet.create({
   },
   btn: {
     borderWidth: 2,
-    borderColor: t.four,
+    borderColor: v.four,
     paddingVertical: 6,
     width: 125,
     display: "flex",

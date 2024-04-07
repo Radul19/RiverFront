@@ -1,19 +1,19 @@
-export const isOffline = true
-// export const isOffline = false
-export const url = "http://192.168.1.111:4000/"
+// export const isOffline = true
+export const isOffline = false
+export const url = "http://192.168.1.114:4000/"
 
 export const items = [
     {
         _id: "001",
-        name: 'Item 1',
+        name: 'Sandalias con nombre raro y largo para hacer pruebas',
         price: 45.00,
-        description: '',
+        description: 'Lorem ipsum dolor sit amet consectetur. Dictum eget elementum metus eu aliquam libero elit odio facilisis. Leo elit id volutpat cursus leo ultrices scelerisque lobortis massa. Aliquet pulvinar...',
         categories: ['home', 'clean'],
         owner_id: '0001',
         units_type: 1,
         favorites: [],
         reviews: [],
-        images: [{ image: "https://res.cloudinary.com/dhp2q7rls/image/upload/v1699956922/tbuhi3oei4y7qsoxtrfo.png" }],
+        images: [{ image: "https://res.cloudinary.com/dtdgl3ajp/image/upload/v1702126567/tx8yim558ppykmgg6mdx.png" }],
     },
     {
         _id: "002",
@@ -25,7 +25,7 @@ export const items = [
         units_type: 1,
         favorites: [],
         reviews: [{ stars: 4 }, { stars: 5 }, { stars: 2 }, { stars: 3 }],
-        images: [{ image: "https://res.cloudinary.com/dhp2q7rls/image/upload/v1699956922/tbuhi3oei4y7qsoxtrfo.png" }],
+        images: [{ image: "https://res.cloudinary.com/dtdgl3ajp/image/upload/v1702126567/tx8yim558ppykmgg6mdx.png" }],
     }, {
         _id: "003",
         name: 'Item 3',
@@ -36,7 +36,7 @@ export const items = [
         units_type: 1,
         favorites: [],
         reviews: [],
-        images: [{ image: "https://res.cloudinary.com/dhp2q7rls/image/upload/v1699956922/tbuhi3oei4y7qsoxtrfo.png" }],
+        images: [{ image: "https://res.cloudinary.com/dtdgl3ajp/image/upload/v1702126567/tx8yim558ppykmgg6mdx.png" }],
     }, {
         _id: "004",
         name: 'Item 4',
@@ -47,7 +47,7 @@ export const items = [
         units_type: 1,
         favorites: [],
         reviews: [],
-        images: [{ image: "https://res.cloudinary.com/dhp2q7rls/image/upload/v1699956922/tbuhi3oei4y7qsoxtrfo.png" }],
+        images: [{ image: "https://res.cloudinary.com/dtdgl3ajp/image/upload/v1702126567/tx8yim558ppykmgg6mdx.png" }],
     }, {
         _id: "005",
         name: 'Item 1',
@@ -58,7 +58,7 @@ export const items = [
         units_type: 1,
         favorites: [],
         reviews: [],
-        images: [{ image: "https://res.cloudinary.com/dhp2q7rls/image/upload/v1699956922/tbuhi3oei4y7qsoxtrfo.png" }],
+        images: [{ image: "https://res.cloudinary.com/dtdgl3ajp/image/upload/v1702126567/tx8yim558ppykmgg6mdx.png" }],
     }, {
         _id: "006",
         name: 'Item 6',
@@ -69,7 +69,7 @@ export const items = [
         units_type: 1,
         favorites: [],
         reviews: [],
-        images: [{ image: "https://res.cloudinary.com/dhp2q7rls/image/upload/v1699956922/tbuhi3oei4y7qsoxtrfo.png" }],
+        images: [{ image: "https://res.cloudinary.com/dtdgl3ajp/image/upload/v1702126567/tx8yim558ppykmgg6mdx.png" }],
     }
 ]
 
@@ -83,7 +83,7 @@ export const userOffline = {
     "createdAt": "2023-11-14T10:04:01.849Z",
     "updatedAt": "2023-11-14T12:25:48.809Z",
     "__v": 0,
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoicHJ1ZWJhMUBnbWFpbC5jb20iLCJleHAiOjE3MDI2MzA5NzUsImlhdCI6MTcwMDAzODk3NX0.qddowSH_-sNpdOfcdEznaHoNWEhi78Sc-8QgPVPICQA"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiNjU1MzQ2MTE4NjUxMWM2YzkyNGY4OWY0IiwiZXhwIjoxNzAyNzI0MzI5LCJpYXQiOjE3MDAxMzIzMjl9.I2oU-mYVdzhAjDHHg8M8BYQmubhI5BRGdy7ZIaTiAY0"
 }
 
 export const registerOffline = {
@@ -137,3 +137,25 @@ export const catchError = async (err) => {
         return { data: { msg: "Ha ocurrido un error inesperado, intente nuevamente" } }
     }
 }
+
+/// TO DO:
+/**
+ * 
+ * ✔ Dollar before price <NewItem> 
+ * ✔ Load image picker spinner <NewItem>
+ * ✔ <NewItem> Validations
+ * ✔ <Register> Validations 
+ * ✔ Upload <NewItem> to DB
+ * ➰ Reviews load and show stars
+ * ⏳ Create Reviews
+ * ⏳ Edit Item from Commercial perspective
+ * ⏳ Delete Item from Commercial Inventory
+ * ⏳ Edit and Delete Items from Bulk ????
+ * ⏳ Favorites logic
+ * ⏳ Send Email Code (Email logic)
+ * ⏳ Web Page
+ * ⏳ Update / Link / Versions system
+ * ⏳ Do pilot apk
+ * ⏳ Instagram post/ account
+ * 
+ */

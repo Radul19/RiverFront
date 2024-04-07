@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Pressable, Keyboard } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import t from "../components/stylesVar";
+import {v} from "../components/stylesVar";
 
 import {
   IconHomeFill,
@@ -53,16 +53,16 @@ const NavBar = ({ active }) => {
     return (
       <View style={st.navbar_ctn}>
         <Pressable style={st.btn} onPress={goHome}>
-          {active === 0 ? <IconHomeFill /> : <IconHomeLine />}
+          {active === 1 ? <IconHomeFill /> : <IconHomeLine />}
         </Pressable>
         <Pressable style={st.btn} onPress={goFav}>
-          {active === 1 ? <IconHeart /> : <IconHeartLine />}
+          {active === 2 ? <IconHeart /> : <IconHeartLine />}
         </Pressable>
         <Pressable style={st.btn} onPress={goMarket}>
-          {active === 2 ? <IconStall /> : <IconStallLine />}
+          {active === 3 ? <IconStall /> : <IconStallLine />}
         </Pressable>
         <Pressable style={st.btn} onPress={goProfile}>
-          {active === 3 ? <IconUser /> : <IconUserLine />}
+          {active === 4 ? <IconUser /> : <IconUserLine />}
         </Pressable>
       </View>
     );
@@ -90,7 +90,7 @@ const st = StyleSheet.create({
     position: "absolute",
     height: 52,
     width: "100%",
-    backgroundColor: t.prime,
+    backgroundColor: v.prime,
     bottom: 0,
     display: "flex",
     flexDirection: "row",

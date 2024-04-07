@@ -1,6 +1,6 @@
 import { View, TextInput, StyleSheet, Image, Pressable } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import t from "../components/stylesVar";
+import { v } from "../components/stylesVar";
 import { IconZoom } from "./Icons";
 import guest from "../images/guest.png";
 import male1 from "../images/male1.png";
@@ -12,6 +12,7 @@ import fem2 from "../images/fem2.png";
 import fem3 from "../images/fem3.png";
 import fem4 from "../images/fem4.png";
 import Text from "./Text";
+import card_id_dots from "../helpers/card_id_dots";
 
 export const SearchBar = ({ setSearchBar = () => {}, searchBar }) => {
   return (
@@ -33,9 +34,60 @@ export const Input = ({
   set,
   secure = false,
   initialValue = "",
-  Icon = false
+  Icon = false,
+  keyboardType = "default",
+  custom = false,
+  before = false,
+  regex = false,
+  maxLength = 999,
+  multiline = false,
 }) => {
   const [value, setValue] = useState(initialValue);
+  useEffect(() => {
+    let tm = setTimeout(() => {
+      if (custom) return custom(name, value);
+      set((prev) => ({ ...prev, [name]: value }));
+    }, 700);
+
+    return () => {
+      clearTimeout(tm);
+    };
+  }, [value]);
+  const update = (t) => {
+    if (t.length === 0) setValue(t);
+    else if (regex && regex.test(t)) setValue(t);
+    else if (!regex) setValue(t);
+  };
+  return (
+    <View style={st.input_ctn}>
+      {Icon && <Icon />}
+      {before && (
+        <Text style={{ position: "absolute", marginLeft: 6 }}>{before}</Text>
+      )}
+      <TextInput
+        keyboardType={keyboardType}
+        style={[st.input, { marginLeft: before ? 6 : 0 }]}
+        placeholder={placeholder}
+        onChangeText={update}
+        value={value}
+        secureTextEntry={secure}
+        maxLength={maxLength}
+        multiline={multiline}
+      />
+    </View>
+  );
+};
+
+export const InputCardId = ({
+  placeholder = "",
+  name = "",
+  set,
+  initialValue = "",
+}) => {
+  const [value, setValue] = useState(initialValue);
+  const onChangeText = (text) => {
+    setValue(card_id_dots(text));
+  };
   useEffect(() => {
     let tm = setTimeout(() => {
       set((prev) => ({ ...prev, [name]: value }));
@@ -47,13 +99,13 @@ export const Input = ({
   }, [value]);
   return (
     <View style={st.input_ctn}>
-      {Icon && <Icon />}
       <TextInput
         style={st.input}
         placeholder={placeholder}
-        onChangeText={setValue}
+        onChangeText={onChangeText}
         value={value}
-        secureTextEntry={secure}
+        maxLength={10}
+        keyboardType="number-pad"
       />
     </View>
   );
@@ -83,7 +135,7 @@ export const Avatars = ({ set, start = 1 }) => {
           style={({ pressed }) => ({
             ...st.avatar_btn,
             opacity: pressed ? 0.5 : 1,
-            borderColor: active === num ? "#888" : t.prime,
+            borderColor: active === num ? "#888" : v.prime,
           })}
         >
           <Avatar num={num} />
@@ -135,12 +187,14 @@ const getAvatar = (num) => {
   }
 };
 
-export const CodeInput = ({ set=()=>{} }) => {
+export const CodeInput = ({ set = () => {} }) => {
   const [input, setInput] = useState("");
   const ref = useRef(null);
 
   const focus = () => {
-    ref.current.focus();
+    if (!ref.current.isFocused()) {
+      ref.current.focus();
+    }
   };
 
   const changeText = (text) => {
@@ -150,7 +204,7 @@ export const CodeInput = ({ set=()=>{} }) => {
   };
 
   useEffect(() => {
-      set(input);
+    set(input);
   }, [input]);
 
   return (
@@ -163,32 +217,32 @@ export const CodeInput = ({ set=()=>{} }) => {
         value={input}
         keyboardType="number-pad"
       />
-      <View style={st.code_ctn}>
-        <CodeText focus={focus} text={input[0]} />
-        <CodeText focus={focus} text={input[1]} />
-        <CodeText focus={focus} text={input[2]} />
-        <CodeText focus={focus} text={input[3]} />
-        <CodeText focus={focus} text={input[4]} />
-        <CodeText focus={focus} text={input[5]} />
-      </View>
+      <Pressable style={st.code_ctn} onPress={focus}>
+        <CodeText text={input[0]} />
+        <CodeText text={input[1]} />
+        <CodeText text={input[2]} />
+        <CodeText text={input[3]} />
+        <CodeText text={input[4]} />
+        <CodeText text={input[5]} />
+      </Pressable>
     </>
   );
 };
 
-const CodeText = ({ text = false, focus }) => {
+const CodeText = ({ text = false }) => {
   return (
     <>
       {text ? (
-        <Pressable
-          style={[st.code_box, { backgroundColor: t.four }]}
-          onPress={focus}
+        <View
+          style={[st.code_box, { backgroundColor: v.four }]}
+          // onPress={focus}
         >
-          <Text style={{ color: t.prime }} fs={16} ff="Bold">
+          <Text style={{ color: v.prime }} fs={16} ff="Bold">
             {text}
           </Text>
-        </Pressable>
+        </View>
       ) : (
-        <Pressable style={st.code_box} onPress={focus}></Pressable>
+        <View style={st.code_box} ></View>
       )}
     </>
   );
@@ -205,7 +259,6 @@ const st = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#cccccc",
     borderRadius: 6,
-    flex: 1,
   },
   sb_input: {
     fontSize: 14,
@@ -214,11 +267,11 @@ const st = StyleSheet.create({
   },
   input_ctn: {
     borderBottomWidth: 1,
-    borderColor: t.four,
-    display:'flex',
-    flexDirection:'row',
-    gap:12,
-    alignItems:'center',
+    borderColor: v.four,
+    display: "flex",
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
     // backgroundColor:'#123123'
   },
   input: {
@@ -238,18 +291,20 @@ const st = StyleSheet.create({
     // padding: 2,
     borderRadius: 100,
     borderWidth: 1,
-    // borderColor:t.four
+    // borderColor:v.four
   },
-  code_ctn: {
+  code_ctn: ({ pressed }) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     gap: 12,
     flexDirection: "row",
-  },
+    paddingVertical: 12,
+    opacity: pressed ? 0.5 : 1,
+  }),
   code_box: {
     borderWidth: 3,
-    borderColor: t.four,
+    borderColor: v.four,
     borderRadius: 6,
     display: "flex",
     alignItems: "center",
@@ -259,12 +314,20 @@ const st = StyleSheet.create({
     width: 42,
   },
   code_input: {
-    position:'absolute',
-    opacity:0,
-    top:-1000,
+    position: "absolute",
+    opacity: 0,
+    top: -1000,
     // display: "none",
   },
   cc: {
-    color: t.four,
+    color: v.four,
   },
 });
+
+export const regex_card = /^[0-9.]+$/;
+export const regex_num = /^[0-9]+$/;
+export const regex_phone = /^[0-9-]+$/;
+export const regex_price = /^[0-9]+[.]?[0-9]*$/;
+export const regex_text = /^[à-üÀ-Üa-zA-Z ]+$/;
+export const regex_textnum = /^[à-üÀ-Üa-zA-Z0-9 ]*$/;
+export const regex_email = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;

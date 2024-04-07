@@ -10,6 +10,7 @@ import React from "react";
 import img from "../images/item.png";
 import Text from "./Text";
 import {
+  IconArrowRight,
   IconCPU,
   IconDots,
   IconDrop,
@@ -27,7 +28,7 @@ import {
 import { applyFilter, getStars } from "../helpers/searchfilter";
 import { useNavigation } from "@react-navigation/native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-
+import { v, stB } from "./stylesVar";
 export const ww = Dimensions.get("window").width;
 export const wh = Dimensions.get("window").height;
 
@@ -36,12 +37,14 @@ export const ItemsCtn = ({ data, load, filter = false }) => {
     <>
       {/* {load && <Text style={{ paddingHorizontal: 20 }}>Loading...</Text>} */}
       {load && <IconLoad />}
-      <Animated.View entering={FadeIn} exiting={FadeOut}
+      <Animated.View
+        entering={FadeIn}
+        exiting={FadeOut}
         style={{
           display: "flex",
           flexWrap: "wrap",
           flexDirection: "row",
-          paddingHorizontal: 20,
+          paddingHorizontal: 8,
           justifyContent: "space-between",
           gap: 12,
         }}
@@ -55,21 +58,21 @@ export const ItemsCtn = ({ data, load, filter = false }) => {
 };
 
 export const Item = ({ item }) => {
-  const nav = useNavigation()
-  const goTo = ()=> {
-    nav.navigate("ItemPage",{id:item._id})
-  }
+  const nav = useNavigation();
+  const goTo = () => {
+    nav.navigate("ItemPage", { id: item._id });
+  };
 
   return (
-    <Pressable style={st.item_ctn} onPress={goTo} >
+    <Pressable style={st.item_ctn} onPress={goTo}>
       {/* <Image source={img} style={st.item_img} /> */}
-      <Image source={{uri:item.images[0].image}} style={st.item_img} />
+      <Image source={{ uri: item.images[0].image }} style={st.item_img} />
 
       <Text numberOfLines={1}>{item.name}</Text>
       <View style={st.item_bottom}>
         <Text ff="Bold" style={{ fontSize: 16 }}>
-          {/* ${item.price.toFixed(2)} */}
-          {item.price}
+          {/* ${item.price.toFixed(2)} */}$
+          {Number.parseFloat(item.price).toFixed(2)}
         </Text>
         <StarsCtn stars={getStars(item)} />
       </View>
@@ -77,7 +80,7 @@ export const Item = ({ item }) => {
   );
 };
 
-export const StarsCtn = ({ stars,size=12 }) => {
+export const StarsCtn = ({ stars, size = 12 }) => {
   return (
     <View
       style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
@@ -103,18 +106,25 @@ const categArray = [
   { name: "others", text: "Otros", icon: IconDots },
 ];
 
-export const Categories = ({ handleCateg, categ, shop = true,all=true }) => {
+export const Categories = ({ handleCateg=()=>{}, categ, shop = true, all = true }) => {
   return (
-    <ScrollView horizontal={true} contentContainerStyle={st.categ_ctn}>
-      {categArray.map((item, index) => {
-        if (!shop && item === 'Tiendas') return null;
-        if(all){
-          return <Category {...{ handleCateg, categ }} {...item} key={index} />;
-        }else{
-          if(categ.includes(item.text)) return <Category {...{ handleCateg, categ }} {...item} key={index} />;
-        }
-      })}
-    </ScrollView>
+    <View style={{ position: "relative", height: 80, width: ww ,marginLeft:-12 }}>
+      <ScrollView horizontal={true} contentContainerStyle={st.categ_ctn}>
+        {categArray.map((item, index) => {
+          // if (!shop && item === "Tiendas") return null;
+          if (all) {
+            return (
+              <Category {...{ handleCateg, categ }} {...item} key={index} />
+            );
+          } else {
+            if (categ.includes(item.name))
+              return (
+                <Category {...{ handleCateg, categ }} {...item} key={index} />
+              );
+          }
+        })}
+      </ScrollView>
+    </View>
   );
 };
 
@@ -122,7 +132,7 @@ const Category = ({ icon: Icon, text = "", handleCateg, categ, name }) => {
   return (
     <Pressable
       onPress={() => {
-        handleCateg(text);
+        handleCateg(name);
       }}
       style={({ pressed }) => ({
         ...st.categ_box,
@@ -132,10 +142,10 @@ const Category = ({ icon: Icon, text = "", handleCateg, categ, name }) => {
       <View
         style={{
           ...st.categ_circle,
-          backgroundColor: categ.includes(text) ? t.four : t.prime,
+          backgroundColor: categ.includes(name) ? v.four : v.prime,
         }}
       >
-        <Icon color={!categ.includes(text) ? t.four : t.prime} />
+        <Icon color={!categ.includes(name) ? v.four : v.prime} />
       </View>
       <Text style={{ fontFamily: "Bold", fontSize: 14 }}>{text}</Text>
     </Pressable>
@@ -143,12 +153,12 @@ const Category = ({ icon: Icon, text = "", handleCateg, categ, name }) => {
 };
 
 const st = StyleSheet.create({
-  item_ctn: ({pressed})=>({
+  item_ctn: ({ pressed }) => ({
     display: "flex",
     padding: 5,
     width: (ww - 60) / 2,
     gap: 4,
-    opacity:pressed?0.5:1
+    opacity: pressed ? 0.5 : 1,
   }),
   item_img: {
     width: (ww - 60) / 2 - 10,
@@ -162,12 +172,14 @@ const st = StyleSheet.create({
     alignItems: "center",
   },
   categ_ctn: {
+    position: "absolute",
     display: "flex",
     flexDirection: "row",
     gap: 12,
-    paddingLeft: 20,
+    paddingLeft: 12,
     paddingBottom: 12,
-    minWidth:ww,
+    // width: ww,
+    // height:299,
   },
   categ_box: {
     display: "flex",
@@ -180,7 +192,7 @@ const st = StyleSheet.create({
     height: 50,
     width: 50,
     borderWidth: 2,
-    borderColor: t.four,
+    borderColor: v.four,
     borderRadius: 100,
     display: "flex",
     alignItems: "center",
@@ -188,3 +200,40 @@ const st = StyleSheet.create({
     marginBottom: 4,
   },
 });
+
+export const Subtitle = ({ children }) => (
+  <Text style={stB.subtitle}>{children}</Text>
+);
+
+export const HeaderBtn = ({ onPress, text }) => {
+  const nav = useNavigation();
+  const goBack = () => {
+    if (onPress) {
+      onPress();
+    } else nav.goBack();
+  };
+  return (
+    <View
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <Pressable
+        onPress={goBack}
+        style={({ pressed }) => ({
+          opacity: pressed ? 0.5 : 1,
+          transform: [{ rotate: "180deg" }],
+          padding: 8,
+        })}
+      >
+        <IconArrowRight />
+      </Pressable>
+      <Text fs={32} ff="Bold">
+        {text}
+      </Text>
+    </View>
+  );
+};

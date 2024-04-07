@@ -10,12 +10,13 @@ let prom = async (info)=>{
     return res
 }
 
-export const searchItems = async (text,categ)=>{
+export const searchItems = async (text,categ,owner_id = false)=>{
     if(isOffline) return await prom({status:200,data:items})
 
     data = {
         text: text.length > 0 ? text : false,
-        categories:categ.length > 0 ? categ : false,
+        categories:categ?.length > 0 ? categ : false,
+        owner_id
     }
 
     return await axios.post(`${url}searchItems`, data).then(res => {
@@ -37,8 +38,8 @@ export const getItem = async (id)=>{
 }
 
 export const login = async (email,password)=>{
-    if(true) return await prom({status:200,data:userOffline})
-    // if(isOffline) return await prom(userOffline)
+    // if(true) return await prom({status:200,data:userOffline})
+    if(isOffline) return await prom({status:200,data:userOffline})
     return await axios.post(`${url}login`,{email,password}).then(res=>{
         return res
     }).catch(err=>{
@@ -89,7 +90,7 @@ export const register = async (data)=>{
 export const codeExist = async (data)=>{
     if(isOffline) return await prom({status:200,data:true})
 
-    return await axios.post(`${url}codeExist`,data).then(res=>{
+    return await axios.post(`${url}existCode`,{code:data}).then(res=>{
         return res
     }).catch(err=>{
         return catchError(err)
@@ -106,6 +107,30 @@ export const registerCommerce = async (data)=>{
         return catchError(err)
     })
 }
+
+export const createItem = async (data)=>{
+    return await axios.post(`${url}createItem`,data).then(res=>{
+        return res
+    }).catch(err=>{
+        return catchError(err)
+    })
+}
+
+export const validateToken = async (data)=>{
+    return await axios.post(`${url}validateToken`,{token:data}).then(res=>{
+        return res
+    }).catch(err=>{
+        return catchError(err)
+    })
+}
+export const editMarketData = async (data)=>{
+    return await axios.post(`${url}editMarketData`,data).then(res=>{
+        return res
+    }).catch(err=>{
+        return catchError(err)
+    })
+}
+
 // export const login = async (data)=>{
 //     if(isOffline) return await prom(userOffline)
 

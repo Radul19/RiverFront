@@ -14,14 +14,15 @@ import ItemPage from './src/screens/ItemPage';
 import ShopPage from './src/screens/ShopPage';
 import NewItem from './src/screens/NewItem';
 import Splash from './src/screens/Splash';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [userData, setUserData] = useState({
-    _id: true,
-    commerce: true,
+    _id: false,
+    commerce: false,
   })
   const [fontsLoaded] = useFonts({
     'Bold': require('./assets/fonts/DMSans-Bold.ttf'),
@@ -35,25 +36,27 @@ export default function App() {
 
 
     return (
-      <Context.Provider value={{ userData, setUserData }} >
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Context.Provider value={{ userData, setUserData }} >
 
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="NewItem" screenOptions={{
-            headerShown: false
-          }} >
-            <Stack.Screen name="Splash" component={Splash} />
-            <Stack.Screen name="Home" component={Home} />
-            <Stack.Screen name="Register" component={Register} />
-            <Stack.Screen name="Favorites" component={Favorites} />
-            <Stack.Screen name="ItemPage" component={ItemPage} />
-            <Stack.Screen name="ShopPage" component={ShopPage} />
-            <Stack.Screen name="NewItem" component={NewItem} />
-            <Stack.Screen name="Commerce" component={userData.commerce ? Commerce : RegisterCommerce} />
-            <Stack.Screen name="Profile" component={userData._id ? Profile : Login} />
-            {/* <Stack.Screen name="Details" component={DetailsScreen} /> */}
-          </Stack.Navigator>
-        </NavigationContainer>
-      </Context.Provider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Splash" screenOptions={{
+              headerShown: false
+            }} >
+              <Stack.Screen name="Splash" component={Splash} />
+              <Stack.Screen name="Home" component={Home} />
+              <Stack.Screen name="Register" component={Register} />
+              <Stack.Screen name="Favorites" component={Favorites} />
+              <Stack.Screen name="ItemPage" component={ItemPage} />
+              <Stack.Screen name="ShopPage" component={ShopPage} />
+              <Stack.Screen name="NewItem" component={NewItem} />
+              <Stack.Screen name="Commerce" component={userData.commerce ? Commerce : RegisterCommerce} />
+              <Stack.Screen name="Profile" component={userData._id ? Profile : Login} />
+              {/* <Stack.Screen name="Details" component={DetailsScreen} /> */}
+            </Stack.Navigator>
+          </NavigationContainer>
+        </Context.Provider>
+      </GestureHandlerRootView>
     );
   }
 }

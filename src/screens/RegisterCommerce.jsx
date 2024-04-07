@@ -1,7 +1,7 @@
 import { View, ScrollView, Pressable, StyleSheet, Image } from "react-native";
 import Text from "../components/Text";
 import React, { useContext, useEffect, useState } from "react";
-import t from "../components/stylesVar";
+import { v } from "../components/stylesVar";
 import {
   IconArrowRight,
   IconCross,
@@ -12,9 +12,15 @@ import {
   IconTelegram,
   IconWhatsapp,
 } from "../components/Icons";
-import { wh, ww } from "../components/DisplayItems";
+import { HeaderBtn, wh, ww } from "../components/DisplayItems";
 import { PrimaryBtn } from "../components/Btns";
-import { CodeInput, Input } from "../components/Inputs";
+import {
+  CodeInput,
+  Input,
+  regex_email,
+  regex_phone,
+  regex_textnum,
+} from "../components/Inputs";
 import Animated, {
   FadeIn,
   FadeInRight,
@@ -24,10 +30,11 @@ import Animated, {
 } from "react-native-reanimated";
 import NavBar from "../components/NavBar";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
-import moment from "moment/moment";
+import moment from "moment";
 import Context from "../components/Context";
 import { codeExist, registerCommerce } from "../api/general";
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
+import Scroll from "../components/Scroll";
 
 let commerceInfo = {
   name: "",
@@ -38,17 +45,18 @@ let commerceInfo = {
   address: "",
   logo: false,
   schedules: [
-    {
-      since: new Date(1699524011003),
-      until: new Date(1699560011003),
-      day: 1,
-      _id: +moment(),
-    },
+    // {
+    //   since: new Date(1699524011003),
+    //   until: new Date(1699560011003),
+    //   day: 1,
+    //   _id: +moment(),
+    // },
   ],
 };
 
 const RegisterCommerce = ({ navigation, route }) => {
-  const { userData } = useContext(Context);
+  // Logic
+  const { userData, setUserData } = useContext(Context);
   const [code, setCode] = useState("");
 
   useEffect(() => {
@@ -58,81 +66,100 @@ const RegisterCommerce = ({ navigation, route }) => {
   }, [route]);
 
   const [page, setPage] = useState(3);
-  const goToInv = () => {
-    // console.log("yay");
-    navigation.navigate("Commerce");
+  const codeVars = {
+    setPage,
+    code,
+    setCode,
   };
+  const infoVars = {
+    setPage,
+    code,
+    userData,
+    setUserData,
+  };
+  //
+
   return (
-    <View style={{ flex: 1, backgroundColor: t.prime }}>
-      {page === 3 && <CodePage {...{ setPage, code, setCode }} />}
-      {page === 2 && <InfoCommerce {...{ setPage }} />}
-      {/* {page === 1 && <SuccessPage {...{ page,setPage, goToInv }} />} */}
-      {page === 3 && <NavBar active={2} />}
+    <View style={{ flex: 1, backgroundColor: v.prime }}>
+      {page === 3 && <CodePage {...codeVars} />}
+      {page === 2 && <InfoCommerce {...infoVars} />}
     </View>
   );
 };
 
 const CodePage = ({ setPage, code, setCode }) => {
+  const [error, setError] = useState(false);
   const [load, setLoad] = useState(false);
   const confirm = async () => {
     setLoad(true);
+    setError(false);
     const { status, data } = await codeExist(code);
     setLoad(false);
-    console.log(status);
-    console.log(data);
     if (status === 200 && data) setPage(2);
+    else setError(data.msg);
   };
   return (
-    <ScrollView contentContainerStyle={st.ctn}>
-      <Text ff="Bold" fs={32} style={st.tc}>
-        Get ready in this adventure!
-      </Text>
-      <Text style={st.tc} fs={16}>
-        Antes de continuar, necesitamos verificar que eres uno de los comercios
-        seleccionados para la fase de prueba
-      </Text>
+    <Scroll nav={3}>
+      <View style={{ height: wh - 100, paddingTop: wh * 0.15, gap: 14 }}>
+        <Text ff="Bold" fs={32} style={st.tc}>
+          Get ready in this adventure!
+        </Text>
+        <Text style={{ ...st.tc, paddingBottom: 6 }} fs={16}>
+          Antes de continuar, necesitamos verificar que eres uno de los
+          comercios seleccionados para la fase de prueba
+        </Text>
 
-      <CodeInput set={setCode} />
-      {/* {code.length === 6 && ( */}
-      {true && (
-        <Animated.View entering={FadeIn} exiting={FadeOut}>
-          <Pressable style={st.btn_ctn} onPress={confirm}>
-            <Text style={{ fontSize: 20, color: t.four }} ff="Medium">
-              Continuar
-            </Text>
-            <View style={st.btn_login}>
-              {load ? (
-                <IconLoad color={t.prime} />
-              ) : (
-                <IconArrowRight color={t.prime} />
-              )}
-            </View>
-          </Pressable>
-        </Animated.View>
-      )}
-      <Pressable style={st.not_code}>
-        <Text style>No tengo ningun codigo</Text>
-      </Pressable>
-    </ScrollView>
+        <CodeInput set={setCode} />
+        <View style={{ height: 42 }}>
+          {error && <ErrorText text={error} />}
+        </View>
+        {/* {true && ( */}
+        {code.length === 6 && (
+          <Animated.View entering={FadeIn} exiting={FadeOut}>
+            <Pressable style={st.btn_ctn} onPress={confirm}>
+              <Text style={{ fontSize: 20, color: v.four }} ff="Medium">
+                Continuar
+              </Text>
+              <View style={st.btn_login}>
+                {load ? (
+                  <IconLoad color={v.prime} />
+                ) : (
+                  <IconArrowRight color={v.prime} />
+                )}
+              </View>
+            </Pressable>
+          </Animated.View>
+        )}
+        <Pressable style={st.not_code}>
+          <Text style>No tengo ningun codigo</Text>
+        </Pressable>
+      </View>
+    </Scroll>
   );
 };
+
+
+const IMG_ERROR_MSG = 'Ha ocurrido un error al intentar seleccionar la imagen, intente nuevamente'
 
 export const InfoCommerce = ({
   page = false,
   setPage,
   info = commerceInfo,
-  edit = false
+  edit = false,
+  code,
+  userData,
+  setUserData,
 }) => {
-  const { setUserData } = useContext(Context);
+  const [error, setError] = useState(false);
   const { schedules: sch, ...allInfo } = info;
   // const [shape, setShape] = useState(1);
   const [inputs, setInputs] = useState(allInfo);
   const [schedules, setSchedules] = useState(sch);
   const [idk, setIdk] = useState(false);
-  const [modal, setModal] = useState(false)
+  const [modal, setModal] = useState(false);
 
   const goBack = () => {
-    if(edit) return setPage(1)
+    if (edit) return setPage(1);
     setPage(3);
   };
   const addSchedule = () => {
@@ -146,33 +173,60 @@ export const InfoCommerce = ({
     setSchedules(aux);
   };
 
+  const validateData = () => {
+    setError(false);
+    if (inputs.name.length < 3)
+      return "El nombre debe tener almenos 3 caracteres";
+    if (inputs.phone.length < 1)
+      return "El número telefónico no puede estar vacío";
+    if (inputs.description.length < 20)
+      return "La descripcion debe tener almenos 20 caracteres";
+    if (!inputs.logo) return "Debe seleccionar una imagen como logo";
+    if (inputs.email.length > 0 && !regex_email.test(inputs.email)) return "Ingrese un correo válido";
+
+    return false;
+  };
+
   const confirm = async () => {
-    if(!edit){
+    let validation = validateData();
+    if (validation) return setError(validation);
+    if (!edit) {
       const marketInfo = {
         ...inputs,
         schedules,
+        owner_id: userData._id,
+        code,
       };
       const { status, data } = await registerCommerce(marketInfo);
       if (status === 200) {
         setIdk(data);
         setModal(true);
       }
-    }else{
-      
+    } else {
+      setError(data.msg);
     }
   };
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await launchImageLibraryAsync({
-      mediaTypes: MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 4],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setInputs({ ...inputs, logo: result.assets[0].uri });
+    try {
+      // No permissions request is necessary for launching the image library
+      let result = await launchImageLibraryAsync({
+        mediaTypes: MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 4],
+        quality: 1,
+        base64: true,
+      });
+      if (!result.canceled) {
+        setInputs({
+          ...inputs,
+          logo: "data:image/png;base64," + result.assets[0].base64,
+        });
+      }
+      if(error === IMG_ERROR_MSG) setError(false)
+    } catch (error) {
+      console.log(error)
+      setError(IMG_ERROR_MSG)
     }
   };
 
@@ -185,108 +239,94 @@ export const InfoCommerce = ({
       {modal ? (
         <SuccessPage {...{ setPage, goToInv }} />
       ) : (
-        <Animated.View style={{ flex: 1 }} entering={FadeIn} exiting={FadeOut}>
-          <ScrollView contentContainerStyle={[st.ctn, { paddingTop: 20 }]}>
-            <View style={st.header}>
-              <Pressable
-                onPress={goBack}
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.5 : 1,
-                  transform: [{ rotate: "180deg" }],
-                  padding: 8,
-                })}
-              >
-                <IconArrowRight />
-              </Pressable>
-              <Text fs={32} ff="Bold">
-                Info. Comercial
-              </Text>
-            </View>
-            <Text {...subtitle}>Datos de identidad</Text>
-            <Input
-              set={setInputs}
-              name="name"
-              placeholder="Nombre de empresa"
-            />
-            <Input
-              set={setInputs}
-              name="phone"
-              placeholder="Numero de telefono"
-            />
-            <Input
-              set={setInputs}
-              name="description"
-              placeholder="Description"
-            />
-            <Text {...subtitle}>Logo</Text>
-            <Pressable style={st.logo_ctn} onPress={pickImage}>
-              {inputs.logo ? (
-                <Image source={{ uri: inputs.logo }} style={st.logo} />
-              ) : (
-                <Text {...{ ff: "Medium", fs: 32 }}>+</Text>
-              )}
+        <Scroll>
+          <HeaderBtn text="Info Comercial" onPress={goBack} />
+          <Text {...subtitle}>Datos de identidad</Text>
+          <Input
+            set={setInputs}
+            name="name"
+            placeholder="Nombre de empresa"
+            regex={regex_textnum}
+          />
+          <Input
+            set={setInputs}
+            name="phone"
+            placeholder="Numero de telefono"
+            regex={regex_phone}
+            maxLength={11}
+          />
+          <Input
+            set={setInputs}
+            name="description"
+            placeholder="Description"
+            multiline={true}
+          />
+          <Text {...subtitle}>Logo</Text>
+          <Pressable style={st.logo_ctn} onPress={pickImage}>
+            {inputs.logo ? (
+              <Image source={{ uri: inputs.logo }} style={st.logo} />
+            ) : (
+              <Text {...{ ff: "Medium", fs: 32 }}>+</Text>
+            )}
+          </Pressable>
+          <View style={st.subtitle_ctn}>
+            <Text {...subtitle}>Informacion Adicional</Text>
+            <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
+          </View>
+          <Input set={setInputs} name="email" placeholder="Correo Comercial" />
+          <Input set={setInputs} name="address" placeholder="Direccion" />
+          <Input set={setInputs} name="rif" placeholder="Rif" />
+
+          <View style={st.subtitle_ctn}>
+            <Text {...subtitle}>Redes</Text>
+            <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
+          </View>
+          <Input
+            set={setInputs}
+            name="telegram"
+            placeholder="+584126452311"
+            Icon={IconTelegram}
+          />
+          <Input
+            set={setInputs}
+            name="whatsapp"
+            placeholder="+584126452311"
+            Icon={IconWhatsapp}
+          />
+          <Input
+            set={setInputs}
+            name="messenger"
+            placeholder="+584126452311"
+            Icon={IconMessenger}
+          />
+          <Input
+            set={setInputs}
+            name="instagram"
+            placeholder="@instagram"
+            Icon={IconInstagram}
+          />
+
+          <View style={st.subtitle_ctn}>
+            <Text {...subtitle}>Horarios</Text>
+            <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
+            <Pressable
+              style={({ pressed }) => ({
+                marginLeft: "auto",
+                opacity: pressed ? 0.5 : 1,
+              })}
+              onPress={addSchedule}
+            >
+              <IconPlusBox />
             </Pressable>
-            <View style={st.subtitle_ctn}>
-              <Text {...subtitle}>Informacion Adicional</Text>
-              <Text style={{ fontSize: 12, color: t.third }}>
-                {"(Opcional)"}
-              </Text>
-            </View>
-            <Input set={setInputs} name="email" placeholder="Correo" />
-            <Input set={setInputs} name="address" placeholder="Direccion" />
-            <Input set={setInputs} name="rif" placeholder="Rif" />
-            <View style={st.subtitle_ctn}>
-              <Text {...subtitle}>Horarios</Text>
-              <Text style={{ fontSize: 12, color: t.third }}>
-                {"(Opcional)"}
-              </Text>
-              <Pressable
-                style={({ pressed }) => ({
-                  marginLeft: "auto",
-                  opacity: pressed ? 0.5 : 1,
-                })}
-                onPress={addSchedule}
-              >
-                <IconPlusBox />
-              </Pressable>
-            </View>
-            {schedules.map((item, index) => (
-              <ScheduleItem key={item._id} {...{ item, setSchedules }} />
-            ))}
-            <View style={st.subtitle_ctn}>
-              <Text {...subtitle}>Redes</Text>
-              <Text style={{ fontSize: 12, color: t.third }}>
-                {"(Opcional)"}
-              </Text>
-            </View>
-            <Input
-              set={setInputs}
-              name="telegram"
-              placeholder="+584126452311"
-              Icon={IconTelegram}
-            />
-            <Input
-              set={setInputs}
-              name="whatsapp"
-              placeholder="+584126452311"
-              Icon={IconWhatsapp}
-            />
-            <Input
-              set={setInputs}
-              name="messenger"
-              placeholder="+584126452311"
-              Icon={IconMessenger}
-            />
-            <Input
-              set={setInputs}
-              name="instagram"
-              placeholder="@instagram"
-              Icon={IconInstagram}
-            />
-            <View style={{ marginTop: 42 }} />
-            <PrimaryBtn text="Confirmar" action={confirm} />
-          </ScrollView>
-        </Animated.View>
+          </View>
+          {schedules.map((item, index) => (
+            <ScheduleItem key={item._id} {...{ item, setSchedules }} />
+          ))}
+          <View style={{ height: 42 }}>
+            {error && <ErrorText text={error} />}
+          </View>
+          <PrimaryBtn text="Confirmar" action={confirm} />
+        </Scroll>
       )}
     </>
   );
@@ -312,7 +352,7 @@ const traslateDay = (num) => {
       break;
   }
 };
-const ScheduleItem = ({ setSchedules, item }) => {
+export const ScheduleItem = ({ setSchedules, item }) => {
   const openTimer = (name) => {
     DateTimePickerAndroid.open({
       value: item[name],
@@ -363,13 +403,13 @@ const ScheduleItem = ({ setSchedules, item }) => {
         onPress={plusDay}
         style={({ pressed }) => ({
           borderRadius: 6,
-          backgroundColor: t.prime,
+          backgroundColor: v.prime,
           padding: 8,
           opacity: pressed ? 0.5 : 1,
-          backgroundColor: t.four,
+          backgroundColor: v.four,
         })}
       >
-        <Text style={{ color: t.prime }}>{traslateDay(item.day)}</Text>
+        <Text style={{ color: v.prime }}>{traslateDay(item.day)}</Text>
       </Pressable>
       <Pressable
         onPress={() => {
@@ -417,7 +457,7 @@ const LogoSelectExperimental = ({ shape, setShape }) => {
           }}
         >
           <View
-            style={[st.btn_portrait, shape === 1 && { borderColor: t.prime }]}
+            style={[st.btn_portrait, shape === 1 && { borderColor: v.prime }]}
           />
         </Pressable>
         <Pressable
@@ -427,7 +467,7 @@ const LogoSelectExperimental = ({ shape, setShape }) => {
           }}
         >
           <View
-            style={[st.btn_landscape, shape === 2 && { borderColor: t.prime }]}
+            style={[st.btn_landscape, shape === 2 && { borderColor: v.prime }]}
           />
         </Pressable>
         <Pressable
@@ -437,7 +477,7 @@ const LogoSelectExperimental = ({ shape, setShape }) => {
           }}
         >
           <View
-            style={[st.btn_square, shape === 3 && { borderColor: t.prime }]}
+            style={[st.btn_square, shape === 3 && { borderColor: v.prime }]}
           />
         </Pressable>
       </View>
@@ -457,7 +497,7 @@ const SuccessPage = ({ goToInv }) => {
           comerciante
         </Text>
         <Pressable style={st.btn_ctn2} onPress={goToInv}>
-          <Text style={{ fontSize: 20, color: t.prime }} ff="Medium">
+          <Text style={{ fontSize: 20, color: v.prime }} ff="Medium">
             Ir a inventario
           </Text>
           <View style={st.btn_login2}>
@@ -490,7 +530,7 @@ const st = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 50,
+    marginTop: 8,
     opacity: pressed ? 0.5 : 1,
   }),
   btn_login: {
@@ -500,15 +540,15 @@ const st = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: t.four,
+    backgroundColor: v.four,
   },
   tc: {
-    color: t.four,
+    color: v.four,
   },
   not_code: {
     marginTop: "auto",
     borderBottomWidth: 1,
-    borderColor: t.four,
+    borderColor: v.four,
     alignSelf: "center",
   },
   header: {
@@ -521,7 +561,7 @@ const st = StyleSheet.create({
     height: 200,
     width: 200,
     alignSelf: "center",
-    // backgroundColor: t.third,
+    // backgroundColor: v.third,
     borderRadius: 12,
     opacity: pressed ? 0.5 : 1,
     borderWidth: 1,
@@ -540,7 +580,7 @@ const st = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: t.four,
+    borderColor: v.four,
     width: 36,
     height: 36,
     borderRadius: 6,
@@ -551,8 +591,8 @@ const st = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: t.four,
-    backgroundColor: t.four,
+    borderColor: v.four,
+    backgroundColor: v.four,
     width: 36,
     height: 36,
     borderRadius: 6,
@@ -561,19 +601,19 @@ const st = StyleSheet.create({
     height: 15,
     width: 20,
     borderWidth: 2,
-    borderColor: t.four,
+    borderColor: v.four,
   },
   btn_portrait: {
     height: 20,
     width: 15,
     borderWidth: 2,
-    borderColor: t.four,
+    borderColor: v.four,
   },
   btn_square: {
     height: 20,
     width: 20,
     borderWidth: 2,
-    borderColor: t.four,
+    borderColor: v.four,
   },
   subtitle_ctn: {
     display: "flex",
@@ -586,7 +626,7 @@ const st = StyleSheet.create({
     // justifyContent: "center",
     width: ww,
     height: wh,
-    backgroundColor: t.four,
+    backgroundColor: v.four,
     position: "absolute",
     display: "flex",
     padding: 20,
@@ -613,9 +653,25 @@ const st = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: t.prime,
+    backgroundColor: v.prime,
   },
   tc2: {
-    color: t.prime,
+    color: v.prime,
   },
 });
+
+const ErrorText = ({ text }) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        gap: 6,
+        alignItems: "center",
+        height: 18,
+      }}
+    >
+      <IconCross color="#F20000" size={16} />
+      <Text style={{ color: "#F20000" }}>{text}</Text>
+    </View>
+  );
+};
