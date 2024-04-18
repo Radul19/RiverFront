@@ -3,16 +3,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import Context from './src/components/Context'
-import Home from './src/screens/Home'
-import Register from './src/screens/Register';
-import RegisterCommerce from './src/screens/RegisterCommerce';
-import Favorites from './src/screens/Favorites'
-import Commerce from './src/screens/Commerce'
-import Profile from './src/screens/Profile'
-import Login from './src/screens/Login'
-import ItemPage from './src/screens/ItemPage';
+import Home from './src/screens/User/Home'
+import Favorites from './src/screens/User/Favorites'
+import ItemPage from './src/screens/User/ItemPage';
+import Login from './src/screens/User/Login'
+import Profile from './src/screens/User/Profile'
+import Register from './src/screens/User/Register';
+import RegisterCommerce from './src/screens/Commerce/RegisterCommerce';
+import Commerce from './src/screens/Commerce/Commerce'
+import NewItem from './src/screens/Commerce/NewItem';
 import ShopPage from './src/screens/ShopPage';
-import NewItem from './src/screens/NewItem';
 import Splash from './src/screens/Splash';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 

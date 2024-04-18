@@ -6,17 +6,17 @@ import {
   Pressable,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { v } from "../components/stylesVar";
-import Text from "../components/Text";
-import { Avatars, Input, InputCardId, regex_email, regex_num, regex_textnum } from "../components/Inputs";
-import { PrimaryBtn } from "../components/Btns";
-import { IconArrowRight, IconCross } from "../components/Icons";
-import { HeaderBtn, wh, ww } from "../components/DisplayItems";
+import { v } from "../../components/stylesVar";
+import Text from "../../components/Text";
+import { Avatars, Input, InputCardId, regex_email, regex_num, regex_textnum } from "../../components/Inputs";
+import { PrimaryBtn } from "../../components/Btns";
+import { IconArrowRight, IconCross } from "../../components/Icons";
+import { HeaderBtn, wh, ww } from "../../components/DisplayItems";
 import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
-import { register } from "../api/general";
-import Context from "../components/Context";
-import { storeLocalData } from "../helpers/localStorage";
-import Scroll from "../components/Scroll";
+import { register } from "../../api/general";
+import Context from "../../components/Context";
+import { storeLocalData } from "../../helpers/localStorage";
+import Scroll from "../../components/Scroll";
 
 const Register = ({ navigation }) => {
   const [error, setError] = useState(false);

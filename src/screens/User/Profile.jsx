@@ -1,7 +1,7 @@
 import { View, StyleSheet, Pressable, Image } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { Avatar, Avatars, Input, regex_email } from "../components/Inputs";
-import Text from "../components/Text";
+import { Avatar, Avatars, Input, regex_email } from "../../components/Inputs";
+import Text from "../../components/Text";
 import {
   IconArrowRight,
   IconCross,
@@ -13,16 +13,16 @@ import {
   IconTelegram,
   IconUserLine,
   IconWhatsapp,
-} from "../components/Icons";
-import { v } from "../components/stylesVar";
+} from "../../components/Icons";
+import { v } from "../../components/stylesVar";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { PrimaryBtn } from "../components/Btns";
-import { wh, ww } from "../components/DisplayItems";
-import Context from "../components/Context";
-import { editMarketData, editUserData } from "../api/general";
-import { deleteLocalData } from "../helpers/localStorage";
-import { ScheduleItem } from "./RegisterCommerce";
-import Scroll from "../components/Scroll";
+import { PrimaryBtn } from "../../components/Btns";
+import { wh, ww } from "../../components/DisplayItems";
+import Context from "../../components/Context";
+import { editMarketData, editUserData } from "../../api/general";
+import { deleteLocalData } from "../../helpers/localStorage";
+import { ScheduleItem } from "../Commerce/RegisterCommerce";
+import Scroll from "../../components/Scroll";
 import moment from "moment";
 
 const Profile = () => {

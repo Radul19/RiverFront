@@ -1,12 +1,12 @@
 import { View, ScrollView, StyleSheet, Pressable } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { Subtitle,ItemsCtn, wh } from "../components/DisplayItems";
-import { IconPlusBox } from "../components/Icons";
-import { SearchBar } from "../components/Inputs";
-import { searchItems } from "../api/general";
+import { Subtitle,ItemsCtn, wh } from "../../components/DisplayItems";
+import { IconPlusBox } from "../../components/Icons";
+import { SearchBar } from "../../components/Inputs";
+import { searchItems } from "../../api/general";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import Scroll from "../components/Scroll";
-import Context from "../components/Context";
+import Scroll from "../../components/Scroll";
+import Context from "../../components/Context";
 
 const Commerce = ({ navigation }) => {
   const {userData} = useContext(Context)

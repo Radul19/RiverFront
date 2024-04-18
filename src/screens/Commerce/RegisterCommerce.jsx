@@ -1,7 +1,17 @@
 import { View, ScrollView, Pressable, StyleSheet, Image } from "react-native";
-import Text from "../components/Text";
 import React, { useContext, useEffect, useState } from "react";
-import { v } from "../components/stylesVar";
+import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
+import Animated, {
+  FadeIn,
+  FadeInRight,
+  FadeOut,
+  FadeOutRight,
+  // Layout,
+  LinearTransition,
+} from "react-native-reanimated";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import Text from "../../components/Text";
+import { v } from "../../components/stylesVar";
 import {
   IconArrowRight,
   IconCross,
@@ -11,30 +21,20 @@ import {
   IconPlusBox,
   IconTelegram,
   IconWhatsapp,
-} from "../components/Icons";
-import { HeaderBtn, wh, ww } from "../components/DisplayItems";
-import { PrimaryBtn } from "../components/Btns";
+} from "../../components/Icons";
+import { HeaderBtn, wh, ww } from "../../components/DisplayItems";
+import { PrimaryBtn } from "../../components/Btns";
 import {
   CodeInput,
   Input,
   regex_email,
   regex_phone,
   regex_textnum,
-} from "../components/Inputs";
-import Animated, {
-  FadeIn,
-  FadeInRight,
-  FadeOut,
-  FadeOutRight,
-  Layout,
-} from "react-native-reanimated";
-import NavBar from "../components/NavBar";
-import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+} from "../../components/Inputs";
 import moment from "moment";
-import Context from "../components/Context";
-import { codeExist, registerCommerce } from "../api/general";
-import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
-import Scroll from "../components/Scroll";
+import Context from "../../components/Context";
+import { codeExist, registerCommerce } from "../../api/general";
+import Scroll from "../../components/Scroll";
 
 let commerceInfo = {
   name: "",
@@ -138,8 +138,8 @@ const CodePage = ({ setPage, code, setCode }) => {
   );
 };
 
-
-const IMG_ERROR_MSG = 'Ha ocurrido un error al intentar seleccionar la imagen, intente nuevamente'
+const IMG_ERROR_MSG =
+  "Ha ocurrido un error al intentar seleccionar la imagen, intente nuevamente";
 
 export const InfoCommerce = ({
   page = false,
@@ -182,7 +182,8 @@ export const InfoCommerce = ({
     if (inputs.description.length < 20)
       return "La descripcion debe tener almenos 20 caracteres";
     if (!inputs.logo) return "Debe seleccionar una imagen como logo";
-    if (inputs.email.length > 0 && !regex_email.test(inputs.email)) return "Ingrese un correo válido";
+    if (inputs.email.length > 0 && !regex_email.test(inputs.email))
+      return "Ingrese un correo válido";
 
     return false;
   };
@@ -223,10 +224,10 @@ export const InfoCommerce = ({
           logo: "data:image/png;base64," + result.assets[0].base64,
         });
       }
-      if(error === IMG_ERROR_MSG) setError(false)
+      if (error === IMG_ERROR_MSG) setError(false);
     } catch (error) {
-      console.log(error)
-      setError(IMG_ERROR_MSG)
+      console.log(error);
+      setError(IMG_ERROR_MSG);
     }
   };
 
@@ -391,7 +392,7 @@ export const ScheduleItem = ({ setSchedules, item }) => {
     <Animated.View
       entering={FadeInRight}
       exiting={FadeOutRight}
-      layout={Layout}
+      layout={LinearTransition}
       style={{
         display: "flex",
         flexDirection: "row",

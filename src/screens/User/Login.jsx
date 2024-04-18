@@ -1,15 +1,15 @@
 import { View, StyleSheet, ScrollView, Pressable } from "react-native";
 import React, { useState, useContext } from "react";
-import Text from "../components/Text";
-import NavBar from "../components/NavBar";
-import { Input } from "../components/Inputs";
-import { IconArrowRight, IconCross, IconLoad } from "../components/Icons";
-import { v } from "../components/stylesVar";
-import { ww } from "../components/DisplayItems";
-import Context from "../components/Context";
-import { login } from "../api/general";
-import { storeLocalData } from "../helpers/localStorage";
-import Scroll from "../components/Scroll";
+import Text from "../../components/Text";
+import NavBar from "../../components/NavBar";
+import { Input } from "../../components/Inputs";
+import { IconArrowRight, IconCross, IconLoad } from "../../components/Icons";
+import { v } from "../../components/stylesVar";
+import { ww } from "../../components/DisplayItems";
+import Context from "../../components/Context";
+import { login } from "../../api/general";
+import { storeLocalData } from "../../helpers/localStorage";
+import Scroll from "../../components/Scroll";
 
 const Profile = ({ navigation }) => {
   const [load, setLoad] = useState(false);

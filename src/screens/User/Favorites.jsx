@@ -1,12 +1,12 @@
 import { View, StyleSheet, Pressable } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { v } from "../components/stylesVar";
-import Text from "../components/Text";
-import { SearchBar } from "../components/Inputs";
-import { ItemsCtn } from "../components/DisplayItems";
-import { searchFavorites, searchItems } from "../api/general";
-import Context from "../components/Context";
-import Scroll from "../components/Scroll";
+import { v } from "../../components/stylesVar";
+import Text from "../../components/Text";
+import { SearchBar } from "../../components/Inputs";
+import { ItemsCtn } from "../../components/DisplayItems";
+import { searchFavorites, searchItems } from "../../api/general";
+import Context from "../../components/Context";
+import Scroll from "../../components/Scroll";
 
 const Favorites = () => {
   const { userData } = useContext(Context);

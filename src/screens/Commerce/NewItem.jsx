@@ -1,16 +1,15 @@
 import { View, StyleSheet, ScrollView, Pressable, Image } from "react-native";
 import React, { useState } from "react";
-import Text from "../components/Text";
-import { ww, wh, Categories, HeaderBtn } from "../components/DisplayItems";
-import { v } from "../components/stylesVar";
-import { IconArrowRight, IconCross, IconLoad } from "../components/Icons";
-import { Input, regex_price, regex_textnum } from "../components/Inputs";
-import { PrimaryBtn } from "../components/Btns";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import ItemPage, { Preview } from "./ItemPage";
+import Text from "../../components/Text";
+import { ww, wh, Categories, HeaderBtn } from "../../components/DisplayItems";
+import { v } from "../../components/stylesVar";
+import { IconCross, IconLoad } from "../../components/Icons";
+import { Input, regex_price, regex_textnum } from "../../components/Inputs";
+import { PrimaryBtn } from "../../components/Btns";
+import ItemPage, { Preview } from "../User/ItemPage";
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
-import Scroll from "../components/Scroll";
-import img from "../images/item.png";
+import Scroll from "../../components/Scroll";
+// import img from "../images/item.png";
 
 const leftInfo = {
   _id: "_",

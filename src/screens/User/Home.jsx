@@ -3,12 +3,12 @@ import {
   Pressable,
 } from "react-native";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import Text from "../components/Text";
-import { v, stB, stl_home } from "../components/stylesVar";
-import { Avatar, SearchBar } from "../components/Inputs";
-import { Categories, ItemsCtn, Subtitle, ww } from "../components/DisplayItems";
+import Text from "../../components/Text";
+import { v, stB, stl_home } from "../../components/stylesVar";
+import { Avatar, SearchBar } from "../../components/Inputs";
+import { Categories, ItemsCtn, Subtitle, ww } from "../../components/DisplayItems";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
-import { searchItems } from "../api/general";
+import { searchItems } from "../../api/general";
 import {
   IconArrowDown,
   IconArrowUp,
@@ -16,9 +16,9 @@ import {
   IconGear,
   IconOptions,
   IconStar,
-} from "../components/Icons";
-import Context from "../components/Context";
-import Scroll from "../components/Scroll";
+} from "../../components/Icons";
+import Context from "../../components/Context";
+import Scroll from "../../components/Scroll";
 
 
 export default function Home() {

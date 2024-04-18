@@ -34,3 +34,27 @@ const Splash = ({navigation}) => {
 }
 
 export default Splash
+
+/**
+ * TODO:  ❌ ✅ ⌛
+ * - REVIEWS ⌛ 
+ * - - Components ⌛
+ * - - Send info to Back ⌛
+ * - - Display REAL info to Front ⌛
+ * 
+ * EXTRA:
+ * - - CLEAN <ItemPage/> Is so gross
+ * 
+ * - TEXT FILTER AT FRONT END 
+ * - - Item / Company / Description 
+ * - EDIT ITEM FLOW
+ * - PAYMENT FLOW
+ * - UNIT TEST
+ * 
+ * - MORE KNOWLEDGE:
+ * - PAYMENT
+ * - IMAGE FILTER FOR ITEMS/ COMPANY - NOT RESULT, MANUAL LOGISTIC NEEDED
+ * - 
+ * - TEXT FILTER FOR COMMENTS ❌
+ * - - Create Item / Register / Register Commerce /
+ */
