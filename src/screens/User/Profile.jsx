@@ -402,7 +402,7 @@ const InfoCommerce = ({ userData, setUserData, setPage }) => {
   );
 };
 
-const ErrorText = ({ text }) => {
+export const ErrorText = ({ text }) => {
   return (
     <View
       style={{

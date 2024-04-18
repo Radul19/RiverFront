@@ -41,13 +41,20 @@ export const Input = ({
   regex = false,
   maxLength = 999,
   multiline = false,
+  timeout= false,
 }) => {
   const [value, setValue] = useState(initialValue);
   useEffect(() => {
-    let tm = setTimeout(() => {
+    let tm
+    if(timeout){
+      tm = setTimeout(() => {
+        if (custom) return custom(name, value);
+        set((prev) => ({ ...prev, [name]: value }));
+      }, 700);
+    }else{
       if (custom) return custom(name, value);
-      set((prev) => ({ ...prev, [name]: value }));
-    }, 700);
+        set((prev) => ({ ...prev, [name]: value }));
+    }
 
     return () => {
       clearTimeout(tm);

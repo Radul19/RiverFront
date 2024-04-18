@@ -131,6 +131,16 @@ export const editMarketData = async (data)=>{
     })
 }
 
+export const updateReview = async (user_id,text,stars,isEdit,item_id)=>{
+    return await axios.post(`${url}updateReview`,{user_id,text,stars,isEdit,item_id}).then(res=>{
+        return res
+    }).catch(err=>{
+        return catchError(err)
+    })
+}
+
+
+
 // export const login = async (data)=>{
 //     if(isOffline) return await prom(userOffline)
 

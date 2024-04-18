@@ -1,5 +1,13 @@
+import moment from "moment/moment";
 import { useEffect, useState } from "react";
-import { View, StyleSheet, Image, ScrollView, Pressable, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedStyle,
@@ -18,12 +26,14 @@ import {
   IconMessenger,
   IconStallLine,
   IconTelegram,
+  IconUser,
   IconWhatsapp,
   Icon_BubbleChat,
 } from "./Icons";
 import { Avatar } from "./Inputs";
 import { v } from "./stylesVar";
 import Text from "./Text";
+import "moment/locale/es";
 
 export const ContactBtn = ({ openBtn, width, toggle }) => {
   return (
@@ -57,9 +67,10 @@ export const ContactBtn = ({ openBtn, width, toggle }) => {
   );
 };
 
-export const CommentBtn = ({toggleModal}) => {
+export const CommentBtn = ({ toggleModal, isCommented }) => {
+  if (isCommented) return null;
   return (
-    <TouchableOpacity style={st.commentBtn_ctn} onPress={toggleModal} >
+    <TouchableOpacity style={st.commentBtn_ctn} onPress={toggleModal}>
       <View style={st.commentBtn}>
         <View style={{ marginLeft: -24, transform: [{ scaleX: -1 }] }}>
           <Icon_BubbleChat />
@@ -68,17 +79,6 @@ export const CommentBtn = ({toggleModal}) => {
       </View>
     </TouchableOpacity>
   );
-};
-
-const reviewsX = [{ stars: 4 }, { stars: 5 }, { stars: 2 }, { stars: 3 }];
-const avgStars = (reviews) => {
-  if (reviews.length <= 0) return 0;
-  let aux = 0;
-  reviews.forEach((elm) => {
-    aux = aux + elm.stars;
-  });
-  aux = aux / reviews.length;
-  return Math.floor(aux * 10) / 10;
 };
 
 export const ReviewsBtn = ({ reviews = reviewsX, toggleReview }) => {
@@ -92,7 +92,6 @@ export const ReviewsBtn = ({ reviews = reviewsX, toggleReview }) => {
 };
 
 // IMAGE LOGIC
-
 
 // const ximages = [img, img, img];
 export const ImageDisplay = ({
@@ -226,6 +225,12 @@ const HeartBtn = ({ initial, sendFavorite = false }) => {
 };
 
 export const ReviewLine = ({ num, percent }) => {
+  const line = {
+    width: "100%",
+    height: 8,
+    backgroundColor: v.second,
+    borderRadius: 12,
+  };
   return (
     <View
       style={{
@@ -240,34 +245,86 @@ export const ReviewLine = ({ num, percent }) => {
       <Text style={{ width: 10, textAlign: "center" }} ff="Bold">
         {num}
       </Text>
-      <View
-        style={{
-          width: "100%",
-          height: 8,
-          backgroundColor: "#191919",
-          borderRadius: 12,
-        }}
-      />
+      <View style={line}>
+        <View
+          style={{ ...line, backgroundColor: v.four, width: `${percent}%` }}
+        />
+      </View>
     </View>
   );
 };
 
-export const ReviewCard = () => {
-  return (
-    <View style={{ display: "flex", flexDirection: "row", gap: 12 }}>
-      <Avatar num={2} />
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-evenly",
-        }}
-      >
-        <Text ff="Bold">Username</Text>
-        <Text>Excelente Servicio</Text>
+const reviewsX = [{ stars: 4 }, { stars: 5 }, { stars: 2 }, { stars: 3 }];
+const avgStars = (reviews) => {
+  if (reviews.length <= 0) return 0;
+  let aux = 0;
+  reviews.forEach((elm) => {
+    aux = aux + elm.stars;
+  });
+  aux = aux / reviews.length;
+  return Math.floor(aux * 10) / 10;
+};
+
+export const ReviewCard = ({ review, toggleModal = false }) => {
+  const Content = () => {
+    return (
+      <>
+        <View style={{ display: "flex", flexDirection: "row" }}>
+          <Avatar num={review.user_id.avatar} size={48} />
+          <View
+            style={{
+              display: "flex",
+              flex: 1,
+              padding: 4,
+              justifyContent: "space-between",
+            }}
+          >
+            <View
+              style={{ flexDirection: "row", gap: 6, alignItems: "center" }}
+            >
+              <Text {...{ fs: 16, ff: "Bold" }}>{review.user_id.name}</Text>
+              {toggleModal&&<IconUser size={16} color="#3978FF" />}
+              {/* <Text {...{ fs: 16, ff: "Bold" }}>{review.user_id.name}</Text> */}
+            </View>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <StarsCtn size={16} stars={review.stars} />
+                <Text ff="Bold">{review.stars.toFixed(1)}</Text>
+              </View>
+              <Text>{moment(review.updatedAt).fromNow()}</Text>
+            </View>
+          </View>
+        </View>
+        <Text fs={16}>{review.text}</Text>
+      </>
+    );
+  };
+
+  if (toggleModal) {
+    return (
+      <Pressable style={({pressed})=>({ display: "flex", gap: 6,opacity:pressed?0.5:1 })} onLongPress={toggleModal} >
+        <Content />
+      </Pressable>
+    );
+  } else
+    return (
+      <View style={{ display: "flex", gap: 6 }}>
+        <Content />
       </View>
-    </View>
-  );
+    );
 };
 
 const st = StyleSheet.create({

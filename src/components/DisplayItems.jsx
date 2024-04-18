@@ -60,7 +60,8 @@ export const ItemsCtn = ({ data, load, filter = false }) => {
 export const Item = ({ item }) => {
   const nav = useNavigation();
   const goTo = () => {
-    nav.navigate("ItemPage", { id: item._id });
+    nav.navigate("ItemPage", { item: item });
+    // nav.navigate("ItemPage", { id: item._id });
   };
 
   return (

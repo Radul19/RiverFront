@@ -21,7 +21,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { getItem, toggleFavorite } from "../../api/general";
+import { getItem, toggleFavorite, updateReview } from "../../api/general";
 import Context from "../../components/Context";
 import {
   CommentBtn,
@@ -35,6 +35,41 @@ import {
 import { IconCross, IconStar, IconStarLine } from "../../components/Icons";
 import { Input } from "../../components/Inputs";
 import { PrimaryBtn } from "../../components/Btns";
+import { ErrorText } from "./Profile";
+
+const reviewsX = [
+  { stars: 4 },
+  { stars: 5 },
+  { stars: 2 },
+  { stars: 3 },
+  { stars: 4 },
+  { stars: 5 },
+  { stars: 4 },
+  { stars: 3 },
+  { stars: 5 },
+  { stars: 5 },
+  { stars: 5 },
+  { stars: 2 },
+];
+
+const percentsReview = (reviews) => {
+  let test = [0, 0, 0, 0, 0];
+  let len = reviews.length;
+  reviews.forEach((r) => {
+    test[r.stars - 1] += 1;
+  });
+  test = test.map((num) => parseFloat(((num / len) * 100).toFixed(2)));
+  // return test.reverse();
+  return test;
+};
+
+const findReview = (item, user_id) => {
+  let bool = false;
+  item.reviews.find((rev) => {
+    if (rev.user_id._id === user_id) bool = true;
+  });
+  return bool;
+};
 
 const ItemPage = ({ navigation, route }) => {
   const { userData } = useContext(Context);
@@ -48,7 +83,6 @@ const ItemPage = ({ navigation, route }) => {
   const width = useSharedValue(52);
 
   const toggle = () => {
-    // setModal(!modal);
     if (!openBtn) {
       width.value = withTiming(320);
     } else {
@@ -58,6 +92,8 @@ const ItemPage = ({ navigation, route }) => {
   };
 
   const goBack = () => {
+    // percentsReview(reviewsX);
+    // console.log(findReview(item, userData._id));
     navigation.goBack();
   };
   const sendFavorite = async (state) => {
@@ -78,26 +114,19 @@ const ItemPage = ({ navigation, route }) => {
     setModal(!modal);
   };
 
-  // useEffect(() => {
-  //   if (openBtn) {
-  //     width.value = withTiming(320);
-  //   } else {
-  //     width.value = withTiming(52);
-  //   }
-  // }, [openBtn]);
-
   useEffect(() => {
     if (route.params) {
-      (async () => {
-        const { status, data } = await getItem(route.params.id);
-        if (status === 200) {
-          setItem(data);
-          if (data.favorites.includes(userData._id)) {
-            setHeart(true);
-          }
-          setIsReady(true);
-        }
-      })();
+      setItem(route.params.item)
+      // (async () => {
+      //   const { status, data } = await getItem(route.params.id);
+      //   if (status === 200) {
+      //     setItem(data);
+      //     if (data.favorites.includes(userData._id)) {
+      //       setHeart(true);
+      //     }
+      //     setIsReady(true);
+      //   }
+      // })();
     }
     return () => {
       setItem(false);
@@ -117,14 +146,21 @@ const ItemPage = ({ navigation, route }) => {
       style={{ flex: 1, backgroundColor: v.prime }}
       exiting={FadeOut}
     >
-      {modal && <Modal_Review toggle={toggleModal} />}
+      {modal && (
+        <Modal_Review
+          toggle={toggleModal}
+          user_id={userData._id}
+          item={item}
+          setItem={setItem}
+        />
+      )}
       <ScrollView contentContainerStyle={st.ctn} style={{ zIndex: -1 }}>
         <ImageDisplay images={item.images} goBack={goBack} stall={true} />
         <View style={st.content_ctn}>
           {!reviewOpen ? (
             <ItemInfo {...{ item, toggleReview }} />
           ) : (
-            <ItemReviews {...{ item, toggleReview }} />
+            <ItemReviews {...{ item, toggleReview,toggleModal }} user_id={userData._id} />
           )}
         </View>
       </ScrollView>
@@ -133,7 +169,10 @@ const ItemPage = ({ navigation, route }) => {
           {!reviewOpen ? (
             <ContactBtn {...{ openBtn, width, toggle }} />
           ) : (
-            <CommentBtn {...{ toggleModal }} />
+            <CommentBtn
+              {...{ toggleModal }}
+              isCommented={findReview(item, userData._id)}
+            />
           )}
         </>
       )}
@@ -157,9 +196,9 @@ export const ItemInfo = ({ item, toggleReview = () => {} }) => {
       style={st.content_ctn_inside}
     >
       <ItemTitle item={item} />
-      <ReviewsBtn {...{ toggleReview }} />
+      <ReviewsBtn {...{ toggleReview, reviews: item.reviews }} />
       <Text ff="Bold" fs={32}>
-        {Number.parseFloat(item.price).toFixed(2)}
+        ${Number.parseFloat(item.price).toFixed(2)}
       </Text>
       <Pressable
         onPress={toggleInfo}
@@ -174,8 +213,17 @@ export const ItemInfo = ({ item, toggleReview = () => {} }) => {
     </Animated.View>
   );
 };
+const avgStars = (reviews) => {
+  if (reviews.length <= 0) return 0;
+  let aux = 0;
+  reviews.forEach((elm) => {
+    aux = aux + elm.stars;
+  });
+  aux = aux / reviews.length;
+  return (Math.floor(aux * 10) / 10).toFixed(1);
+};
 
-const ItemReviews = ({ toggleReview }) => {
+const ItemReviews = ({ toggleReview, item, user_id ,toggleModal}) => {
   const back = () => {
     toggleReview();
   };
@@ -188,24 +236,26 @@ const ItemReviews = ({ toggleReview }) => {
       <HeaderBtn text="Reseñas" onPress={back} />
       <View style={st.chart_ctn}>
         <View style={st.chart_review}>
-          <Text {...{ fs: 42, ff: "Bold" }}>4.8</Text>
-          <StarsCtn stars={4} size={20} />
+          <Text {...{ fs: 42, ff: "Bold" }}>{avgStars(item.reviews)}</Text>
+          <StarsCtn stars={avgStars(item.reviews)} size={20} />
+          <Text style={{ marginTop: 4 }}>({item.reviews.length})</Text>
         </View>
         <View style={st.chart_lines}>
-          <ReviewLine num={5} />
-          <ReviewLine num={4} />
-          <ReviewLine num={3} />
-          <ReviewLine num={2} />
-          <ReviewLine num={1} />
+          {percentsReview(item.reviews).map((percent, index) => (
+            <ReviewLine key={index} num={index + 1} percent={percent} />
+          ))}
         </View>
       </View>
+      <View  style={{height:2,width:'100%',backgroundColor:v.second,borderRadius:12}} /> 
       <View style={st.reviews_ctn}>
-        <ReviewCard />
-        <ReviewCard />
-        <ReviewCard />
-        <ReviewCard />
-        <ReviewCard />
-        <ReviewCard />
+        {item.reviews.map((rev, index) => {
+          if (rev.user_id._id === user_id)
+            return <ReviewCard key={rev._id} review={rev} {...{ toggleModal }} />;
+        })}
+        {item.reviews.map((rev, index) => {
+          if (rev.user_id._id !== user_id)
+            return <ReviewCard key={rev._id} review={rev} />;
+        })}
       </View>
     </Animated.View>
   );
@@ -274,40 +324,73 @@ const st = StyleSheet.create({
     width: "70%",
     paddingLeft: 24,
     justifyContent: "space-between",
+    flexDirection: "column-reverse",
   },
-  reviews_ctn: { display: "flex", gap: 24, marginTop: 24 },
+  reviews_ctn: { display: "flex", gap: 24, marginTop: 12 },
+  modal_blackscreen: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#191919BF",
+    position: "absolute",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modal_ctn: {
+    width: ww * 0.9,
+    padding: 16,
+    paddingBottom: 24,
+    backgroundColor: v.prime,
+    borderRadius: 12,
+    gap: 24,
+  },
 });
 
-const Modal_Review = ({ toggle }) => {
-  const [stars, setStars] = useState(4);
-  const [input, setInput] = useState("");
+const findRev = (reviews,user_id)=>{
+  let val = ''
+  let bool = false
+  reviews.forEach(rev => {
+    if(rev.user_id._id === user_id) {
+      val = rev.text
+      bool = true
+    }
+  });
+  return [val ,bool]
+}
 
-  const sendReview = () => {};
+const Modal_Review = ({ toggle, user_id, item, setItem }) => {
+  const [stars, setStars] = useState(4);
+  const [input, setInput] = useState(findRev(item.reviews,user_id)[0]);
+  const [error, setError] = useState(false);
+  const sendReview = async () => {
+    setError(false);
+    // if (input.length <= 0) return setError("La reseña no puede estar vacía");
+    // Send to back here (user_id,input,stars,isEdit,item._id)
+    const { status, data } = await updateReview(
+      user_id,
+      input,
+      stars,
+      findRev(item.reviews,user_id)[1],
+      item._id
+    );
+    if (status === 200) {
+      toggle();
+      setItem(data);
+    } else {
+      setError(data.msg);
+    }
+  };
+  const handleInput = (_, value) => {
+    setInput(value);
+  };
 
   return (
     <Animated.View
       entering={FadeIn}
-      style={{
-        width: "100%",
-        height: "100%",
-        backgroundColor: "#191919BF",
-        position: "absolute",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
+      style={st.modal_blackscreen}
       exiting={FadeOut}
     >
-      <View
-        style={{
-          width: ww * 0.9,
-          padding: 16,
-          paddingBottom: 24,
-          backgroundColor: v.prime,
-          borderRadius: 12,
-          gap: 24,
-        }}
-      >
+      <View style={st.modal_ctn}>
         <View
           style={{
             display: "flex",
@@ -337,9 +420,10 @@ const Modal_Review = ({ toggle }) => {
         <Input
           placeholder="Comentario aqui..."
           initialValue={input}
-          custom={setInput}
+          custom={handleInput}
           multiline={true}
         />
+        {error && <ErrorText text={error} />}
         <PrimaryBtn text="Enviar Reseña" action={sendReview} />
       </View>
     </Animated.View>

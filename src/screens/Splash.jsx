@@ -38,12 +38,16 @@ export default Splash
 /**
  * TODO:  ❌ ✅ ⌛
  * - REVIEWS ⌛ 
- * - - Components ⌛
- * - - Send info to Back ⌛
- * - - Display REAL info to Front ⌛
+ * - - Components ✅
+ * - - Send info to Back ✅
+ * - - Display REAL info to Front ✅
+ * - - Update comment logic ✅
+ * - - Fetch Data only when loaded reviews ⌛
  * 
  * EXTRA:
- * - - CLEAN <ItemPage/> Is so gross
+ * - Refresing <Home/> not working ⌛
+ * - - Alternate between route.params.item || ..params.id ⌛
+ * - - CLEAN <ItemPage/> Is so gross ✅
  * 
  * - TEXT FILTER AT FRONT END 
  * - - Item / Company / Description 
