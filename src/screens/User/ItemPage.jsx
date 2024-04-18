@@ -1,6 +1,11 @@
-import { View, StyleSheet, Image, ScrollView, Pressable } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import Text from "../../components/Text";
-import img from "../../images/item.png";
 import React, { useContext, useEffect, useState } from "react";
 import {
   Categories,
@@ -10,47 +15,26 @@ import {
   ww,
 } from "../../components/DisplayItems";
 import { v } from "../../components/stylesVar";
-import {
-  IconArrowRight,
-  IconBag,
-  IconBubble,
-  IconCross,
-  IconHeart,
-  IconHeartLine,
-  IconInstagram,
-  IconMessenger,
-  IconStallLine,
-  IconTelegram,
-  IconWhatsapp,
-  Icon_BubbleChat,
-} from "../../components/Icons";
 import Animated, {
   FadeIn,
   FadeOut,
-  useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { PrimaryBtn } from "../../components/Btns";
-import { createItem, getItem, toggleFavorite } from "../../api/general";
+import { getItem, toggleFavorite } from "../../api/general";
 import Context from "../../components/Context";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { Avatar } from "../../components/Inputs";
-
-const item2 = {
-  name: "Test 01",
-  price: 12.99,
-  description:
-    "Antes de ingresar a los círculos encontramos la Selva, el Coliseo y la Colina donde Dante se encuentra perdido en el medio del camino de nuestra vida: detrás de la colina se encuentra la ciudad de Jerusalén, debajo de la cual se imagina cavada la inmensa vorágine del Infierno. Entra entonces por la Puerta del Infierno y penetra así en el Ante-infierno. Superando el río Aqueronte en la barca de Caronte entra en el verdadero Infierno. Este infierno es un lugar infinito, cuantas más personas entren a este lugar, más crece y así hasta el fin de los tiempos sin ningún límite",
-  categories: ["home", "clean"],
-  images: [img, img, img],
-  _id: "_",
-  owner_id: "_",
-  favorites: [],
-  reviews: [],
-};
-
-const amount = ["blue", "red", "green", "yellow"];
+import {
+  CommentBtn,
+  ContactBtn,
+  ImageDisplay,
+  ItemTitle,
+  ReviewCard,
+  ReviewLine,
+  ReviewsBtn,
+} from "../../components/ItemComponents";
+import { IconCross, IconStar, IconStarLine } from "../../components/Icons";
+import { Input } from "../../components/Inputs";
+import { PrimaryBtn } from "../../components/Btns";
 
 const ItemPage = ({ navigation, route }) => {
   const { userData } = useContext(Context);
@@ -59,10 +43,17 @@ const ItemPage = ({ navigation, route }) => {
   const [openBtn, setOpenBtn] = useState(false);
   const [item, setItem] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [modal, setModal] = useState(false);
 
   const width = useSharedValue(52);
 
   const toggle = () => {
+    // setModal(!modal);
+    if (!openBtn) {
+      width.value = withTiming(320);
+    } else {
+      width.value = withTiming(52);
+    }
     setOpenBtn(!openBtn);
   };
 
@@ -83,14 +74,17 @@ const ItemPage = ({ navigation, route }) => {
   const toggleReview = () => {
     setReviewOpen((prev) => !prev);
   };
+  const toggleModal = () => {
+    setModal(!modal);
+  };
 
-  useEffect(() => {
-    if (openBtn) {
-      width.value = withTiming(320);
-    } else {
-      width.value = withTiming(52);
-    }
-  }, [openBtn]);
+  // useEffect(() => {
+  //   if (openBtn) {
+  //     width.value = withTiming(320);
+  //   } else {
+  //     width.value = withTiming(52);
+  //   }
+  // }, [openBtn]);
 
   useEffect(() => {
     if (route.params) {
@@ -123,7 +117,8 @@ const ItemPage = ({ navigation, route }) => {
       style={{ flex: 1, backgroundColor: v.prime }}
       exiting={FadeOut}
     >
-      <ScrollView contentContainerStyle={st.ctn}>
+      {modal && <Modal_Review toggle={toggleModal} />}
+      <ScrollView contentContainerStyle={st.ctn} style={{ zIndex: -1 }}>
         <ImageDisplay images={item.images} goBack={goBack} stall={true} />
         <View style={st.content_ctn}>
           {!reviewOpen ? (
@@ -132,147 +127,23 @@ const ItemPage = ({ navigation, route }) => {
             <ItemReviews {...{ item, toggleReview }} />
           )}
         </View>
-        {/* <ItemInfo {...{ item, toggleReview }} /> */}
       </ScrollView>
-      {!reviewOpen ? (
-        <ContactBtn {...{ openBtn, width, toggle }} />
-      ) : (
-        <CommentBtn />
+      {!modal && (
+        <>
+          {!reviewOpen ? (
+            <ContactBtn {...{ openBtn, width, toggle }} />
+          ) : (
+            <CommentBtn {...{ toggleModal }} />
+          )}
+        </>
       )}
     </Animated.View>
   );
 };
 
-const ContactBtn = ({ openBtn, width, toggle }) => {
-  return (
-    <Animated.View style={[st.x, { width }]}>
-      <View style={st.btn_ctn}>
-        <Pressable style={st.icon}>
-          <IconTelegram color={v.prime} />
-        </Pressable>
-        <Pressable style={st.icon}>
-          <IconWhatsapp color={v.prime} />
-        </Pressable>
-        <Pressable style={st.icon}>
-          <IconMessenger color={v.prime} />
-        </Pressable>
-        <Pressable style={st.icon}>
-          <IconInstagram color={v.prime} />
-        </Pressable>
-        <Pressable style={st.icon}>
-          <IconBubble color={v.prime} />
-        </Pressable>
+export default ItemPage;
 
-        <Pressable style={st.contact_btn} onPress={toggle}>
-          {openBtn ? (
-            <IconCross color={v.prime} />
-          ) : (
-            <IconBag color={v.prime} />
-          )}
-        </Pressable>
-      </View>
-    </Animated.View>
-  );
-};
-
-const CommentBtn = () => {
-  return (
-    <View style={st.commentBtn_ctn}>
-      <View style={st.commentBtn}>
-        <View style={{marginLeft:-24,transform:[{scaleX:-1}]}} >
-        <Icon_BubbleChat/>
-        </View>
-        <Text style={{color:'#eee'}} >Comentar</Text>
-      </View>
-    </View>
-  );
-};
-
-const ItemTitle = ({ sendFavorite = () => {}, item, id = false }) => {
-  return (
-    <View style={st.top}>
-      <Text ff="Medium" fs={20} style={{ width: "80%" }}>
-        {item.name}
-      </Text>
-      <HeartBtn
-        sendFavorite={id ? sendFavorite : false}
-        initial={id ? item.favorites.includes(id) : false}
-      />
-    </View>
-  );
-};
-
-const reviewsX = [{ stars: 4 }, { stars: 5 }, { stars: 2 }, { stars: 3 }];
-const avgStars = (reviews) => {
-  if (reviews.length <= 0) return 0;
-  let aux = 0;
-  reviews.forEach((elm) => {
-    aux = aux + elm.stars;
-  });
-  aux = aux / reviews.length;
-  return Math.floor(aux * 10) / 10;
-};
-
-const ReviewsBtn = ({ reviews = reviewsX, toggleReview }) => {
-  return (
-    <Pressable style={st.reviews_btn} onPress={toggleReview}>
-      <StarsCtn stars={avgStars(reviews)} size={20} />
-      <Text ff="Bold">{avgStars(reviews)}</Text>
-      <Text style={{ color: v.third }}>{`(${reviews.length} reseñas)`}</Text>
-    </Pressable>
-  );
-};
-
-const HeartBtn = ({ initial, sendFavorite = false }) => {
-  const [heart, setHeart] = useState(initial);
-  const [isReady, setIsReady] = useState(false);
-  const toggleHeart = () => {
-    setHeart(!heart);
-  };
-
-  useEffect(() => {
-    if (isReady && sendFavorite) {
-      const tm = setTimeout(() => {
-        (async () => {
-          await sendFavorite(heart);
-        })();
-      }, 1000);
-      return () => {
-        clearTimeout(tm);
-      };
-    } else {
-      setIsReady(true);
-    }
-  }, [heart]);
-
-  return (
-    <Pressable
-      style={({ pressed }) => ({
-        padding: 8,
-        opacity: pressed ? 0.5 : 1,
-      })}
-      onPress={toggleHeart}
-    >
-      {heart ? <IconHeart /> : <IconHeartLine />}
-    </Pressable>
-  );
-};
-
-const Wireframe = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <View style={[st.img_ctn, { backgroundColor: "#c9c9c9" }]}></View>
-      <View style={[st.content_ctn, { gap: 24 }]}>
-        <View style={[st.wire, { width: "100%" }]} />
-        <View style={[st.wire, { width: "80%" }]} />
-        <View style={[st.wire, { width: "60%" }]} />
-        <View style={[st.wire, { width: "100%", height: 64 }]} />
-      </View>
-    </View>
-  );
-};
-
-const ItemInfo = ({ item, toggleReview }) => {
+export const ItemInfo = ({ item, toggleReview = () => {} }) => {
   const [openInfo, setOpenInfo] = useState(false);
 
   const toggleInfo = () => {
@@ -305,7 +176,9 @@ const ItemInfo = ({ item, toggleReview }) => {
 };
 
 const ItemReviews = ({ toggleReview }) => {
-  const back = () => toggleReview();
+  const back = () => {
+    toggleReview();
+  };
   return (
     <Animated.View
       entering={FadeIn}
@@ -313,33 +186,12 @@ const ItemReviews = ({ toggleReview }) => {
       exiting={FadeOut}
     >
       <HeaderBtn text="Reseñas" onPress={back} />
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          height: 100,
-        }}
-      >
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            // backgroundColor: "red",
-            width: "30%",
-          }}
-        >
+      <View style={st.chart_ctn}>
+        <View style={st.chart_review}>
           <Text {...{ fs: 42, ff: "Bold" }}>4.8</Text>
           <StarsCtn stars={4} size={20} />
         </View>
-        <View
-          style={{
-            display: "flex",
-            width: "70%",
-            paddingLeft: 24,
-            justifyContent: "space-between",
-            // backgroundColor:'blue'
-          }}
-        >
+        <View style={st.chart_lines}>
           <ReviewLine num={5} />
           <ReviewLine num={4} />
           <ReviewLine num={3} />
@@ -347,7 +199,7 @@ const ItemReviews = ({ toggleReview }) => {
           <ReviewLine num={1} />
         </View>
       </View>
-      <View style={{ display: "flex", gap: 24, marginTop: 24 }}>
+      <View style={st.reviews_ctn}>
         <ReviewCard />
         <ReviewCard />
         <ReviewCard />
@@ -359,155 +211,17 @@ const ItemReviews = ({ toggleReview }) => {
   );
 };
 
-const ReviewLine = ({ num, percent }) => {
+const Wireframe = () => {
   return (
-    <View
-      style={{
-        position: "relative",
-        flexDirection: "row",
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        width: "90%",
-      }}
-    >
-      <Text style={{ width: 10, textAlign: "center" }} ff="Bold">
-        {num}
-      </Text>
-      <View
-        style={{
-          width: "100%",
-          height: 8,
-          backgroundColor: "#191919",
-          borderRadius: 12,
-        }}
-      />
-    </View>
-  );
-};
-
-// IMAGE LOGIC
-const Dot = ({ pos, index }) => {
-  const animatedStyle = useAnimatedStyle(() => ({
-    width: pos.value === index ? 14 : 10,
-    height: pos.value === index ? 14 : 10,
-    opacity: pos.value === index ? 1 : 0.5,
-  }));
-  return <Animated.View style={[st.dot, animatedStyle]}></Animated.View>;
-};
-
-// const ximages = [img, img, img];
-const mid = (ww / 3) * -1;
-const whole = ww * -1;
-const ImageDisplay = ({ images = [], goBack = false, stall = false }) => {
-  const pos = useSharedValue(0);
-  const position = useSharedValue(0);
-
-  const panGesture = Gesture.Pan()
-    .onUpdate((e) => {
-      let start = pos.value === 0;
-      let end = pos.value === images.length - 1;
-      if (start && e.translationX <= 0) {
-        position.value = e.translationX;
-      } else if (pos.value > 0 && !end) {
-        position.value = -ww * pos.value + e.translationX;
-      } else if (end && e.translationX >= 0) {
-        position.value = -ww * pos.value + e.translationX;
-      }
-    })
-    .onEnd((e) => {
-      let start = whole * pos.value;
-      let right = start + mid;
-      let left = start - mid;
-
-      if (position.value < right) {
-        position.value = withTiming(-ww * (pos.value + 1), { duration: 300 });
-        pos.value = pos.value + 1;
-      } else if (position.value > left) {
-        position.value = withTiming(-ww * (pos.value - 1), { duration: 300 });
-        pos.value = pos.value - 1;
-      } else position.value = withTiming(-ww * pos.value, { duration: 300 });
-    });
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: position.value }],
-  }));
-
-  return (
-    <View style={st.img_ctn}>
-      {goBack && (
-        <Pressable style={st.back_btn} onPress={goBack}>
-          <IconArrowRight size={20} />
-        </Pressable>
-      )}
-      {stall && (
-        <Pressable style={st.shop_btn}>
-          <IconStallLine size={20} />
-        </Pressable>
-      )}
-      <GestureDetector gesture={panGesture}>
-        <Animated.View style={[st.testy, animatedStyle]}>
-          {images.map((i, index) => (
-            <Image
-              style={st.testx}
-              key={index}
-              source={{ uri: i.image ? i.image : i }}
-            />
-            // <Image style={st.testx} key={index} source={i} />
-          ))}
-        </Animated.View>
-      </GestureDetector>
-      <View style={st.dots_ctn}>
-        {images.map((i, index) => (
-          <Dot pos={pos} index={index} key={index} />
-        ))}
+    <View style={{ flex: 1 }}>
+      <View style={[st.img_ctn, { backgroundColor: "#c9c9c9" }]}></View>
+      <View style={[st.content_ctn, { gap: 24 }]}>
+        <View style={[st.wire, { width: "100%" }]} />
+        <View style={[st.wire, { width: "80%" }]} />
+        <View style={[st.wire, { width: "60%" }]} />
+        <View style={[st.wire, { width: "100%", height: 64 }]} />
       </View>
     </View>
-  );
-};
-
-// SEND THIS TP <NEW ITEM>
-export const Preview = ({ item = item2, navigation, resetAll, goBack }) => {
-  const { userData } = useContext(Context);
-
-  const confirmPreview = async () => {
-    // console.log({...item,owner_id:userData.commerce._id})
-    const { status, data } = await createItem({
-      ...item,
-      owner_id: userData.commerce._id,
-    });
-    if (status === 200) {
-      resetAll();
-      navigation.navigate("Commerce");
-    } else {
-      goBack();
-    }
-
-    // console.log(item.images.length);
-  };
-
-  return (
-    <Animated.View
-      entering={FadeIn}
-      style={{ flex: 1, backgroundColor: v.prime }}
-      exiting={FadeOut}
-    >
-      <ScrollView contentContainerStyle={st.ctn}>
-        <ImageDisplay images={item.images} goBack={goBack} stall={false} />
-        <ItemInfo {...{ item }} />
-      </ScrollView>
-      <View
-        style={{
-          padding: 20,
-          position: "absolute",
-          zIndex: 500,
-          width: "100%",
-          bottom: 0,
-        }}
-      >
-        <PrimaryBtn text="Confirmar" action={confirmPreview} />
-      </View>
-    </Animated.View>
   );
 };
 
@@ -515,38 +229,14 @@ const st = StyleSheet.create({
   ctn: {
     display: "flex",
     minHeight: wh,
+    position: "relative",
+    zIndex: 20,
   },
   img_ctn: {
     width: ww,
     height: ww,
     overflow: "hidden",
     position: "relative",
-  },
-  back_btn: ({ pressed }) => ({
-    position: "absolute",
-    transform: [{ rotate: "180deg" }],
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: v.prime,
-    top: 20,
-    left: 20,
-    zIndex: 300,
-    opacity: pressed ? 0.5 : 1,
-  }),
-  shop_btn: ({ pressed }) => ({
-    position: "absolute",
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: v.prime,
-    top: 20,
-    right: 20,
-    zIndex: 300,
-    opacity: pressed ? 0.5 : 1,
-  }),
-
-  img: {
-    width: "100%",
-    height: "100%",
   },
   content_ctn: {
     zIndex: 200,
@@ -561,83 +251,7 @@ const st = StyleSheet.create({
   content_ctn_inside: {
     display: "flex",
     gap: 12,
-  },
-  top: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  reviews_btn: ({ pressed }) => ({
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    opacity: pressed ? 0.5 : 1,
-  }),
-  btn_ctn: {
-    display: "flex",
-    flexDirection: "row",
-    alignSelf: "flex-end",
-    // justifyContent: "center",
-    backgroundColor: v.four,
-    borderRadius: 12,
-    // width: 52,
-    width: 320,
-    height: 52,
-    paddingRight: 38,
-  },
-  contact_btn: ({ pressed }) => ({
-    position: "absolute",
-    alignSelf: "center",
-    right: 0,
-    padding: 14,
-    backgroundColor: v.four,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    opacity: pressed ? 0.5 : 1,
-  }),
-  abs_ctn: {
-    display: "flex",
-    flexDirection: "row",
-    position: "absolute",
-  },
-
-  icon: {
-    padding: 14,
-    // position:'absolute',
-  },
-  x: {
-    position: "absolute",
-    borderRadius: 12,
-    // width:'100%',
-    right: 20,
-    bottom: 20,
-    alignSelf: "flex-end",
-    width: 52,
-    height: 52,
-    overflow: "hidden",
-  },
-  commentBtn: {
-    backgroundColor: "#191919",
-    borderRadius: 12,
-    height: 52,
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    flexDirection:'row',
-    gap:12,
-  },
-  commentBtn_ctn: {
-    position: "absolute",
-    width: "100%",
-    bottom: 20,
-    alignSelf: "flex-end",
-    overflow: "hidden",
-    paddingHorizontal:20,
-    display:'flex',
+    paddingBottom: 72,
   },
   wire: {
     backgroundColor: "#c9c9c9",
@@ -645,56 +259,103 @@ const st = StyleSheet.create({
     width: "100%",
     borderRadius: 6,
   },
-  testy: {
-    height: ww,
-    width: ww,
-    position: "absolute",
+  chart_ctn: {
     display: "flex",
     flexDirection: "row",
+    height: 100,
   },
-  testx: { height: ww, width: ww, backgroundColor: "blue" },
-  testz: { height: ww, width: ww, backgroundColor: "yellow" },
-  testw: { height: ww, width: ww, backgroundColor: "green" },
-  dot: { height: 12, width: 12, borderRadius: 12, backgroundColor: "black" },
-  dots_ctn: {
-    display: "flex",
-    flexDirection: "row",
-    position: "absolute",
-    width: ww,
+  chart_review: {
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
-    zIndex: 200,
-    height: 42,
-    bottom: 24,
+    width: "30%",
   },
-  // x: {
-  //   borderRadius: 12,
-  //   // width:'100%',
-  //   marginTop: "auto",
-  //   alignSelf: "flex-end",
-  //   width: 52,
-  //   height: 52,
-  //   overflow: "hidden",
-  // },
+  chart_lines: {
+    display: "flex",
+    width: "70%",
+    paddingLeft: 24,
+    justifyContent: "space-between",
+  },
+  reviews_ctn: { display: "flex", gap: 24, marginTop: 24 },
 });
 
-export default ItemPage;
+const Modal_Review = ({ toggle }) => {
+  const [stars, setStars] = useState(4);
+  const [input, setInput] = useState("");
 
-const ReviewCard = () => {
+  const sendReview = () => {};
+
   return (
-    <View style={{ display: "flex", flexDirection: "row", gap: 12 }}>
-      <Avatar num={2} />
+    <Animated.View
+      entering={FadeIn}
+      style={{
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#191919BF",
+        position: "absolute",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      exiting={FadeOut}
+    >
       <View
         style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-evenly",
+          width: ww * 0.9,
+          padding: 16,
+          paddingBottom: 24,
+          backgroundColor: v.prime,
+          borderRadius: 12,
+          gap: 24,
         }}
       >
-        <Text ff="Bold">Username</Text>
-        <Text>Excelente Servicio</Text>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text fs={24} ff="Bold">
+            Reseña
+          </Text>
+          <TouchableOpacity onPress={toggle}>
+            <IconCross />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          {starArr.map((value, index) => (
+            <StarRev key={value} {...{ value, stars, setStars }} />
+          ))}
+        </View>
+        <Input
+          placeholder="Comentario aqui..."
+          initialValue={input}
+          custom={setInput}
+          multiline={true}
+        />
+        <PrimaryBtn text="Enviar Reseña" action={sendReview} />
       </View>
-    </View>
+    </Animated.View>
+  );
+};
+
+const starArr = [1, 2, 3, 4, 5];
+
+const StarRev = ({ stars, value, setStars }) => {
+  const press = () => setStars(value);
+  return (
+    <Pressable
+      onPress={press}
+      style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+    >
+      {stars >= value ? <IconStar size={32} /> : <IconStarLine size={32} />}
+    </Pressable>
   );
 };

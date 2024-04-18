@@ -6,9 +6,10 @@ import { v } from "../../components/stylesVar";
 import { IconCross, IconLoad } from "../../components/Icons";
 import { Input, regex_price, regex_textnum } from "../../components/Inputs";
 import { PrimaryBtn } from "../../components/Btns";
-import ItemPage, { Preview } from "../User/ItemPage";
+import ItemPage, { ImageDisplay, ItemInfo } from "../User/ItemPage";
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
 import Scroll from "../../components/Scroll";
+import img from "../../images/item.png";
 // import img from "../images/item.png";
 
 const leftInfo = {
@@ -292,5 +293,63 @@ const ErrorText = ({ text }) => {
       <IconCross color="#F20000" size={16} />
       <Text style={{ color: "#F20000" }}>{text}</Text>
     </View>
+  );
+};
+
+
+const item2 = {
+  name: "Test 01",
+  price: 12.99,
+  description:
+    "Antes de ingresar a los círculos encontramos la Selva, el Coliseo y la Colina donde Dante se encuentra perdido en el medio del camino de nuestra vida: detrás de la colina se encuentra la ciudad de Jerusalén, debajo de la cual se imagina cavada la inmensa vorágine del Infierno. Entra entonces por la Puerta del Infierno y penetra así en el Ante-infierno. Superando el río Aqueronte en la barca de Caronte entra en el verdadero Infierno. Este infierno es un lugar infinito, cuantas más personas entren a este lugar, más crece y así hasta el fin de los tiempos sin ningún límite",
+  categories: ["home", "clean"],
+  images: [img, img, img],
+  _id: "_",
+  owner_id: "_",
+  favorites: [],
+  reviews: [],
+};
+
+export const Preview = ({ item = item2, navigation, resetAll, goBack }) => {
+  const { userData } = useContext(Context);
+
+  const confirmPreview = async () => {
+    // console.log({...item,owner_id:userData.commerce._id})
+    const { status, data } = await createItem({
+      ...item,
+      owner_id: userData.commerce._id,
+    });
+    if (status === 200) {
+      resetAll();
+      navigation.navigate("Commerce");
+    } else {
+      goBack();
+    }
+
+    // console.log(item.images.length);
+  };
+
+  return (
+    <Animated.View
+      entering={FadeIn}
+      style={{ flex: 1, backgroundColor: v.prime }}
+      exiting={FadeOut}
+    >
+      <ScrollView contentContainerStyle={st.ctn}>
+        <ImageDisplay images={item.images} goBack={goBack} stall={false} />
+        <ItemInfo {...{ item }} />
+      </ScrollView>
+      <View
+        style={{
+          padding: 20,
+          position: "absolute",
+          zIndex: 500,
+          width: "100%",
+          bottom: 0,
+        }}
+      >
+        <PrimaryBtn text="Confirmar" action={confirmPreview} />
+      </View>
+    </Animated.View>
   );
 };
