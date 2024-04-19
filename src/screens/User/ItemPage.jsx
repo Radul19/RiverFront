@@ -92,8 +92,6 @@ const ItemPage = ({ navigation, route }) => {
   };
 
   const goBack = () => {
-    // percentsReview(reviewsX);
-    // console.log(findReview(item, userData._id));
     navigation.goBack();
   };
   const sendFavorite = async (state) => {
@@ -115,18 +113,19 @@ const ItemPage = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    if (route.params) {
+    if (route.params && route.params.item) {
       setItem(route.params.item)
-      // (async () => {
-      //   const { status, data } = await getItem(route.params.id);
-      //   if (status === 200) {
-      //     setItem(data);
-      //     if (data.favorites.includes(userData._id)) {
-      //       setHeart(true);
-      //     }
-      //     setIsReady(true);
-      //   }
-      // })();
+    }else if(route.params && route.params.id) {
+      (async () => {
+        const { status, data } = await getItem(route.params.id);
+        if (status === 200) {
+          setItem(data);
+          if (data.favorites.includes(userData._id)) {
+            setHeart(true);
+          }
+          setIsReady(true);
+        }
+      })();
     }
     return () => {
       setItem(false);
@@ -146,15 +145,9 @@ const ItemPage = ({ navigation, route }) => {
       style={{ flex: 1, backgroundColor: v.prime }}
       exiting={FadeOut}
     >
-      {modal && (
-        <Modal_Review
-          toggle={toggleModal}
-          user_id={userData._id}
-          item={item}
-          setItem={setItem}
-        />
-      )}
-      <ScrollView contentContainerStyle={st.ctn} style={{ zIndex: -1 }}>
+      
+      {/* <ScrollView contentContainerStyle={st.ctn} style={{ zIndex: -1 }}> */}
+      <ScrollView contentContainerStyle={st.ctn}>
         <ImageDisplay images={item.images} goBack={goBack} stall={true} />
         <View style={st.content_ctn}>
           {!reviewOpen ? (
@@ -175,6 +168,14 @@ const ItemPage = ({ navigation, route }) => {
             />
           )}
         </>
+      )}
+      {modal && (
+        <Modal_Review
+          toggle={toggleModal}
+          user_id={userData._id}
+          item={item}
+          setItem={setItem}
+        />
       )}
     </Animated.View>
   );
@@ -204,7 +205,7 @@ export const ItemInfo = ({ item, toggleReview = () => {} }) => {
         onPress={toggleInfo}
         style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
       >
-        <Text numberOfLines={!openInfo ? 5 : 0}>{item.description}</Text>
+        <Text numberOfLines={!openInfo ? 5 : 0} filter={true} >{item.description}</Text>
       </Pressable>
       <Text ff="Bold" fs={16}>
         Categorias
@@ -280,7 +281,6 @@ const st = StyleSheet.create({
     display: "flex",
     minHeight: wh,
     position: "relative",
-    zIndex: 20,
   },
   img_ctn: {
     width: ww,
@@ -335,6 +335,7 @@ const st = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    zIndex:100
   },
   modal_ctn: {
     width: ww * 0.9,

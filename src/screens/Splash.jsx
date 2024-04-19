@@ -42,18 +42,28 @@ export default Splash
  * - - Send info to Back ✅
  * - - Display REAL info to Front ✅
  * - - Update comment logic ✅
- * - - Fetch Data only when loaded reviews ⌛
+ * - - Fetch Data only when loaded reviews 💡 or maybe not?
+ * - TEXT FILTER AT FRONT END ⌛
+ * - - Item ✅ / Company / 
+ * - EDIT ITEM FLOW ⌛
+ * - - Check Item at long press ✅
+ * - - Check is item is being selected  ✅
+ * - - Toggle normal press at being selected  ✅
+ * - - Show icons with functions  ✅
+ * - - Show icons with functions  ✅
+ * - - Show Page to edit ⌛
+ * - - Delete by bulks (need learning)  ⌛
+ * 
+ * 
+ * - COMMERCE PAGE + EDIT
+ * - PAYMENT FLOW
+ * - IMAGE LOGISTIC 
+ * - UNIT TEST
+ * 
  * 
  * EXTRA:
- * - Refresing <Home/> not working ⌛
  * - - Alternate between route.params.item || ..params.id ⌛
  * - - CLEAN <ItemPage/> Is so gross ✅
- * 
- * - TEXT FILTER AT FRONT END 
- * - - Item / Company / Description 
- * - EDIT ITEM FLOW
- * - PAYMENT FLOW
- * - UNIT TEST
  * 
  * - MORE KNOWLEDGE:
  * - PAYMENT

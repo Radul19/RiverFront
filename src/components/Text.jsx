@@ -1,7 +1,8 @@
 import { Text as RNText } from "react-native";
 import React from "react";
+import {filter as f } from '../helpers/filter'
 
-export default function Text({ children, ff = "Regular",fs=14, ...props }) {
+export default function Text({ children, ff = "Regular",fs=14,filter=false, ...props }) {
   return (
     <RNText
     {...props}
@@ -10,7 +11,7 @@ export default function Text({ children, ff = "Regular",fs=14, ...props }) {
       fontSize:fs
     },{...props.style}]}
     >
-      {children}
+      {filter ? f.clean(children):children}
     </RNText>
   );
 }

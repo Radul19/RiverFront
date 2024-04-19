@@ -11,6 +11,8 @@ import img from "../images/item.png";
 import Text from "./Text";
 import {
   IconArrowRight,
+  IconCheck,
+  IconCircleLine,
   IconCPU,
   IconDots,
   IconDrop,
@@ -32,7 +34,8 @@ import { v, stB } from "./stylesVar";
 export const ww = Dimensions.get("window").width;
 export const wh = Dimensions.get("window").height;
 
-export const ItemsCtn = ({ data, load, filter = false }) => {
+export const ItemsCtn = ({ data, load, filter = false, longPress = false }) => {
+  const nav = useNavigation();
   return (
     <>
       {/* {load && <Text style={{ paddingHorizontal: 20 }}>Loading...</Text>} */}
@@ -50,29 +53,50 @@ export const ItemsCtn = ({ data, load, filter = false }) => {
         }}
       >
         {applyFilter(data, filter).map((item, index) => (
-          <Item item={item} key={item._id} />
+          <Item item={item} key={item._id} {...{ longPress, nav }} />
         ))}
       </Animated.View>
     </>
   );
 };
-
-export const Item = ({ item }) => {
-  const nav = useNavigation();
+export const Item = ({ item, nav, longPress }) => {
   const goTo = () => {
     nav.navigate("ItemPage", { item: item });
-    // nav.navigate("ItemPage", { id: item._id });
+  };
+
+  const onLongPress = () => {
+    if (longPress) longPress(item._id);
   };
 
   return (
-    <Pressable style={st.item_ctn} onPress={goTo}>
-      {/* <Image source={img} style={st.item_img} /> */}
+    <Pressable style={st.item_ctn} onPress={goTo} onLongPress={onLongPress}>
       <Image source={{ uri: item.images[0].image }} style={st.item_img} />
 
       <Text numberOfLines={1}>{item.name}</Text>
       <View style={st.item_bottom}>
         <Text ff="Bold" style={{ fontSize: 16 }}>
-          {/* ${item.price.toFixed(2)} */}$
+          {Number.parseFloat(item.price).toFixed(2)}
+        </Text>
+        <StarsCtn stars={getStars(item)} />
+      </View>
+    </Pressable>
+  );
+};
+export const MyItem = ({ item, add, remove, imSelected }) => {
+  const press = () => {
+    if (!imSelected) add(item._id);
+    else remove(item._id);
+  };
+
+  return (
+    <Pressable style={st.item_selection} onPress={press}>
+      <Image source={{ uri: item.images[0].image }} style={st.item_img} />
+      <View style={st.abs_check}>
+        {imSelected ? <IconCheck /> : <IconCircleLine />}
+      </View>
+      <Text numberOfLines={1}>{item.name}</Text>
+      <View style={st.item_bottom}>
+        <Text ff="Bold" style={{ fontSize: 16 }}>
           {Number.parseFloat(item.price).toFixed(2)}
         </Text>
         <StarsCtn stars={getStars(item)} />
@@ -107,9 +131,16 @@ const categArray = [
   { name: "others", text: "Otros", icon: IconDots },
 ];
 
-export const Categories = ({ handleCateg=()=>{}, categ, shop = true, all = true }) => {
+export const Categories = ({
+  handleCateg = () => {},
+  categ,
+  shop = true,
+  all = true,
+}) => {
   return (
-    <View style={{ position: "relative", height: 80, width: ww ,marginLeft:-12 }}>
+    <View
+      style={{ position: "relative", height: 80, width: ww, marginLeft: -12 }}
+    >
       <ScrollView horizontal={true} contentContainerStyle={st.categ_ctn}>
         {categArray.map((item, index) => {
           // if (!shop && item === "Tiendas") return null;
@@ -160,7 +191,27 @@ const st = StyleSheet.create({
     width: (ww - 60) / 2,
     gap: 4,
     opacity: pressed ? 0.5 : 1,
+    borderWidth: 1,
+    borderColor: "#eee",
   }),
+  item_selection: ({ pressed }) => ({
+    display: "flex",
+    padding: 5,
+    width: (ww - 60) / 2,
+    gap: 4,
+    opacity: pressed ? 0.5 : 1,
+    borderWidth: 1,
+    borderColor: "#191919",
+    borderStyle: "dashed",
+    borderRadius:12,
+  }),
+  abs_check: {
+    position: "absolute",
+    backgroundColor: "#eee",
+    top: -12,
+    alignSelf: "center",
+    borderRadius: 100,
+  },
   item_img: {
     width: (ww - 60) / 2 - 10,
     height: (ww - 60) / 2 - 10,

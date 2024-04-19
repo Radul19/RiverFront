@@ -178,7 +178,7 @@ export const ImageDisplay = ({
 export const ItemTitle = ({ sendFavorite = () => {}, item, id = false }) => {
   return (
     <View style={st.top}>
-      <Text ff="Medium" fs={20} style={{ width: "80%" }}>
+      <Text ff="Medium" fs={20} style={{ width: "80%" }} filter={true}>
         {item.name}
       </Text>
       <HeartBtn
@@ -283,7 +283,7 @@ export const ReviewCard = ({ review, toggleModal = false }) => {
               style={{ flexDirection: "row", gap: 6, alignItems: "center" }}
             >
               <Text {...{ fs: 16, ff: "Bold" }}>{review.user_id.name}</Text>
-              {toggleModal&&<IconUser size={16} color="#3978FF" />}
+              {toggleModal && <IconUser size={16} color="#3978FF" />}
               {/* <Text {...{ fs: 16, ff: "Bold" }}>{review.user_id.name}</Text> */}
             </View>
             <View
@@ -308,14 +308,21 @@ export const ReviewCard = ({ review, toggleModal = false }) => {
             </View>
           </View>
         </View>
-        <Text fs={16}>{review.text}</Text>
+        <Text fs={16} filter={true} >{review.text}</Text>
       </>
     );
   };
 
   if (toggleModal) {
     return (
-      <Pressable style={({pressed})=>({ display: "flex", gap: 6,opacity:pressed?0.5:1 })} onLongPress={toggleModal} >
+      <Pressable
+        style={({ pressed }) => ({
+          display: "flex",
+          gap: 6,
+          opacity: pressed ? 0.5 : 1,
+        })}
+        onLongPress={toggleModal}
+      >
         <Content />
       </Pressable>
     );

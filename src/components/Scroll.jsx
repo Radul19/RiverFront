@@ -11,7 +11,7 @@ const Scroll = ({ refreshing, onRefresh, children, nav = false }) => {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={st.ctn}
         refreshControl={
-          refreshing && onRefresh ? (
+          onRefresh ? (
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           ) : null
         }
