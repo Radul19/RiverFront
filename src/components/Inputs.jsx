@@ -155,7 +155,7 @@ export const Avatars = ({ set, start = 1 }) => {
 export const Avatar = ({ num, size = 64 }) => {
   return (
     <Image
-      style={[st.avatar, { width: size, height: size }]}
+      style={{ width: size, height: size }}
       source={getAvatar(num)}
     />
   );

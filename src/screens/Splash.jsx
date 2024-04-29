@@ -51,13 +51,17 @@ export default Splash
  * - - Toggle normal press at being selected  ✅
  * - - Show icons with functions  ✅
  * - - Show icons with functions  ✅
- * - - Show Page to edit ⌛
+ * - - Btn Contact Performance  ✅
+ * - - Show Page to edit ✅
+ * - - Preview Page to edit ✅
+ * - - Send Info to update item / Delete old Images logic ⌛
  * - - Delete by bulks (need learning)  ⌛
  * 
  * 
- * - COMMERCE PAGE + EDIT
+ * - COMMERCE PAGE
  * - PAYMENT FLOW
- * - IMAGE LOGISTIC 
+ * - IMAGE LOGISTIC with API
+ * - REPORTS SYSTEM
  * - UNIT TEST
  * 
  * 
@@ -68,6 +72,7 @@ export default Splash
  * - MORE KNOWLEDGE:
  * - PAYMENT
  * - IMAGE FILTER FOR ITEMS/ COMPANY - NOT RESULT, MANUAL LOGISTIC NEEDED
+ * - 
  * - 
  * - TEXT FILTER FOR COMMENTS ❌
  * - - Create Item / Register / Register Commerce /

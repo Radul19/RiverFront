@@ -40,7 +40,20 @@ const Commerce = ({ navigation }) => {
   }, [searchBar]);
 
   const goCreateItem = () => {
-    navigation.navigate("NewItem");
+    navigation.navigate("NewItem")
+  };
+  const goEditItem = () => {
+    const { name, description, categories, price, images, _id } = itemsData.find(
+      (elm) => elm._id === selectList[0]
+    );
+    navigation.navigate("EditItem", {
+      name,
+      description,
+      categories,
+      price,
+      images,
+      _id,
+    });
   };
 
   const addSelected = (item_id) => {
@@ -58,7 +71,7 @@ const Commerce = ({ navigation }) => {
       <View style={st.header}>
         <Subtitle>Inventario</Subtitle>
         {selectList.length === 0 && <ViewIconPlus {...{ goCreateItem }} />}
-        {selectList.length === 1 && <ViewIconEdit {...{ goCreateItem }} />}
+        {selectList.length === 1 && <ViewIconEdit {...{ goEditItem }} />}
         {selectList.length >= 2 && <ViewIconDelete {...{ goCreateItem }} />}
       </View>
       <SearchBar {...{ setSearchBar, searchBar }} />
@@ -100,9 +113,9 @@ const ViewIconPlus = ({ goCreateItem }) => {
     </Pressable>
   );
 };
-const ViewIconEdit = ({ goCreateItem }) => {
+const ViewIconEdit = ({ goEditItem }) => {
   return (
-    <Pressable style={st.plus_btn} onPress={goCreateItem}>
+    <Pressable style={st.plus_btn} onPress={goEditItem}>
       <IconGear />
     </Pressable>
   );

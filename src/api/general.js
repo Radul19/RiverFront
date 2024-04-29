@@ -115,6 +115,13 @@ export const createItem = async (data)=>{
         return catchError(err)
     })
 }
+export const updateItem = async (data)=>{
+    return await axios.post(`${url}updateItem`,data).then(res=>{
+        return res
+    }).catch(err=>{
+        return catchError(err)
+    })
+}
 
 export const validateToken = async (data)=>{
     return await axios.post(`${url}validateToken`,{token:data}).then(res=>{

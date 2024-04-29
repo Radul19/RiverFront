@@ -75,21 +75,9 @@ const ItemPage = ({ navigation, route }) => {
   const { userData } = useContext(Context);
   const [isReady, setIsReady] = useState(false);
   const [heart, setHeart] = useState(false);
-  const [openBtn, setOpenBtn] = useState(false);
   const [item, setItem] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [modal, setModal] = useState(false);
-
-  const width = useSharedValue(52);
-
-  const toggle = () => {
-    if (!openBtn) {
-      width.value = withTiming(320);
-    } else {
-      width.value = withTiming(52);
-    }
-    setOpenBtn(!openBtn);
-  };
 
   const goBack = () => {
     navigation.goBack();
@@ -113,6 +101,7 @@ const ItemPage = ({ navigation, route }) => {
   };
 
   useEffect(() => {
+    // let t1 = performance.now()
     if (route.params && route.params.item) {
       setItem(route.params.item)
     }else if(route.params && route.params.id) {
@@ -127,6 +116,9 @@ const ItemPage = ({ navigation, route }) => {
         }
       })();
     }
+    
+    // let t2 = performance.now()
+    // console.log(`test ${t2-t1} ml`)
     return () => {
       setItem(false);
     };
@@ -146,7 +138,6 @@ const ItemPage = ({ navigation, route }) => {
       exiting={FadeOut}
     >
       
-      {/* <ScrollView contentContainerStyle={st.ctn} style={{ zIndex: -1 }}> */}
       <ScrollView contentContainerStyle={st.ctn}>
         <ImageDisplay images={item.images} goBack={goBack} stall={true} />
         <View style={st.content_ctn}>
@@ -160,7 +151,7 @@ const ItemPage = ({ navigation, route }) => {
       {!modal && (
         <>
           {!reviewOpen ? (
-            <ContactBtn {...{ openBtn, width, toggle }} />
+            <ContactBtn />
           ) : (
             <CommentBtn
               {...{ toggleModal }}
@@ -250,11 +241,11 @@ const ItemReviews = ({ toggleReview, item, user_id ,toggleModal}) => {
       <View  style={{height:2,width:'100%',backgroundColor:v.second,borderRadius:12}} /> 
       <View style={st.reviews_ctn}>
         {item.reviews.map((rev, index) => {
-          if (rev.user_id._id === user_id)
+          if (rev.user._id === user_id)
             return <ReviewCard key={rev._id} review={rev} {...{ toggleModal }} />;
         })}
         {item.reviews.map((rev, index) => {
-          if (rev.user_id._id !== user_id)
+          if (rev.user._id !== user_id)
             return <ReviewCard key={rev._id} review={rev} />;
         })}
       </View>
@@ -351,7 +342,7 @@ const findRev = (reviews,user_id)=>{
   let val = ''
   let bool = false
   reviews.forEach(rev => {
-    if(rev.user_id._id === user_id) {
+    if(rev.user._id === user_id) {
       val = rev.text
       bool = true
     }

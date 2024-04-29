@@ -1,15 +1,18 @@
 import { View, StyleSheet, ScrollView, Pressable, Image } from "react-native";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Text from "../../components/Text";
 import { ww, wh, Categories, HeaderBtn } from "../../components/DisplayItems";
 import { v } from "../../components/stylesVar";
 import { IconCross, IconLoad } from "../../components/Icons";
 import { Input, regex_price, regex_textnum } from "../../components/Inputs";
 import { PrimaryBtn } from "../../components/Btns";
-import ItemPage, { ImageDisplay, ItemInfo } from "../User/ItemPage";
+import ItemPage, { ItemInfo } from "../User/ItemPage";
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
 import Scroll from "../../components/Scroll";
 import img from "../../images/item.png";
+import Context from "../../components/Context";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { ImageDisplay } from "../../components/ItemComponents";
 // import img from "../images/item.png";
 
 const leftInfo = {
@@ -65,9 +68,17 @@ const NewItem = ({ navigation }) => {
 
 export default NewItem;
 
-const IMG_ERROR_MSG = 'Ha ocurrido un error al intentar seleccionar la imagen, intente nuevamente'
+const IMG_ERROR_MSG =
+  "Ha ocurrido un error al intentar seleccionar la imagen, intente nuevamente";
 
-const Form = ({ setPage, navigation, inputs, setInputs, categ, setCateg }) => {
+export const Form = ({
+  setPage,
+  navigation,
+  inputs,
+  setInputs,
+  categ,
+  setCateg,
+}) => {
   const [error, setError] = useState(false);
   const [imgLoad, setImgLoad] = useState(false);
 
@@ -93,18 +104,17 @@ const Form = ({ setPage, navigation, inputs, setInputs, categ, setCateg }) => {
         allowsEditing: true,
         aspect: [4, 4],
         quality: 1,
-        base64:true
+        base64: true,
       });
-  
+
       if (!result.canceled) {
         let aux = [...inputs.images];
         aux[index] = "data:image/png;base64," + result.assets[0].base64;
         setInputs({ ...inputs, images: aux });
       }
-      if(error === IMG_ERROR_MSG) setError(false)
-      
+      if (error === IMG_ERROR_MSG) setError(false);
     } catch (error) {
-      setError(IMG_ERROR_MSG)
+      setError(IMG_ERROR_MSG);
     }
     setImgLoad(false);
   };
@@ -114,14 +124,32 @@ const Form = ({ setPage, navigation, inputs, setInputs, categ, setCateg }) => {
   const pickThree = () => pickImage(2);
 
   const confirm = () => {
-    if(inputs.name.length < 3) return setError('El nombre debe contener almenos 3 caracteres')
-    if(inputs.price <= 0 ) return setError('El precio no puede estar vacío ni ser menor que cero (0)')
-    if(inputs.description.length < 20) return setError('La descripción debe contener almenos 20 caracteres')
-    if(inputs.images.length === 0) return setError('El item debe contener almenos una (1) imagen')
-    if(categ.length === 0) return setError('Debe seleccionar almenos una (1) categoría')
+    if (inputs.name.length < 3)
+      return setError("El nombre debe contener almenos 3 caracteres");
+    if (inputs.price <= 0)
+      return setError(
+        "El precio no puede estar vacío ni ser menor que cero (0)"
+      );
+    if (inputs.description.length < 20)
+      return setError("La descripción debe contener almenos 20 caracteres");
+    if (inputs.images.length === 0)
+      return setError("El item debe contener almenos una (1) imagen");
+    if (categ.length === 0)
+      return setError("Debe seleccionar almenos una (1) categoría");
     setPage(2);
     // console.log(categ)
   };
+
+  const removeImage = (index) => {
+    let aux = [...inputs.images];
+    aux.splice(index, 1);
+    setInputs((prev) => ({ ...prev, images: aux }));
+  };
+
+  const removeOne = () => removeImage(0);
+  const removeTwo = () => removeImage(1);
+  const removeThree = () => removeImage(2);
+
   return (
     <>
       <HeaderBtn text="Nuevo Articulo" />
@@ -153,21 +181,39 @@ const Form = ({ setPage, navigation, inputs, setInputs, categ, setCateg }) => {
       <Text {...{ fs: 16, ff: "Bold" }}>Imagenes</Text>
       <View style={st.images_ctn}>
         {inputs.images.length >= 0 && (
-          <Pressable style={st.image} onPress={pickOne} disabled={imgLoad}>
+          <Pressable
+            style={st.image}
+            onPress={pickOne}
+            disabled={imgLoad}
+            onLongPress={removeOne}
+          >
             {imgLoad && <ImageLoading />}
-            <Image source={{ uri: inputs.images[0] }} style={st.img} />
+            <Image
+              source={{ uri: inputs.images[0]?.secure_url ?? inputs.images[0] }}
+              style={st.img}
+            />
           </Pressable>
         )}
         {inputs.images.length >= 1 && (
-          <Pressable style={st.image} onPress={pickTwo}>
+          <Pressable style={st.image} onPress={pickTwo} onLongPress={removeTwo}>
             {imgLoad && <ImageLoading />}
-            <Image source={{ uri: inputs.images[1] }} style={st.img} />
+            <Image
+              source={{ uri: inputs.images[1]?.secure_url ?? inputs.images[1] }}
+              style={st.img}
+            />
           </Pressable>
         )}
         {inputs.images.length >= 2 && (
-          <Pressable style={st.image} onPress={pickThree}>
+          <Pressable
+            style={st.image}
+            onPress={pickThree}
+            onLongPress={removeThree}
+          >
             {imgLoad && <ImageLoading />}
-            <Image source={{ uri: inputs.images[2] }} style={st.img} />
+            <Image
+              source={{ uri: inputs.images[2]?.image ?? inputs.images[2] }}
+              style={st.img}
+            />
           </Pressable>
         )}
       </View>
@@ -178,28 +224,6 @@ const Form = ({ setPage, navigation, inputs, setInputs, categ, setCateg }) => {
         <PrimaryBtn action={confirm} text="Vista Previa" />
       </View>
     </>
-  );
-};
-
-const UnitsItem = ({ text, active, set }) => {
-  const update = () => {
-    set((prev) => ({ ...prev, unit: text }));
-  };
-  return (
-    <Pressable
-      style={text === active ? st.unitItem_active : st.unitItem}
-      onPress={update}
-    >
-      {text === active ? (
-        <Text ff="Bold" style={{ textAlign: "center", color: v.prime }}>
-          {text}
-        </Text>
-      ) : (
-        <Text ff="Bold" style={{ textAlign: "center" }}>
-          {text}
-        </Text>
-      )}
-    </Pressable>
   );
 };
 
@@ -251,6 +275,21 @@ const st = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  preview: {
+    display: "flex",
+    minHeight: wh,
+    position: "relative",
+  },
+  preview_ctn: {
+    zIndex: 200,
+    marginTop: -24,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    flex: 1,
+    backgroundColor: v.prime,
+    padding: 20,
+    minHeight: wh * 0.65,
+  },
 });
 
 const unitSt = {
@@ -296,7 +335,6 @@ const ErrorText = ({ text }) => {
   );
 };
 
-
 const item2 = {
   name: "Test 01",
   price: 12.99,
@@ -310,11 +348,16 @@ const item2 = {
   reviews: [],
 };
 
-export const Preview = ({ item = item2, navigation, resetAll, goBack }) => {
+export const Preview = ({
+  item = item2,
+  navigation,
+  resetAll,
+  goBack,
+  edit = false,
+}) => {
   const { userData } = useContext(Context);
 
   const confirmPreview = async () => {
-    // console.log({...item,owner_id:userData.commerce._id})
     const { status, data } = await createItem({
       ...item,
       owner_id: userData.commerce._id,
@@ -325,8 +368,15 @@ export const Preview = ({ item = item2, navigation, resetAll, goBack }) => {
     } else {
       goBack();
     }
-
-    // console.log(item.images.length);
+  };
+  const confirmEdit = async () => {
+    const { status, data } = await createItem({ ...item });
+    if (status === 200) {
+      resetAll();
+      navigation.navigate("Commerce");
+    } else {
+      goBack();
+    }
   };
 
   return (
@@ -335,9 +385,11 @@ export const Preview = ({ item = item2, navigation, resetAll, goBack }) => {
       style={{ flex: 1, backgroundColor: v.prime }}
       exiting={FadeOut}
     >
-      <ScrollView contentContainerStyle={st.ctn}>
+      <ScrollView contentContainerStyle={st.preview}>
         <ImageDisplay images={item.images} goBack={goBack} stall={false} />
-        <ItemInfo {...{ item }} />
+        <View style={st.preview_ctn}>
+          <ItemInfo {...{ item }} />
+        </View>
       </ScrollView>
       <View
         style={{
@@ -348,7 +400,10 @@ export const Preview = ({ item = item2, navigation, resetAll, goBack }) => {
           bottom: 0,
         }}
       >
-        <PrimaryBtn text="Confirmar" action={confirmPreview} />
+        <PrimaryBtn
+          text="Confirmar"
+          action={!edit ? confirmPreview : confirmEdit}
+        />
       </View>
     </Animated.View>
   );

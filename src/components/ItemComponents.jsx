@@ -35,7 +35,18 @@ import { v } from "./stylesVar";
 import Text from "./Text";
 import "moment/locale/es";
 
-export const ContactBtn = ({ openBtn, width, toggle }) => {
+export const ContactBtn = () => {
+  const [open, setOpen] = useState(false);
+
+  const width = useSharedValue(52);
+
+  const toggle = () => {
+    if (!open) width.value = withTiming(320);
+    else width.value = withTiming(52);
+
+    setOpen(!open);
+  };
+
   return (
     <Animated.View style={[st.wide_ctn, { width }]}>
       <View style={st.btn_ctn}>
@@ -56,11 +67,7 @@ export const ContactBtn = ({ openBtn, width, toggle }) => {
         </Pressable>
 
         <Pressable style={st.contact_btn} onPress={toggle}>
-          {openBtn ? (
-            <IconCross color={v.prime} />
-          ) : (
-            <IconBag color={v.prime} />
-          )}
+          {open ? <IconCross color={v.prime} /> : <IconBag color={v.prime} />}
         </Pressable>
       </View>
     </Animated.View>
@@ -155,22 +162,31 @@ export const ImageDisplay = ({
           <IconStallLine size={20} />
         </Pressable>
       )}
-      <GestureDetector gesture={panGesture}>
-        <Animated.View style={[st.carousel_ctn, animatedStyle]}>
+      {images.length > 1 ? (
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={[st.carousel_ctn, animatedStyle]}>
+            {images.map((i, index) => (
+              <Image
+                style={st.img_carousel}
+                key={index}
+                source={{ uri: i?.secure_url ?? i }}
+              />
+            ))}
+          </Animated.View>
+        </GestureDetector>
+      ) : (
+        <Image
+          style={st.img_carousel}
+          source={{ uri: images[0]?.secure_url ?? images[0] }}
+        />
+      )}
+      {images.length > 1 && (
+        <View style={st.dots_ctn}>
           {images.map((i, index) => (
-            <Image
-              style={st.img_carousel}
-              key={index}
-              source={{ uri: i.image ? i.image : i }}
-            />
+            <Dot pos={pos} index={index} key={index} />
           ))}
-        </Animated.View>
-      </GestureDetector>
-      <View style={st.dots_ctn}>
-        {images.map((i, index) => (
-          <Dot pos={pos} index={index} key={index} />
-        ))}
-      </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -282,7 +298,7 @@ export const ReviewCard = ({ review, toggleModal = false }) => {
             <View
               style={{ flexDirection: "row", gap: 6, alignItems: "center" }}
             >
-              <Text {...{ fs: 16, ff: "Bold" }}>{review.user_id.name}</Text>
+              <Text {...{ fs: 16, ff: "Bold" }}>{review.user.name}</Text>
               {toggleModal && <IconUser size={16} color="#3978FF" />}
               {/* <Text {...{ fs: 16, ff: "Bold" }}>{review.user_id.name}</Text> */}
             </View>
@@ -308,7 +324,9 @@ export const ReviewCard = ({ review, toggleModal = false }) => {
             </View>
           </View>
         </View>
-        <Text fs={16} filter={true} >{review.text}</Text>
+        <Text fs={16} filter={true}>
+          {review.text}
+        </Text>
       </>
     );
   };

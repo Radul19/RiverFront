@@ -70,7 +70,7 @@ export const Item = ({ item, nav, longPress }) => {
 
   return (
     <Pressable style={st.item_ctn} onPress={goTo} onLongPress={onLongPress}>
-      <Image source={{ uri: item.images[0].image }} style={st.item_img} />
+      <Image source={{ uri: item.images[0].secure_url }} style={st.item_img} />
 
       <Text numberOfLines={1}>{item.name}</Text>
       <View style={st.item_bottom}>
@@ -90,7 +90,7 @@ export const MyItem = ({ item, add, remove, imSelected }) => {
 
   return (
     <Pressable style={st.item_selection} onPress={press}>
-      <Image source={{ uri: item.images[0].image }} style={st.item_img} />
+      <Image source={{ uri: item.images[0].secure_url }} style={st.item_img} />
       <View style={st.abs_check}>
         {imSelected ? <IconCheck /> : <IconCircleLine />}
       </View>

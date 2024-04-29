@@ -15,6 +15,7 @@ import NewItem from './src/screens/Commerce/NewItem';
 import ShopPage from './src/screens/ShopPage';
 import Splash from './src/screens/Splash';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import EditItem from './src/screens/Commerce/EditItem';
 
 
 const Stack = createNativeStackNavigator();
@@ -52,6 +53,7 @@ export default function App() {
               <Stack.Screen name="NewItem" component={NewItem} />
               <Stack.Screen name="Commerce" component={userData.commerce ? Commerce : RegisterCommerce} />
               <Stack.Screen name="Profile" component={userData._id ? Profile : Login} />
+              <Stack.Screen name="EditItem" component={EditItem} />
               {/* <Stack.Screen name="Details" component={DetailsScreen} /> */}
             </Stack.Navigator>
           </NavigationContainer>
