@@ -1,5 +1,7 @@
+import { ItemType, ReviewType } from "../types/item";
+import { CommerceType } from "../types/user";
 
-export const applyFilter = (arr, filter) => {
+export const applyFilter = (arr:any, filter:any) => {
   if (!filter) {
     return arr;
   } else {
@@ -34,7 +36,7 @@ export const applyFilter = (arr, filter) => {
   }
 };
 
-export const getStars = (item) => {
+export const getStars = (item:ItemType|CommerceType) => {
   if (item.reviews.length > 0) {
     let aux = 0
     item.reviews.forEach(rev => {

@@ -48,7 +48,7 @@ const Favorites = () => {
       {show ? (
         <ItemsCtn data={itemsData.items} load={load} />
       ) : (
-        <ItemsCtn data={itemsData.markets} load={load} />
+        <ItemsCtn data={itemsData.markets} load={load} markets/>
       )}
     </Scroll>
   );

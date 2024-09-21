@@ -34,16 +34,18 @@ import { v, stB, ww } from "./stylesVar";
 import { ItemType } from "../types/item";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { NavType, ScreensType } from "../types/screens"
+import { CommerceType } from "../types/user";
 
 
 type ItemsCtnProps = {
   data: ItemType[],
   load?: boolean,
+  markets?: boolean,
   filter?: { name?: string, status?: number },
   longPress?: (_id: string) => void
 }
 
-export const ItemsCtn = ({ data, load, filter, longPress }: ItemsCtnProps) => {
+export const ItemsCtn = ({ data, load, filter, longPress,markets }: ItemsCtnProps) => {
   const nav = useNavigation();
   return (
     <>
@@ -61,15 +63,20 @@ export const ItemsCtn = ({ data, load, filter, longPress }: ItemsCtnProps) => {
           gap: 12,
         }}
       >
-        {applyFilter(data, filter).map((item: ItemType) => (
-          <Item item={item} key={item._id} {...{ longPress, nav }} />
-        ))}
+        {applyFilter(data, filter).map((item: any) => {
+          if(markets){
+            return  <Market market={item} key={item._id} {...{ longPress, nav }} />
+          }else return <Item item={item} key={item._id} {...{ longPress, nav }} />
+        })}
       </Animated.View>
     </>
   );
 };
 
 type ItemProps = { item: ItemType, nav: NavType, longPress?: (_id: string) => void }
+type MarketProps = Omit<ItemProps,'item'>&{
+  market:CommerceType
+}
 export const Item = ({ item, nav, longPress }: ItemProps) => {
   const goTo = () => {
     nav.navigate("ItemPage", { item: item });
@@ -89,6 +96,27 @@ export const Item = ({ item, nav, longPress }: ItemProps) => {
           {Number.parseFloat(item.price).toFixed(2)}
         </Text>
         <StarsCtn stars={getStars(item)} />
+      </View>
+    </Pressable>
+  );
+};
+export const Market = ({ market, nav, longPress }: MarketProps) => {
+  const goTo = () => {
+    nav.navigate("ShopPage", { id: market._id });
+  };
+
+  const onLongPress = () => {
+    if (longPress) longPress(market._id);
+  };
+
+  return (
+    <Pressable style={st.item_ctn} onPress={goTo} onLongPress={onLongPress}>
+      <Image source={{ uri: market.logo }} style={st.item_img} />
+
+      <Text numberOfLines={1}>{market.name}</Text>
+      <View style={st.item_bottom}>
+        {/* <Text ff="Bold" style={{ fontSize: 16 }}></Text> */}
+        <StarsCtn stars={getStars(market)} />
       </View>
     </Pressable>
   );

@@ -23,7 +23,8 @@ const Login = ({ navigation }: Props) => {
   });
 
   const goToRegister = () => {
-    navigation.navigate("Register");
+    console.log(userData);
+    // navigation.navigate("Register");
   };
 
   const loginPress = async () => {
