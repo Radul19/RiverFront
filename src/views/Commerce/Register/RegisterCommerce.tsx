@@ -174,7 +174,7 @@ export const InfoCommerce = ({
   // const [shape, setShape] = useState(1);
   const [inputs, setInputs] = useState(allInfo);
   const [schedules, setSchedules] = useState<ScheduleType[]>(sch);
-  const [idk, setIdk] = useState(false);
+  const [idk, setIdk] = useState<any>(false);
   const [modal, setModal] = useState(false);
 
   const goBack = () => {
@@ -250,7 +250,7 @@ export const InfoCommerce = ({
   };
 
   const goToInv = () => {
-    setUserData(({ ...userData, commerce: '' }));
+    setUserData({ ...userData, commerce: idk });
   };
 
   return (

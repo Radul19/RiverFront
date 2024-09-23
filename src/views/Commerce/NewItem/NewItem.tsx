@@ -350,7 +350,7 @@ export const Preview = ({ goToCommerce }: { goToCommerce: () => void }) => {
       exiting={FadeOut}
     >
       <ScrollView contentContainerStyle={st.preview}>
-        <ImageDisplay images={inputs.images} goBack={goBack} stall={false} />
+        <ImageDisplay images={inputs.images} goBack={goBack} />
         <View style={st.preview_ctn}>
           <ItemInfo
             {...{
