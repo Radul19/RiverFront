@@ -4,6 +4,7 @@ import {
   ScrollView,
   Pressable,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import Text from "../../../components/Text";
 import React, { Dispatch, useContext, useEffect, useState } from "react";
@@ -35,6 +36,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScreensType } from "../../../types/screens";
 import st from "./style";
 import { CommerceType } from "../../../types/user";
+import { useNavigation } from "@react-navigation/native";
 
 const reviewsX = [
   { stars: 4 },
@@ -137,7 +139,8 @@ const ItemPage = ({ navigation, route }: Props) => {
       exiting={FadeOut}
     >
       <ScrollView contentContainerStyle={st.ctn}>
-        <ImageDisplay images={item.images} goBack={goBack} stall={item.owner_id} />
+        <ImageDisplay images={item.images} goBack={goBack} />
+        {/* <ImageDisplay images={item.images} goBack={goBack} stall={item.commerce} /> */}
         <View style={st.content_ctn}>
           {!reviewOpen ? (
             <ItemInfo {...{ item, toggleReview, sendFavorite }} />
@@ -149,7 +152,16 @@ const ItemPage = ({ navigation, route }: Props) => {
           )}
         </View>
       </ScrollView>
-      {!modal && (
+
+      {/** BTNS */}
+      {modal ? (
+        <Modal_Review
+          toggle={toggleModal}
+          user_id={userData._id}
+          item={item}
+          setItem={setItem}
+        />
+      ) : (
         <>
           {!reviewOpen ? (
             <ContactBtn />
@@ -160,14 +172,6 @@ const ItemPage = ({ navigation, route }: Props) => {
             />
           )}
         </>
-      )}
-      {modal && (
-        <Modal_Review
-          toggle={toggleModal}
-          user_id={userData._id}
-          item={item}
-          setItem={setItem}
-        />
       )}
     </Animated.View>
   );
@@ -196,7 +200,8 @@ export const ItemInfo = ({
       exiting={FadeOut}
       style={st.content_ctn_inside}
     >
-      <ItemTitle item={item} sendFavorite={sendFavorite}/>
+      <ItemTitle item={item} sendFavorite={sendFavorite} />
+      <OwnerDisplay commerce={item.commerce} />
       <ReviewsBtn {...{ toggleReview, reviews: item.reviews }} />
       <Text ff="Bold" fs={32}>
         ${Number.parseFloat(item.price).toFixed(2)}
@@ -313,11 +318,17 @@ const findRev = (reviews: ReviewType[], user_id: string) => {
 type ModalRevProps = {
   toggle: () => void;
   user_id: string;
-  item: ItemType|CommerceType;
-  setItem: Dispatch<ItemType>|Dispatch<CommerceType>;
-  market_id?:string
+  item: ItemType | CommerceType;
+  setItem: Dispatch<ItemType> | Dispatch<CommerceType>;
+  market_id?: string;
 };
-export const Modal_Review = ({ toggle, user_id, item, setItem,market_id }: ModalRevProps) => {
+export const Modal_Review = ({
+  toggle,
+  user_id,
+  item,
+  setItem,
+  market_id,
+}: ModalRevProps) => {
   const [stars, setStars] = useState(4);
   const [input, setInput] = useState(findRev(item.reviews, user_id).val);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -407,4 +418,39 @@ const StarRev = ({ stars, value, setStars }: StarRevProps) => {
       {stars >= value ? <IconStar size={32} /> : <IconStarLine size={32} />}
     </Pressable>
   );
+};
+
+const OwnerDisplay = ({
+  commerce,
+}: {
+  commerce: string | { logo: string; name: string,_id:string };
+}) => {
+  if (typeof commerce === "string") return null;
+
+  
+  
+  
+  const nav = useNavigation();
+  const goShopPage = () => {
+    nav.navigate("ShopPage", { id: commerce._id });
+  };
+  if (typeof commerce === "object") return (
+      <Pressable
+      onPress={goShopPage}
+        style={({pressed}) => ({
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 8,
+          marginTop: -12,
+          opacity: pressed ? 0.5 : 1,
+        })}
+      >
+        <Image
+          src={commerce.logo}
+          style={{ height: 20, width: 20, borderRadius: 100 }}
+        />
+        <Text fs={12} style={{color:"#404040"}}  >{commerce.name}</Text>
+      </Pressable>
+    );
 };

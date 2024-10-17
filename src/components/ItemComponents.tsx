@@ -37,9 +37,8 @@ import { v, ww, wh } from "./stylesVar";
 import Text from "./Text";
 import "moment/locale/es";
 import { ImageType, ItemType, ReviewType } from "../types/item";
-import { UserType } from "../types/user";
+import { CommerceType, UserType } from "../types/user";
 import Context from "./Context";
-import { useNavigation } from "@react-navigation/native";
 import {
   sendWhatsApp,
   sendSMS,
@@ -96,7 +95,11 @@ export const ContactBtn = ({ market = false }) => {
 
         {market ? (
           <Pressable style={st.contact_btn} onPress={toggle}>
-            {open ? <IconCross color={v.prime} /> : <IconPhone color={v.prime} />}
+            {open ? (
+              <IconCross color={v.prime} />
+            ) : (
+              <IconPhone color={v.prime} />
+            )}
           </Pressable>
         ) : (
           <Pressable style={st.contact_btn} onPress={toggle}>
@@ -108,11 +111,13 @@ export const ContactBtn = ({ market = false }) => {
   );
 };
 
-type CommentBtnProps = {
+export const CommentBtn = ({
+  toggleModal,
+  isCommented,
+}: {
   toggleModal: () => void;
   isCommented: boolean;
-};
-export const CommentBtn = ({ toggleModal, isCommented }: CommentBtnProps) => {
+}) => {
   if (isCommented) return null;
   return (
     <TouchableOpacity style={st.commentBtn_ctn} onPress={toggleModal}>
@@ -126,14 +131,13 @@ export const CommentBtn = ({ toggleModal, isCommented }: CommentBtnProps) => {
   );
 };
 
-type RevBtnProps = {
-  reviews: Array<any>;
-  toggleReview?: () => void;
-};
 export const ReviewsBtn = ({
   reviews = reviewsX,
   toggleReview,
-}: RevBtnProps) => {
+}: {
+  reviews: Array<any>;
+  toggleReview?: () => void;
+}) => {
   return (
     <Pressable style={st.reviews_btn} onPress={toggleReview}>
       <StarsCtn stars={avgStars(reviews)} size={20} />
@@ -144,22 +148,18 @@ export const ReviewsBtn = ({
 };
 
 // IMAGE LOGIC
-
-// const ximages = [img, img, img];
-type ImageDisplayProps = {
-  images: ImageType[];
-  goBack?: () => void;
-  stall?: string;
-};
 export const ImageDisplay = ({
   images = [],
   goBack = undefined,
-  stall,
-}: ImageDisplayProps) => {
+  // stall,
+}: {
+  images: ImageType[];
+  goBack?: () => void;
+  // stall?: string;
+}) => {
   const pos = useSharedValue(0);
   const position = useSharedValue(0);
 
-  const nav = useNavigation();
 
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {
@@ -203,7 +203,7 @@ export const ImageDisplay = ({
   };
 
   const goShopPage = () => {
-    nav.navigate("ShopPage", { id: stall });
+    // nav.navigate("ShopPage", { id: stall });
   };
 
   return (
@@ -213,11 +213,11 @@ export const ImageDisplay = ({
           <IconArrowRight size={20} />
         </Pressable>
       )}
-      {stall && (
+      {/* {stall && (
         <Pressable style={st.shop_btn} onPress={goShopPage}>
           <IconStallLine size={20} />
         </Pressable>
-      )}
+      )} */}
       {images.length > 1 ? (
         <GestureDetector gesture={panGesture}>
           <Animated.View style={[st.carousel_ctn, animatedStyle]}>
@@ -247,11 +247,13 @@ export const ImageDisplay = ({
   );
 };
 
-type ItemTitleProps = {
+export const ItemTitle = ({
+  sendFavorite,
+  item,
+}: {
   sendFavorite?: (status: boolean) => Promise<void>;
-  item: ItemType;
-};
-export const ItemTitle = ({ sendFavorite, item }: ItemTitleProps) => {
+  item: ItemType|CommerceType;
+}) => {
   const { userData } = useContext(Context);
   return (
     <View style={st.top}>
@@ -268,11 +270,13 @@ export const ItemTitle = ({ sendFavorite, item }: ItemTitleProps) => {
     </View>
   );
 };
-type HeartBtnProps = {
+const HeartBtn = ({
+  initial,
+  sendFavorite,
+}: {
   initial: boolean;
   sendFavorite?: (state: boolean) => Promise<void>;
-};
-const HeartBtn = ({ initial, sendFavorite }: HeartBtnProps) => {
+}) => {
   const [heart, setHeart] = useState(initial);
   const [isReady, setIsReady] = useState(false);
   const toggleHeart = () => {
@@ -340,15 +344,13 @@ const avgStars = (reviews: Array<any>) => {
   return Math.floor(aux * 10) / 10;
 };
 
-type RevCardProps = {
-  // review: ReviewType & { user: UserType },
-  review: ReviewType;
-  toggleModal?: () => void;
-};
 export const ReviewCard = ({
   review,
   toggleModal = undefined,
-}: RevCardProps) => {
+}: {
+  review: ReviewType;
+  toggleModal?: () => void;
+}) => {
   const Content = () => {
     return (
       <>

@@ -1,7 +1,7 @@
 // export const isOffline = true
 export const isOffline = false
-export const url = "https://river-back.vercel.app/"
-// export const url = "http://192.168.1.110:4000/"
+// export const url = "https://river-back.vercel.app/"
+export const url = "http://192.168.1.110:4000/"
 
 export const items = [
     {
@@ -10,7 +10,7 @@ export const items = [
         price: 45.00,
         description: 'Lorem ipsum dolor sit amet consectetur. Dictum eget elementum metus eu aliquam libero elit odio facilisis. Leo elit id volutpat cursus leo ultrices scelerisque lobortis massa. Aliquet pulvinar...',
         categories: ['home', 'clean'],
-        owner_id: '0001',
+        commerce: '0001',
         units_type: 1,
         favorites: [],
         reviews: [],
@@ -22,7 +22,7 @@ export const items = [
         price: 1.00,
         description: '',
         categories: ['clean', 'cloth'],
-        owner_id: '0001',
+        commerce: '0001',
         units_type: 1,
         favorites: [],
         reviews: [{ stars: 4 }, { stars: 5 }, { stars: 2 }, { stars: 3 }],
@@ -33,7 +33,7 @@ export const items = [
         price: 29.99,
         description: '',
         categories: ['cloth', 'food'],
-        owner_id: '0001',
+        commerce: '0001',
         units_type: 1,
         favorites: [],
         reviews: [],
@@ -44,7 +44,7 @@ export const items = [
         price: 5.99,
         description: '',
         categories: ['tech', 'others'],
-        owner_id: '0001',
+        commerce: '0001',
         units_type: 1,
         favorites: [],
         reviews: [],
@@ -55,7 +55,7 @@ export const items = [
         price: 51.00,
         description: '',
         categories: ['others', 'home'],
-        owner_id: '0001',
+        commerce: '0001',
         units_type: 1,
         favorites: [],
         reviews: [],
@@ -66,7 +66,7 @@ export const items = [
         price: 120.99,
         description: '',
         categories: ['tech'],
-        owner_id: '0001',
+        commerce: '0001',
         units_type: 1,
         favorites: [],
         reviews: [],
@@ -106,7 +106,7 @@ export const regCommerceOffline = {
     name: "Commerce Test1",
     phone: "+584143684455",
     description: "Description for commerce 1",
-    owner_id: "6553461186511c6c924f89f4",
+    commerce: "6553461186511c6c924f89f4",
     logo: "https://res.cloudinary.com/dhp2q7rls/image/upload/v1699956676/dkjhfrw244wb1q1vozih.png",
     logo_id: "dkjhfrw244wb1q1vozih",
     email: "commerce@gmail.com",
@@ -159,11 +159,27 @@ export const catchError = async (err:any) => {
  * ✔ Favorites logic Commerce
  * ✔ Searchbar items from commerce
  * ✔ Review from commerce
- * ⏳ Show and enable contact info
+ * 
+ * ✔ Show and enable contact info
+ * 
+ * ✔ Commerce search
+ * ✔ Clean Commerce Register/Edit
+ * ✔ Delivery btn on Create/edit Commerce
+ * ✔ Schedules in Commerce page
+ * ✔ Commerce btn redesign on Item Page
+ * 
+ * ✔ Search by open or close
+ * ✔ Splash Screen + Icon App
+ * ✔ Hide Shedules or Create "Show More" btn
+ * 
+ * ⏳ Color primary
+ * 
  * ⏳ Send Email Code (Email logic)
  * ⏳ Web Page
  * ⏳ Update / Link / Versions system
  * ⏳ Do pilot apk
  * ⏳ Instagram post/ account
  * 
+ * ❓ Reduce Categories size ❌
+ * ❓ Review btn redesign ❌
  */

@@ -1,31 +1,30 @@
-import { View, ScrollView, Pressable, StyleSheet, Image } from "react-native";
+import { View, Pressable, Image } from "react-native";
 import React, { useContext, useEffect, useState, Dispatch } from "react";
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
 import Animated, {
   FadeIn,
   FadeInRight,
-  FadeOut,
   FadeOutRight,
-  // Layout,
   LinearTransition,
 } from "react-native-reanimated";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import Text from "../../../components/Text";
-import { v, wh } from "../../../components/stylesVar";
+import { v } from "../../../components/stylesVar";
 import {
   IconArrowRight,
   IconCross,
+  IconDelivery,
   IconInstagram,
-  IconLoad,
   IconMessenger,
   IconPlusBox,
+  IconSwitchOff,
+  IconSwitchOn,
   IconTelegram,
   IconWhatsapp,
 } from "../../../components/Icons";
-import { HeaderBtn } from "../../../components/DisplayItems";
+import { Categories, HeaderBtn } from "../../../components/DisplayItems";
 import { PrimaryBtn } from "../../../components/Btns";
 import {
-  CodeInput,
   Input,
   regex_email,
   regex_phone,
@@ -33,35 +32,43 @@ import {
 } from "../../../components/Inputs";
 import moment from "moment";
 import Context from "../../../components/Context";
-import { codeExist, registerCommerce } from "../../../api/general";
+import { editMarketData, registerCommerce } from "../../../api/general";
 import Scroll from "../../../components/Scroll";
 import { ScreensType } from "../../../types/screens";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import st from './style'
+import st from "./style";
 import { CommerceType, ScheduleType, UserType } from "../../../types/user";
+import CodePage from "./CodePage";
+import SuccessPage from "./SuccessPage";
+import { opacity } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 let commerceInfo: CommerceType = {
-  _id: '',
-  name: '',
-  phone: '',
-  description: '',
-  owner_id: '',
-  logo: '',
-  logo_id: '',
-  email: '',
-  address: '',
-  rif: '',
+  _id: "",
+  name: "",
+  phone: "",
+  description: "",
+  owner_id: "",
+  logo: "",
+  logo_id: "",
+  email: "",
+  address: "",
+  rif: "",
+  delivery: false,
   reviews: [],
-  socials: {},
+  socials: {
+    telegram: undefined,
+    whatsapp: undefined,
+    messenger: undefined,
+    instagram: undefined,
+  },
   schedules: [],
   categories: [],
   favorites: [],
-  createdAt: '',
-  updatedAt: '',
-
+  createdAt: "",
+  updatedAt: "",
 };
 
-type Props = NativeStackScreenProps<ScreensType, 'RegisterCommerce'>;
+type Props = NativeStackScreenProps<ScreensType, "RegisterCommerce">;
 const RegisterCommerce = ({ navigation, route }: Props) => {
   // Logic
   const { userData, setUserData } = useContext(Context);
@@ -88,108 +95,44 @@ const RegisterCommerce = ({ navigation, route }: Props) => {
   //
 
   return (
-    <View style={{ flex: 1, backgroundColor: v.prime }}>
+    <Scroll nav={page === 3 ? 3 : undefined}>
       {page === 3 && <CodePage {...codeVars} />}
       {page === 2 && <InfoCommerce {...infoVars} />}
-    </View>
-  );
-};
-
-type CodeProps = {
-  setPage: Dispatch<number>, code: string, setCode: Dispatch<string>
-}
-const CodePage = ({ setPage, code, setCode }: CodeProps) => {
-  const [error, setError] = useState<string | undefined>(undefined);
-  const [load, setLoad] = useState(false);
-  const confirm = async () => {
-    setPage(2)
-    // setLoad(true);
-    // setError(undefined);
-    // const { status, data } = await codeExist(code);
-    // setLoad(false);
-    // if (status === 200 && data) setPage(2);
-    // else setError(data.msg);
-  };
-  return (
-    <Scroll nav={3}>
-      <View style={{ height: wh - 100, paddingTop: wh * 0.15, gap: 14 }}>
-        <Text ff="Bold" fs={32} style={st.tc}>
-          Get ready in this adventure!
-        </Text>
-        <Text style={{ ...st.tc, paddingBottom: 6 }} fs={16}>
-          Antes de continuar, necesitamos verificar que eres uno de los
-          comercios seleccionados para la fase de prueba
-        </Text>
-
-        <CodeInput set={setCode} />
-        <View style={{ height: 42 }}>
-          {error && <ErrorText text={error} />}
-        </View>
-        {/* {true && ( */}
-        {code.length === 6 && (
-          <Animated.View entering={FadeIn} exiting={FadeOut}>
-            <Pressable style={st.btn_ctn} onPress={confirm}>
-              <Text style={{ fontSize: 20, color: v.four}} ff="Medium">
-                Continuar
-              </Text>
-              <View style={st.btn_login}>
-                {load ? (
-                  <IconLoad color={v.prime} />
-                ) : (
-                  <IconArrowRight color={v.prime} />
-                )}
-              </View>
-            </Pressable>
-          </Animated.View>
-        )}
-        <Pressable style={st.not_code}>
-          <Text >No tengo ningun codigo</Text>
-        </Pressable>
-      </View>
     </Scroll>
   );
 };
+export default RegisterCommerce;
 
-const IMG_ERROR_MSG =
-  "Ha ocurrido un error al intentar seleccionar la imagen, intente nuevamente";
-
-type InfoCommerceType = {
-  setPage: Dispatch<number>,
-  info?: CommerceType,
-  edit?: boolean,
-  code: string,
-  userData: UserType,
-  setUserData: Dispatch<UserType>,
-}
 export const InfoCommerce = ({
   setPage,
-  info = commerceInfo,
-  edit = false,
   code,
   userData,
   setUserData,
-}: InfoCommerceType) => {
+}: {
+  setPage: Dispatch<number>;
+  code: string;
+  userData: UserType;
+  setUserData: Dispatch<UserType | ((value: UserType) => UserType)>;
+}) => {
   const [error, setError] = useState<string | undefined>(undefined);
-  const { schedules: sch, ...allInfo } = info;
-  // const [shape, setShape] = useState(1);
-  const [inputs, setInputs] = useState(allInfo);
-  const [schedules, setSchedules] = useState<ScheduleType[]>(sch);
-  const [idk, setIdk] = useState<any>(false);
+  const [inputs, setInputs] = useState(userData.commerce ?? commerceInfo);
+  const [holder, setHolder] = useState<CommerceType | undefined>(undefined);
   const [modal, setModal] = useState(false);
 
   const goBack = () => {
-    if (edit) return setPage(1);
+    if (userData.commerce) return setPage(1);
     setPage(3);
   };
   const addSchedule = () => {
-    let aux = [...schedules];
+    let aux = [...inputs.schedules];
     aux.push({
       since: new Date(1699524011003),
       until: new Date(1699560011003),
       day: 1,
       _id: +moment(),
     });
-    setSchedules(aux);
+    // setSchedules(aux);
+    setInputs({ ...inputs, schedules: aux });
   };
 
   const validateData = () => {
@@ -210,17 +153,29 @@ export const InfoCommerce = ({
   const confirm = async () => {
     let validation = validateData();
     if (validation) return setError(validation);
-    if (!edit) {
+    if (!userData.commerce) {
       const marketInfo = {
         ...inputs,
-        schedules,
         owner_id: userData._id,
         code,
       };
       const { status, data } = await registerCommerce(marketInfo);
       if (status === 200) {
-        setIdk(data);
+        setHolder(data);
         setModal(true);
+      } else {
+        setError(data.msg);
+      }
+    } else {
+      const marketInfo = {
+        ...inputs,
+        owner_id: userData._id,
+        market_id: userData.commerce._id,
+      };
+      const { status, data } = await editMarketData(marketInfo);
+      if (status === 200) {
+        setUserData((prev) => ({ ...prev, commerce: data }));
+        goBack();
       } else {
         setError(data.msg);
       }
@@ -250,7 +205,18 @@ export const InfoCommerce = ({
   };
 
   const goToInv = () => {
-    setUserData({ ...userData, commerce: idk });
+    setUserData({ ...userData, commerce: holder });
+  };
+
+  const handleCateg = (name: string) => {
+    let indexOf = inputs.categories.indexOf(name);
+    let aux = [...inputs.categories];
+    if (indexOf === -1) {
+      aux.push(name);
+    } else {
+      aux.splice(indexOf, 1);
+    }
+    setInputs((prev) => ({ ...prev, categories: aux }));
   };
 
   return (
@@ -258,14 +224,15 @@ export const InfoCommerce = ({
       {modal ? (
         <SuccessPage {...{ setPage, goToInv }} />
       ) : (
-        <Scroll>
+        <>
           <HeaderBtn text="Info Comercial" onPress={goBack} />
-          <Text  {...{ subtitle }}>Datos de identidad</Text>
+          <Subtitle text="Datos de Identidad" />
           <Input
             set={setInputs}
             name="name"
             placeholder="Nombre de empresa"
             regex={regex_textnum}
+            initialValue={inputs.name}
           />
           <Input
             set={setInputs}
@@ -273,14 +240,16 @@ export const InfoCommerce = ({
             placeholder="Numero de telefono"
             regex={regex_phone}
             maxLength={11}
+            initialValue={inputs.phone}
           />
           <Input
             set={setInputs}
             name="description"
             placeholder="Description"
             multiline={true}
+            initialValue={inputs.description}
           />
-          <Text  {...{ subtitle }}>Logo</Text>
+          <Text ff="Bold">Logo</Text>
           <Pressable style={st.logo_ctn} onPress={pickImage}>
             {inputs.logo ? (
               <Image source={{ uri: inputs.logo }} style={st.logo} />
@@ -288,45 +257,61 @@ export const InfoCommerce = ({
               <Text {...{ ff: "Medium", fs: 32 }}>+</Text>
             )}
           </Pressable>
-          <View style={st.subtitle_ctn}>
-            <Text  {...{ subtitle }}>Informacion Adicional</Text>
-            <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
-          </View>
-          <Input set={setInputs} name="email" placeholder="Correo Comercial" />
-          <Input set={setInputs} name="address" placeholder="Direccion" />
-          <Input set={setInputs} name="rif" placeholder="Rif" />
-
-          <View style={st.subtitle_ctn}>
-            <Text  {...{ subtitle }}>Redes</Text>
-            <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
-          </View>
+          <Subtitle text="Información adicional" optional />
           <Input
             set={setInputs}
-            name="telegram"
+            name="email"
+            placeholder="Correo Comercial"
+            initialValue={inputs.email}
+          />
+          <Input
+            set={setInputs}
+            name="address"
+            placeholder="Direccion"
+            initialValue={inputs.address}
+          />
+          <Input
+            set={setInputs}
+            name="rif"
+            placeholder="Rif"
+            initialValue={inputs.rif}
+          />
+
+          <Subtitle text="Redes" optional />
+          <Input
+            set={setInputs}
+            name="socials.telegram"
             placeholder="username"
             Icon={IconTelegram}
+            initialValue={inputs.socials.telegram}
           />
           <Input
             set={setInputs}
-            name="whatsapp"
+            name="socials.whatsapp"
             placeholder="4126452311"
             Icon={IconWhatsapp}
+            initialValue={inputs.socials.whatsapp}
           />
           <Input
             set={setInputs}
-            name="messenger"
+            name="socials.messenger"
             placeholder="username"
             Icon={IconMessenger}
+            initialValue={inputs.socials.messenger}
           />
           <Input
             set={setInputs}
-            name="instagram"
+            name="socials.instagram"
             placeholder="username"
             Icon={IconInstagram}
+            initialValue={inputs.socials.instagram}
           />
 
+          <Subtitle text="Categorias" />
+          <Categories {...{ handleCateg, categ: inputs.categories }} />
+          <View style={{ marginTop: -24 }} />
           <View style={st.subtitle_ctn}>
-            <Text  {...{ subtitle }}>Horarios</Text>
+            <Text ff="Bold">Horarios</Text>
             <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
             <Pressable
               style={({ pressed }) => ({
@@ -338,18 +323,144 @@ export const InfoCommerce = ({
               <IconPlusBox />
             </Pressable>
           </View>
-          {schedules.map((item: ScheduleType, index: number) => (
-            <ScheduleItem key={item._id} {...{ item, setSchedules }} />
+          {inputs.schedules.map((item: ScheduleType, index: number) => (
+            <ScheduleItem key={item._id} {...{ item, setInputs }} />
           ))}
+          <Subtitle text="Extras" optional />
+          <SwitchBtn
+            Icon={IconDelivery}
+            text="Delivery"
+            name="delivery"
+            set={setInputs}
+            value={inputs.delivery}
+          />
           <View style={{ height: 42 }}>
             {error && <ErrorText text={error} />}
           </View>
           <PrimaryBtn text="Confirmar" action={confirm} />
-        </Scroll>
+        </>
       )}
     </>
   );
 };
+
+export const ScheduleItem = ({
+  setInputs,
+  item,
+}: {
+  setInputs: Dispatch<CommerceType | ((value: CommerceType) => CommerceType)>;
+  item: ScheduleType;
+}) => {
+  const openTimer = (bool: boolean) => {
+    DateTimePickerAndroid.open({
+      value: bool ? new Date(item.since) : new Date(item.until),
+      onChange: (event, selectedDate) => {
+        setInputs((prev) => {
+          let aux = [...prev.schedules];
+          let nameAux = bool ? "since" : "until";
+          let index = aux.findIndex((a) => a._id === item._id);
+          aux[index] = { ...aux[index], [nameAux]: selectedDate };
+          return { ...prev, schedules: aux };
+        });
+      },
+      mode: "time",
+      display: "spinner",
+      is24Hour: false,
+    });
+  };
+
+  const plusDay = () => {
+    setInputs((prev) => {
+      let aux = [...prev.schedules];
+      let index = aux.findIndex((a) => a._id === item._id);
+      if (aux[index].day >= 7) {
+        aux[index].day = 1;
+      } else aux[index].day += 1;
+      return { ...prev, schedules: aux };
+    });
+  };
+
+  const deleteSelf = () => {
+    setInputs((prev) => {
+      let aux = prev.schedules;
+      aux = aux.filter((a: ScheduleType) => a._id !== item._id);
+      return { ...prev, schedules: aux };
+    });
+  };
+  return (
+    <Animated.View
+      entering={FadeInRight}
+      exiting={FadeOutRight}
+      layout={LinearTransition}
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 20,
+        alignItems: "center",
+      }}
+    >
+      <Pressable
+        onPress={plusDay}
+        style={({ pressed }) => ({
+          borderRadius: 6,
+          padding: 8,
+          // width:48,
+          // alignItems:'center',
+          opacity: pressed ? 0.5 : 1,
+          backgroundColor: v.four,
+        })}
+      >
+        <Text style={{ color: v.prime }}>{traslateDay(item.day)}</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          openTimer(true);
+        }}
+        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+      >
+        <Text>{timeFormat(item.since)}</Text>
+      </Pressable>
+      <Text ff="Bold">Hasta</Text>
+      <Pressable
+        onPress={() => {
+          openTimer(false);
+        }}
+        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+      >
+        <Text>{timeFormat(item.until)}</Text>
+      </Pressable>
+      <Pressable
+        onPress={deleteSelf}
+        style={({ pressed }) => ({
+          marginLeft: "auto",
+          padding: 6,
+          opacity: pressed ? 0.5 : 1,
+          // backgroundColor:'#123123'
+        })}
+      >
+        <IconCross size={20} />
+      </Pressable>
+    </Animated.View>
+  );
+};
+const timeFormat = (hour:Date)=> moment(hour).format("hh:mma")
+
+const ErrorText = ({ text }: { text: string }) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        gap: 6,
+        alignItems: "center",
+        height: 18,
+      }}
+    >
+      <IconCross color="#F20000" size={16} />
+      <Text style={{ color: "#F20000" }}>{text}</Text>
+    </View>
+  );
+};
+
 const traslateDay = (num: number) => {
   switch (num) {
     case 1:
@@ -371,189 +482,60 @@ const traslateDay = (num: number) => {
       break;
   }
 };
-type PrevType = (value: ScheduleType[]) => ScheduleType[]
-type ScheduleItemProps = {
-  setSchedules: Dispatch<ScheduleType[] | PrevType>,
-  item: ScheduleType
-}
-export const ScheduleItem = ({ setSchedules, item }: ScheduleItemProps) => {
-  const openTimer = (bool: boolean) => {
-    DateTimePickerAndroid.open({
-      value: bool ? item.since : item.until,
-      onChange: (event, selectedDate) => {
-        setSchedules((prev: ScheduleType[]) => {
-          let aux: ScheduleType[] = [...prev];
-          let nameAux = bool ? "since" : 'until'
-          let index = aux.findIndex((a) => a._id === item._id);
-          aux[index] = { ...aux[index], [nameAux]: selectedDate };
-          return aux;
-        });
-      },
-      mode: "time",
-      display: "spinner",
-      is24Hour: false,
-    });
-  };
+const IMG_ERROR_MSG =
+  "Ha ocurrido un error al intentar seleccionar la imagen, intente nuevamente";
 
-  const plusDay = () => {
-    setSchedules((prev: ScheduleType[]) => {
-      let aux = [...prev];
-      let index = aux.findIndex((a) => a._id === item._id);
-      if (aux[index].day >= 7) {
-        aux[index].day = 1;
-      } else aux[index].day += 1;
-      return aux;
-    });
-  };
-
-  const deleteSelf = () => {
-    setSchedules((prev: ScheduleType[]) => {
-      let aux = prev.filter((a: ScheduleType) => a._id !== item._id);
-      return aux;
-    });
-  };
+const Subtitle = ({
+  optional = false,
+  text,
+}: {
+  optional?: boolean;
+  text: string;
+}) => {
   return (
-    <Animated.View
-      entering={FadeInRight}
-      exiting={FadeOutRight}
-      layout={LinearTransition}
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        gap: 20,
-        alignItems: "center",
-      }}
-    >
-      <Pressable
-        onPress={plusDay}
-        style={({ pressed }) => ({
-          borderRadius: 6,
-          padding: 8,
-          opacity: pressed ? 0.5 : 1,
-          backgroundColor: v.four,
-        })}
-      >
-        <Text style={{ color: v.prime }}>{traslateDay(item.day)}</Text>
-      </Pressable>
-      <Pressable
-        onPress={() => {
-          openTimer(true);
-        }}
-        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-      >
-        <Text>{moment(item.since).format("hh:mma")}</Text>
-      </Pressable>
-      <Text ff="Bold">Hasta</Text>
-      <Pressable
-        onPress={() => {
-          openTimer(false);
-        }}
-        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-      >
-        <Text>{moment(item.until).format("hh:mma")}</Text>
-      </Pressable>
-      <Pressable
-        onPress={deleteSelf}
-        style={({ pressed }) => ({
-          marginLeft: "auto",
-          padding: 6,
-          opacity: pressed ? 0.5 : 1,
-          // backgroundColor:'#123123'
-        })}
-      >
-        <IconCross size={20} />
-      </Pressable>
-    </Animated.View>
-  );
-};
-
-const SuccessPage = ({ goToInv }: { goToInv: () => void }) => {
-  return (
-    <Animated.View style={st.scc_modal2} entering={FadeIn}>
-      <View style={st.sub_ctn2}>
-        <Text ff="Bold" fs={32} style={st.tc2}>
-          Tan fácil como eso!
-        </Text>
-        <Text style={st.tc2} fs={16}>
-          Ya estas listo para disfrutar de la experiencia de river como
-          comerciante
-        </Text>
-        <Pressable style={st.btn_ctn2} onPress={goToInv}>
-          <Text style={{ fontSize: 20, color: v.prime }} ff="Medium">
-            Ir a inventario
-          </Text>
-          <View style={st.btn_login2}>
-            <IconArrowRight />
-          </View>
-        </Pressable>
-      </View>
-    </Animated.View>
-  );
-};
-export default RegisterCommerce;
-
-const subtitle = {
-  ff: "Bold",
-  fs: 16,
-  //   style:{marginTop:6}
-};
-
-const ErrorText = ({ text }: { text: string }) => {
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        gap: 6,
-        alignItems: "center",
-        height: 18,
-      }}
-    >
-      <IconCross color="#F20000" size={16} />
-      <Text style={{ color: "#F20000" }}>{text}</Text>
+    <View style={st.subtitle_ctn}>
+      <Text ff="Bold">{text}</Text>
+      {optional ? (
+        <Text style={{ fontSize: 12, color: v.third }}>(Opcional)</Text>
+      ) : null}
     </View>
   );
 };
 
-
-
-// const LogoSelectExperimental = ({ shape, setShape }) => {
-//   return (
-//     <View style={st.header}>
-//       <Text fs={16} ff="Bold">
-//         Logo
-//       </Text>
-//       <View style={{ display: "flex", flexDirection: "row", gap: 12 }}>
-//         <Pressable
-//           style={shape === 1 ? st.logo_btn_a : st.logo_btn}
-//           onPress={() => {
-//             setShape(1);
-//           }}
-//         >
-//           <View
-//             style={[st.btn_portrait, shape === 1 && { borderColor: v.prime }]}
-//           />
-//         </Pressable>
-//         <Pressable
-//           style={shape === 2 ? st.logo_btn_a : st.logo_btn}
-//           onPress={() => {
-//             setShape(2);
-//           }}
-//         >
-//           <View
-//             style={[st.btn_landscape, shape === 2 && { borderColor: v.prime }]}
-//           />
-//         </Pressable>
-//         <Pressable
-//           style={shape === 3 ? st.logo_btn_a : st.logo_btn}
-//           onPress={() => {
-//             setShape(3);
-//           }}
-//         >
-//           <View
-//             style={[st.btn_square, shape === 3 && { borderColor: v.prime }]}
-//           />
-//         </Pressable>
-//       </View>
-//     </View>
-//   );
-// };
+const SwitchBtn = ({
+  Icon,
+  text,
+  name,
+  set,
+  value,
+}: {
+  Icon: any;
+  text: string;
+  name: string;
+  set: Dispatch<React.SetStateAction<CommerceType>>;
+  value: boolean;
+}) => {
+  const [active, setActive] = useState(value);
+  useEffect(() => {
+    set((prev) => ({ ...prev, [name]: active }));
+  }, [active]);
+  return (
+    <Pressable
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.5 : 1,
+        display: "flex",
+        flexDirection: "row",
+        gap: 12,
+        alignItems: "center",
+      })}
+      // onPress={press}
+      onPress={() => {
+        setActive(!active);
+      }}
+    >
+      <Icon />
+      <Text>{text}</Text>
+      {!active ? <IconSwitchOff size={24} /> : <IconSwitchOn size={24} />}
+    </Pressable>
+  );
+};

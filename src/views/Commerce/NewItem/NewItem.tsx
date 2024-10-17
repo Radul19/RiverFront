@@ -317,7 +317,7 @@ export const Preview = ({ goToCommerce }: { goToCommerce: () => void }) => {
   const confirmPreview = async () => {
     const { status, data } = await createItem({
       ...inputs,
-      owner_id: userData.commerce._id,
+      commerce: userData.commerce._id,
       categories: categ,
       _id: undefined,
     });
@@ -333,7 +333,7 @@ export const Preview = ({ goToCommerce }: { goToCommerce: () => void }) => {
     const { status, data } = await updateItem({
       ...inputs,
       categories: categ,
-      owner_id: userData.commerce._id,
+      commerce: userData.commerce._id,
     });
     if (status === 200) {
       resetAll();
@@ -357,7 +357,7 @@ export const Preview = ({ goToCommerce }: { goToCommerce: () => void }) => {
               item: {
                 ...inputs,
                 ...leftInfo,
-                owner_id: userData.commerce._id,
+                commerce: userData.commerce._id,
                 categories: categ,
                 _id: inputs._id ?? "",
               },

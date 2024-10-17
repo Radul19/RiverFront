@@ -6,7 +6,7 @@ export type UserType = {
     email: string,
     avatar: number,
     card_id: string,
-    commerce?: string | CommerceType,
+    commerce?: CommerceType,
     createdAt?: string,
     updatedAt?: string,
 }
@@ -23,6 +23,7 @@ export type CommerceType = {
     email: string,
     address: string,
     rif: string,
+    delivery: boolean,
     reviews: ReviewType[],
     socials: SocialType,
     schedules: ScheduleType[],

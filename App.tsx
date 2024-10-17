@@ -66,6 +66,7 @@ export default function App() {
                 name="Commerce"
                 //@ts-ignore
                 component={userData.commerce ? Commerce : RegisterCommerce}
+                // component={RegisterCommerce}
               />
               <Stack.Screen
                 //@ts-ignore

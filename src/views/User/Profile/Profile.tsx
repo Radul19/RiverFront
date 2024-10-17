@@ -1,31 +1,34 @@
-import { View, StyleSheet, Pressable, Image } from "react-native";
-import React, { useContext, useEffect, useState, PropsWithChildren, Dispatch } from "react";
-import { Avatar, Avatars, Input, regex_email } from "../../../components/Inputs";
+import { View, Pressable } from "react-native";
+import React, {
+  useContext,
+  useState,
+  PropsWithChildren,
+  Dispatch,
+} from "react";
+import {
+  Avatar,
+  Avatars,
+  Input,
+  regex_email,
+} from "../../../components/Inputs";
 import Text from "../../../components/Text";
 import {
   IconArrowRight,
   IconCross,
   IconExit,
-  IconInstagram,
-  IconMessenger,
-  IconPlusBox,
   IconStallLine,
-  IconTelegram,
   IconUserLine,
-  IconWhatsapp,
 } from "../../../components/Icons";
-import { v, wh, ww } from "../../../components/stylesVar";
+import { v, wh } from "../../../components/stylesVar";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { PrimaryBtn } from "../../../components/Btns";
 import Context from "../../../components/Context";
-import { editMarketData, editUserData } from "../../../api/general";
+import { editUserData } from "../../../api/general";
 import { deleteLocalData } from "../../../helpers/localStorage";
-import { ScheduleItem } from "../../Commerce/Register/RegisterCommerce";
+import { InfoCommerce } from "../../Commerce/Register/RegisterCommerce";
 import Scroll from "../../../components/Scroll";
-import moment from "moment";
 import { st } from "./style";
-import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
-import { CommerceType, ScheduleType, UserType } from "../../../types/user";
+import { UserType } from "../../../types/user";
 
 const Profile = () => {
   const { userData, setUserData } = useContext(Context);
@@ -34,8 +37,9 @@ const Profile = () => {
     <Scroll nav={page === 1 ? 4 : undefined}>
       {page === 1 && <Info {...{ setPage, userData, setUserData }} />}
       {page === 2 && <UserProfile {...{ setPage, userData, setUserData }} />}
-      {/* {(page === 3 && typeof userData.commerce === 'object') && <InfoCommerce {...{ setPage, userData, setUserData }} />} */}
-      {page === 3 && <InfoCommerce {...{ setPage, userData, setUserData }} />}
+      {page === 3 && (
+        <InfoCommerce {...{ setPage, userData, setUserData, code: "" }} />
+      )}
     </Scroll>
   );
 };
@@ -43,27 +47,31 @@ const Profile = () => {
 export default Profile;
 
 const Container = ({ children }: PropsWithChildren) => (
-  <Animated.View style={{ flex: 1, gap: 14, minHeight: wh - 40 }} entering={FadeIn} exiting={FadeOut}>
+  <Animated.View
+    style={{ flex: 1, gap: 14, minHeight: wh - 40 }}
+    entering={FadeIn}
+    exiting={FadeOut}
+  >
     {children}
   </Animated.View>
 );
 const guest = {
   _id: undefined,
   commerce: undefined,
-  name: '',
-  email: '',
+  name: "",
+  email: "",
   avatar: 1,
-  card_id: '',
-}
-const guestCommerce = {
-
-}
-type InfoProps = {
-  setPage: Dispatch<number>,
-  userData: UserType,
-  setUserData: Dispatch<UserType>,
-}
-const Info = ({ setPage, userData, setUserData }: InfoProps) => {
+  card_id: "",
+};
+const Info = ({
+  setPage,
+  userData,
+  setUserData,
+}: {
+  setPage: Dispatch<number>;
+  userData: UserType;
+  setUserData: Dispatch<UserType>;
+}) => {
   const goEditProfile = () => {
     setPage(2);
   };
@@ -102,13 +110,15 @@ const Info = ({ setPage, userData, setUserData }: InfoProps) => {
   );
 };
 
-
-type OptsProps = {
-  text: string,
-  Icon: React.FunctionComponent<{ color?: string, size?: number, }>
-  action: () => void
-}
-const Options = ({ text, Icon, action }: OptsProps) => {
+const Options = ({
+  text,
+  Icon,
+  action,
+}: {
+  text: string;
+  Icon: React.FunctionComponent<{ color?: string; size?: number }>;
+  action: () => void;
+}) => {
   return (
     <Pressable style={st.option_ctn} onPress={action}>
       {({ pressed }) => (
@@ -127,13 +137,15 @@ const Options = ({ text, Icon, action }: OptsProps) => {
   );
 };
 
-type PrevType = (prev: UserType) => UserType
-type UserProfType = {
-  setPage: Dispatch<number>,
-  setUserData: Dispatch<UserType | PrevType>,
-  userData: UserType
-}
-const UserProfile = ({ setPage, userData, setUserData }: UserProfType) => {
+const UserProfile = ({
+  setPage,
+  userData,
+  setUserData,
+}: {
+  setPage: Dispatch<number>;
+  setUserData: Dispatch<UserType | ((prev: UserType) => UserType)>;
+  userData: UserType;
+}) => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [inputs, setInputs] = useState({
     avatar: userData.avatar,
@@ -218,225 +230,6 @@ const UserProfile = ({ setPage, userData, setUserData }: UserProfType) => {
     </Container>
   );
 };
-type InfoCommType = {
-  userData: UserType,
-  setUserData: Dispatch<UserType>,
-  setPage: Dispatch<number>
-}
-
-const InfoCommerce = ({ userData, setUserData, setPage }: InfoCommType) => {
-  if (typeof userData.commerce !== 'object') return <View></View>
-  // const comm = (typeof userData.commerce === 'object') ? userData.commerce : {};
-  const {
-    _id,
-    owner_id,
-    logo_id,
-    favorites,
-    reviews,
-    createdAt,
-    updatedAt,
-    schedules: sch,
-    ...allData
-  } = userData.commerce;
-  const [error, setError] = useState<string | undefined>(undefined);
-  const [inputs, setInputs] = useState(allData);
-  const [schedules, setSchedules] = useState(sch);
-
-  const goBack = () => {
-    setPage(1);
-  };
-  const addSchedule = () => {
-    let aux = [...schedules];
-    aux.push({
-      since: new Date(1699524011003),
-      until: new Date(1699560011003),
-      day: 1,
-      _id: +moment(),
-    });
-    setSchedules(aux);
-  };
-
-  const validateData = () => {
-    setError(undefined);
-    let emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
-    if (inputs.name.length < 3)
-      return "El nombre debe tener almenos 3 caracteres";
-    if (inputs.description.length < 20)
-      return "La descripcion debe tener almenos 20 caracteres";
-    if (!inputs.logo) return "Debe seleccionar una imagen como logo";
-    if (inputs.email.length > 0 && !emailRegex.test(inputs.email))
-      return "Ingrese un correo válido";
-
-    return false;
-  };
-
-  const confirm = async () => {
-    let validation = validateData();
-    if (validation) return setError(validation);
-    // if (!edit) {
-    if (true) {
-      const marketInfo = {
-        ...inputs,
-        schedules,
-        owner_id: userData._id,
-        // code,
-      };
-      const { status, data } = await editMarketData(marketInfo);
-      if (status === 200) {
-      }
-    } else {
-      // setError(data.msg);
-    }
-  };
-
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await launchImageLibraryAsync({
-      mediaTypes: MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 4],
-      quality: 1,
-      base64: true,
-    });
-
-    if (!result.canceled) {
-      setInputs({
-        ...inputs,
-        logo: "data:image/png;base64," + result.assets[0].base64,
-      });
-    }
-  };
-
-  const setSocial = (name: string, value: string) => {
-    setInputs((prev: any) => ({
-      ...prev,
-      socials: { ...inputs.socials, [name]: value },
-    }));
-  };
-
-  return (
-    <Container>
-      <View style={st.header}>
-        <Pressable
-          onPress={goBack}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.5 : 1,
-            transform: [{ rotate: "180deg" }],
-            padding: 8,
-          })}
-        >
-          <IconArrowRight />
-        </Pressable>
-        <Text fs={32} ff="Bold">
-          Info. Comercial
-        </Text>
-      </View>
-      <Text {...{ subtitle }}>Datos de identidad</Text>
-      <Input
-        set={setInputs}
-        name="name"
-        placeholder="Nombre de empresa"
-        initialValue={inputs.name}
-      />
-      <Input
-        set={setInputs}
-        name="phone"
-        placeholder="Numero de telefono"
-        initialValue={inputs.phone}
-      />
-      <Input
-        set={setInputs}
-        name="description"
-        placeholder="Description"
-        initialValue={inputs.description}
-      />
-      <Text  {...{ subtitle }}>Logo</Text>
-      <Pressable style={st.logo_ctn} onPress={pickImage}>
-        {inputs.logo ? (
-          <Image source={{ uri: inputs.logo }} style={st.logo} />
-        ) : (
-          <Text {...{ ff: "Medium", fs: 32 }}>+</Text>
-        )}
-      </Pressable>
-      <View style={st.subtitle_ctn}>
-        <Text  {...{ subtitle }}>Informacion Adicional</Text>
-        <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
-      </View>
-      <Input
-        set={setInputs}
-        name="email"
-        placeholder="Correo"
-        initialValue={inputs.email}
-      />
-      <Input
-        set={setInputs}
-        name="address"
-        placeholder="Direccion"
-        initialValue={inputs.address}
-      />
-      <Input
-        set={setInputs}
-        name="rif"
-        placeholder="Rif"
-        initialValue={inputs.rif}
-      />
-
-      <View style={st.subtitle_ctn}>
-        <Text  {...{ subtitle }}>Redes</Text>
-        <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
-      </View>
-      <Input
-        custom={setSocial}
-        name="telegram"
-        placeholder="+584126452311"
-        Icon={IconTelegram}
-        initialValue={inputs.socials?.telegram}
-      />
-      <Input
-        custom={setSocial}
-        name="whatsapp"
-        placeholder="+584126452311"
-        Icon={IconWhatsapp}
-        initialValue={inputs.socials?.whatsapp}
-      />
-      <Input
-        custom={setSocial}
-        name="messenger"
-        placeholder="+584126452311"
-        Icon={IconMessenger}
-        initialValue={inputs.socials?.messenger}
-      />
-      <Input
-        custom={setSocial}
-        name="instagram"
-        placeholder="@instagram"
-        Icon={IconInstagram}
-        initialValue={inputs.socials?.instagram}
-      />
-      <View style={st.subtitle_ctn}>
-        <Text  {...{ subtitle }}>Horarios</Text>
-        <Text style={{ fontSize: 12, color: v.third }}>{"(Opcional)"}</Text>
-        <Pressable
-          style={({ pressed }) => ({
-            marginLeft: "auto",
-            opacity: pressed ? 0.5 : 1,
-          })}
-          onPress={addSchedule}
-        >
-          <IconPlusBox />
-        </Pressable>
-      </View>
-      {schedules?.map((item: ScheduleType, index: number) => (
-        <ScheduleItem key={item._id} {...{ item, setSchedules }} />
-      ))}
-      <View style={{ marginTop: 42 }} />
-      {error && <ErrorText text={error} />}
-      <PrimaryBtn text="Confirmar" action={confirm} />
-    </Container>
-  );
-};
-
-
 export const ErrorText = ({ text }: { text: string }) => {
   return (
     <View
@@ -451,10 +244,3 @@ export const ErrorText = ({ text }: { text: string }) => {
     </View>
   );
 };
-
-const subtitle = {
-  ff: "Bold",
-  fs: 16,
-  //   style:{marginTop:6}
-};
-

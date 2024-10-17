@@ -1,13 +1,12 @@
 import {
   View,
   StyleSheet,
-  Dimensions,
   Image,
   ScrollView,
   Pressable,
 } from "react-native";
 import React, { FC, PropsWithChildren } from "react";
-import img from "../images/item.png";
+// import img from "../images/item.png";
 import Text from "./Text";
 import {
   IconArrowRight,
@@ -16,7 +15,6 @@ import {
   IconCPU,
   IconDots,
   IconDrop,
-  IconFolders,
   IconHamburguer,
   IconHome,
   IconJacket,
@@ -28,12 +26,11 @@ import {
   IconStarLine,
 } from "./Icons";
 import { applyFilter, getStars } from "../helpers/searchfilter";
-import { NavigationProp, NavigationState, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { v, stB, ww } from "./stylesVar";
 import { ItemType } from "../types/item";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { NavType, ScreensType } from "../types/screens"
+import { NavType } from "../types/screens"
 import { CommerceType } from "../types/user";
 
 
@@ -64,7 +61,7 @@ export const ItemsCtn = ({ data, load, filter, longPress,markets }: ItemsCtnProp
         }}
       >
         {applyFilter(data, filter).map((item: any) => {
-          if(markets){
+          if(markets || !item.price){
             return  <Market market={item} key={item._id} {...{ longPress, nav }} />
           }else return <Item item={item} key={item._id} {...{ longPress, nav }} />
         })}
@@ -168,7 +165,7 @@ const categArray = [
   { name: "tech", text: "Tecnologia", icon: IconCPU },
   { name: "sports", text: "Deportes", icon: IconSport },
   { name: "service", text: "Servicios", icon: IconService },
-  // { name: "shops", text: "Tiendas", icon: IconStall },
+  { name: "market", text: "Tiendas", icon: IconStall },
   { name: "others", text: "Otros", icon: IconDots },
 ];
 
@@ -231,7 +228,7 @@ const Category = ({ icon: Icon, text = "", handleCateg, categ, name }: Category)
       >
         <Icon color={!categ.includes(name) ? v.four : v.prime} />
       </View>
-      <Text style={{ fontFamily: "Bold", fontSize: 14 }}>{text}</Text>
+      <Text style={{ fontFamily: "Bold", fontSize: 12 }}>{text}</Text>
     </Pressable>
   );
 };

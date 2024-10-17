@@ -1,7 +1,8 @@
+import moment from "moment";
 import { ItemType, ReviewType } from "../types/item";
 import { CommerceType } from "../types/user";
 
-export const applyFilter = (arr:any, filter:any) => {
+export const applyFilter = (arr: ItemType[], filter: any) => {
   if (!filter) {
     return arr;
   } else {
@@ -24,6 +25,24 @@ export const applyFilter = (arr:any, filter:any) => {
         });
         break;
 
+      case "open":
+        let now = getMinutes(new Date());
+        let day = moment(new Date()).day();
+
+        aux = aux.filter((item) => {
+          let bool = false;
+          if (typeof item.commerce === "object") {
+            item.commerce.schedules.forEach((sch) => {
+              if (sch.day === day) {
+                if (now >= getMinutes(sch.since) && now < getMinutes(sch.until))
+                  bool = true;
+              }
+            });
+          }
+          if (bool) return item;
+        });
+        break;
+
       default:
         aux.sort((a, b) => {
           if (a.name > b.name) return 1;
@@ -36,13 +55,37 @@ export const applyFilter = (arr:any, filter:any) => {
   }
 };
 
-export const getStars = (item:ItemType|CommerceType) => {
+export const getStars = (item: ItemType | CommerceType) => {
   if (item.reviews.length > 0) {
-    let aux = 0
-    item.reviews.forEach(rev => {
-      aux += rev.stars
+    let aux = 0;
+    item.reviews.forEach((rev) => {
+      aux += rev.stars;
     });
-    aux = aux / item.reviews.length
-    return parseFloat(aux.toFixed(2))
-  } else return 0
-}
+    aux = aux / item.reviews.length;
+    return parseFloat(aux.toFixed(2));
+  } else return 0;
+};
+
+const getMinutes = (date: Date) =>
+  moment(date).minute() + moment(date).hour() * 60;
+const traslateDay = (num: number) => {
+  switch (num) {
+    case 1:
+      return "Lun";
+    case 2:
+      return "Mar";
+    case 3:
+      return "Mie";
+    case 4:
+      return "Jue";
+    case 5:
+      return "Vie";
+    case 6:
+      return "Sab";
+    case 7:
+      return "Dom";
+
+    default:
+      break;
+  }
+};

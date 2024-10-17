@@ -1,5 +1,19 @@
-import { View, TextInput, StyleSheet, Image, Pressable, KeyboardTypeOptions } from "react-native";
-import React, { useEffect, useRef, useState, Dispatch, FC, HtmlHTMLAttributes } from "react";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  Image,
+  Pressable,
+  KeyboardTypeOptions,
+} from "react-native";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  Dispatch,
+  FC,
+  HtmlHTMLAttributes,
+} from "react";
 import { v, ww } from "./stylesVar";
 import { IconZoom } from "./Icons";
 import guest from "../images/guest.png";
@@ -15,10 +29,10 @@ import Text from "./Text";
 import card_id_dots from "../helpers/card_id_dots";
 
 type SBType = {
-  setSearchBar: Dispatch<string>,
-  searchBar: string
-}
-export const SearchBar = ({ setSearchBar = () => { }, searchBar }: SBType) => {
+  setSearchBar: Dispatch<string>;
+  searchBar: string;
+};
+export const SearchBar = ({ setSearchBar = () => {}, searchBar }: SBType) => {
   return (
     <View style={st.sb_ctn}>
       <IconZoom />
@@ -33,24 +47,24 @@ export const SearchBar = ({ setSearchBar = () => { }, searchBar }: SBType) => {
 };
 
 type InputProps = {
-  placeholder?: string,
-  name?: string,
-  set?: Dispatch<any>,
-  secure?: boolean,
-  initialValue?: string,
-  Icon?: FC,
-  keyboardType?: KeyboardTypeOptions,
-  custom?: ((x: any, y: any) => void),
-  before?: string,
-  regex?: RegExp,
-  maxLength?: number,
-  multiline?: boolean,
-  timeout?: boolean,
-}
+  placeholder?: string;
+  name?: string;
+  set?: Dispatch<any>;
+  secure?: boolean;
+  initialValue?: string;
+  Icon?: FC;
+  keyboardType?: KeyboardTypeOptions;
+  custom?: (name: any, value: any) => void;
+  before?: string;
+  regex?: RegExp;
+  maxLength?: number;
+  multiline?: boolean;
+  timeout?: number;
+};
 export const Input = ({
   placeholder = "",
   name = "",
-  set = () => { },
+  set = () => {},
   secure = false,
   initialValue = "",
   Icon = undefined,
@@ -60,20 +74,29 @@ export const Input = ({
   regex = undefined,
   maxLength = 999,
   multiline = false,
-  timeout = false,
+  timeout = 0,
 }: InputProps) => {
   const [value, setValue] = useState(initialValue);
   useEffect(() => {
-    let tm: any
-    if (timeout) {
-      tm = setTimeout(() => {
-        if (custom) return custom(name, value);
-        else set((prev: any) => ({ ...prev, [name]: value }));
-      }, 700);
-    } else {
+    // let tm: any;
+    // if (timeout) {
+
+    let nestedName = name.split('.')[1]
+    let tm = setTimeout(() => {
       if (custom) return custom(name, value);
+      if (nestedName)
+        set((prev: any) => ({
+          ...prev,
+          [name]: { ...prev[name], [nestedName]: value },
+        }));
       else set((prev: any) => ({ ...prev, [name]: value }));
-    }
+    }, timeout);
+    // }
+    // else {
+    //   if (custom) return custom(name, value);
+    //   if (nestedName) set((prev: any) => ({ ...prev, [name]: {...prev[name],[nestedName]:value} }));
+    //   else set((prev: any) => ({ ...prev, [name]: value }));
+    // }
 
     return () => {
       clearTimeout(tm);
@@ -105,11 +128,11 @@ export const Input = ({
 };
 
 type InputCardPops = {
-  placeholder: string,
-  name: string,
-  set: Dispatch<any>,
-  initialValue?: string,
-}
+  placeholder: string;
+  name: string;
+  set: Dispatch<any>;
+  initialValue?: string;
+};
 export const InputCardId = ({
   placeholder = "",
   name = "",
@@ -146,9 +169,9 @@ export const InputCardId = ({
 const arrAv = [1, 2, 3, 4, 5, 6, 7, 8];
 
 type AvatarsProps = {
-  set: Dispatch<number>,
-  start?: number
-}
+  set: Dispatch<number>;
+  start?: number;
+};
 export const Avatars = ({ set, start = 1 }: AvatarsProps) => {
   const [active, setActive] = useState(start);
   useEffect(() => {
@@ -182,12 +205,9 @@ export const Avatars = ({ set, start = 1 }: AvatarsProps) => {
   );
 };
 
-export const Avatar = ({ num, size = 64 }: { num: number, size?: number }) => {
+export const Avatar = ({ num, size = 64 }: { num: number; size?: number }) => {
   return (
-    <Image
-      style={{ width: size, height: size }}
-      source={getAvatar(num)}
-    />
+    <Image style={{ width: size, height: size }} source={getAvatar(num)} />
   );
 };
 const getAvatar = (num: number) => {
@@ -272,14 +292,14 @@ const CodeText = ({ text = undefined }: { text?: string }) => {
       {text ? (
         <View
           style={[st.code_box, { backgroundColor: v.four }]}
-        // onPress={focus}
+          // onPress={focus}
         >
           <Text style={{ color: v.prime }} fs={16} ff="Bold">
             {text}
           </Text>
         </View>
       ) : (
-        <View style={st.code_box} ></View>
+        <View style={st.code_box}></View>
       )}
     </>
   );
@@ -367,3 +387,7 @@ export const regex_price = /^[0-9]+[.]?[0-9]*$/;
 export const regex_text = /^[à-üÀ-Üa-zA-Z ]+$/;
 export const regex_textnum = /^[à-üÀ-Üa-zA-Z0-9 ]*$/;
 export const regex_email = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
+/**
+ * Te daré el paso a paso para que te hagas una idea, primero se plantea el problema principal, ustedes con la página van a querer solventar una problemática que tengan en su empresa / ambiente de trabajo, por lo que tengo entendido, es facilitar el proceso de registro/compra/venta de los carros, mediante un sistema administrativo interactivo (y por lo que veo sin intervención del cliente; que solo los administradores de la empresa tengan acceso para dichas operaciones). Con esto ya tenemos el primer objectivo de la página, qué va a llevar este sistema administrativo? No tengo idea, necesito mas detalles, puede ser que quieran crear ofertas de carros, descuentos, editar los datos de la venta, cancelarla, aprovarla, archivarla... no tengo idea de cuál va a ser la magnitud del sistema, y mientras mas grande sea, mas interconexiónes va a tener, por ende, mas trabajo. Una vez consolidadas las funciones de la página podría dar un presupuesto (que aún podría ser alterado), luego se hace un flujograma de uso al igual que una UML (Unified Modeling Languaje) para relacionar todas las variables que va a tener la aplicación y aproximar como se van a relacionar entre sí, y ya se tendría el presupuesto estimado de en cuanto saldria todo. Una vez el Flujograma de Uso y el UML están listos, se hacen prototipos de como se navegaría en la página, cuantas pantalals sería, como se vería en escritorio y tlf, para aprobar los bocetos y pasar al diseño de los mismos, con imagenes reales, colores, texto, info... Una vez todo eso esté listo, comienzo a hacer el código.
+ */

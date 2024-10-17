@@ -1,12 +1,20 @@
-import {
-  View,
-  Pressable,
-} from "react-native";
-import React, { Dispatch, FC, useCallback, useContext, useEffect, useState } from "react";
+import { View, Pressable } from "react-native";
+import React, {
+  Dispatch,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import Text from "../../../components/Text";
 import { v, stB, stl_home } from "../../../components/stylesVar";
 import { Avatar, SearchBar } from "../../../components/Inputs";
-import { Categories, ItemsCtn, Subtitle } from "../../../components/DisplayItems";
+import {
+  Categories,
+  ItemsCtn,
+  Subtitle,
+} from "../../../components/DisplayItems";
 import Animated, { useSharedValue, withSpring } from "react-native-reanimated";
 import { searchItems } from "../../../api/guest";
 import {
@@ -14,13 +22,18 @@ import {
   IconArrowUp,
   IconDollar,
   IconGear,
+  IconOpen,
   IconOptions,
+  IconStall,
   IconStar,
 } from "../../../components/Icons";
 import Context from "../../../components/Context";
 import Scroll from "../../../components/Scroll";
+import moment from "moment";
 
-interface FilterType { name?: string, status?: number }
+// const filterAmount = 2
+// const filterY = filterAmount * 55
+type FilterType = { name?: string; status?: number };
 
 const Home = () => {
   const [searchBar, setSearchBar] = useState("");
@@ -31,7 +44,6 @@ const Home = () => {
     status: 1,
   });
   const [categ, setCateg] = useState<string[]>([]);
-
 
   const handleCateg = (name: string) => {
     let indexOf = categ.indexOf(name);
@@ -45,21 +57,24 @@ const Home = () => {
   const handleFilter = (n: string) => {
     let name: string | undefined = n;
     let val;
-    if (filter.name === name) {
+    if(name === 'open'){
+      if(filter.name === 'open') setFilter({name:undefined,status:undefined})
+      else setFilter({name,status:1})
+    }
+    else if (filter.name === name) {
       if (filter.status === undefined) val = 1;
       else if (filter.status === 1) val = 2;
       else if (filter.status === 2) (val = undefined), (name = undefined);
       setFilter({ name, status: val });
     } else setFilter({ name, status: 1 });
-    // setFilter({...filter,[name]:val})
   };
 
-  const y = useSharedValue(-110);
+  const y = useSharedValue(-155);
 
   const toggleFilter = (val: boolean) => {
     const springTime = { dampingRatio: 1, duration: 1000 };
-    y.value = withSpring(val ? 0 : -110, springTime);
-  }
+    y.value = withSpring(val ? 0 : -155, springTime);
+  };
 
   const executeSearch = async () => {
     setLoad(true);
@@ -81,8 +96,6 @@ const Home = () => {
     };
   }, [searchBar, categ]);
 
-
-
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -95,7 +108,7 @@ const Home = () => {
 
   return (
     <Scroll {...{ refreshing, onRefresh }} nav={1}>
-      <Header />
+      <Header a={itemsData} />
       <SearchFilt {...{ toggleFilter, setSearchBar, searchBar }} />
       <FiltersCtn {...{ filter, handleFilter, y }} />
       <Animated.View style={[stl_home.down_ctn, { marginTop: y }]}>
@@ -105,11 +118,11 @@ const Home = () => {
       </Animated.View>
     </Scroll>
   );
-}
+};
 
-export default Home
+export default Home;
 
-const Header = () => {
+const Header = ({ a }: { a: any }) => {
   const { userData } = useContext(Context);
   return (
     <View style={stB.h_ctn}>
@@ -117,24 +130,26 @@ const Header = () => {
         {/* <View style={stB.avatar} /> */}
         <Avatar num={userData.avatar ? userData.avatar : 0} size={42} />
         <View style={{ display: "flex", justifyContent: "center" }}>
-          <Text >Bienvenido</Text>
-          <Text >
-            {userData.name ? userData.name : "Invitado"}
-          </Text>
+          <Text>Bienvenido</Text>
+          <Text>{userData.name ? userData.name : "Invitado"}</Text>
         </View>
       </View>
-      <Pressable style={stl_home.gear} onPress={() => console.log(userData)}>
+      {/* <Pressable style={stl_home.gear} onPress={idk}>
         <IconGear />
-      </Pressable>
+      </Pressable> */}
     </View>
   );
 };
 type SearchFiltProps = {
-  toggleFilter: (val: boolean) => void,
-  setSearchBar: Dispatch<string>,
-  searchBar: string
-}
-const SearchFilt = ({ toggleFilter, setSearchBar, searchBar }: SearchFiltProps) => {
+  toggleFilter: (val: boolean) => void;
+  setSearchBar: Dispatch<string>;
+  searchBar: string;
+};
+const SearchFilt = ({
+  toggleFilter,
+  setSearchBar,
+  searchBar,
+}: SearchFiltProps) => {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
@@ -161,9 +176,9 @@ const SearchFilt = ({ toggleFilter, setSearchBar, searchBar }: SearchFiltProps) 
 };
 
 type FilterCtnProps = {
-  filter: FilterType,
-  handleFilter: (n: string) => void,
-}
+  filter: FilterType;
+  handleFilter: (n: string) => void;
+};
 const FiltersCtn = ({ filter, handleFilter }: FilterCtnProps) => {
   return (
     <>
@@ -180,18 +195,29 @@ const FiltersCtn = ({ filter, handleFilter }: FilterCtnProps) => {
           Icon={IconStar}
           {...{ filter, handleFilter }}
         />
+        <FilterItem
+          name="open"
+          text="Abierto"
+          Icon={IconOpen}
+          {...{ filter, handleFilter }}
+        />
       </View>
     </>
   );
 };
 
-
 type FilterItemProp = FilterCtnProps & {
-  Icon: FC<{ size: number, color: string }>,
-  text: string,
-  name: string,
-}
-const FilterItem = ({ Icon, text, name, filter, handleFilter }: FilterItemProp) => {
+  Icon: FC<{ size: number; color: string }>;
+  text: string;
+  name: string;
+};
+const FilterItem = ({
+  Icon,
+  text,
+  name,
+  filter,
+  handleFilter,
+}: FilterItemProp) => {
   let selected = filter.name === name && filter.status !== null;
   return (
     <Pressable

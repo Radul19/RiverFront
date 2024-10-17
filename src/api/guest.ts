@@ -26,15 +26,14 @@ export const register = async (data:any)=>{
 }
 
 
-export const searchItems = async (text:string,categ:string[],owner_id?:string)=>{
+export const searchItems = async (text:string,categ:string[],commerce?:string)=>{
     // if(isOffline) return await prom({status:200,data:items})
 
     let data = {
         text: text.length > 0 ? text : false,
         categories:categ?.length > 0 ? categ : false,
-        owner_id
+        commerce
     }
-
     return await axios.post(`${url}searchItems`, data).then(res => {
         return res
     }).catch(err => {

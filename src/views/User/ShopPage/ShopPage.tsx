@@ -1,26 +1,9 @@
-import { View, StyleSheet, Image, ScrollView, Pressable } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
 import Text from "../../../components/Text";
-import img from "../../../images/item.png";
 import st from "../Item/style";
-import React, { useContext, useEffect, useState } from "react";
-import {
-  Categories,
-  ItemsCtn,
-  StarsCtn,
-} from "../../../components/DisplayItems";
-import { v, ww, wh } from "../../../components/stylesVar";
-import {
-  IconArrowRight,
-  IconBag,
-  IconBubble,
-  IconCross,
-  IconHeartLine,
-  IconInstagram,
-  IconMessenger,
-  IconStallLine,
-  IconTelegram,
-  IconWhatsapp,
-} from "../../../components/Icons";
+import React, { Dispatch, useContext, useEffect, useState } from "react";
+import { Categories, ItemsCtn } from "../../../components/DisplayItems";
+import { v } from "../../../components/stylesVar";
 import Animated, {
   useSharedValue,
   withTiming,
@@ -40,42 +23,14 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScreensType } from "../../../types/screens";
 import { ItemReviews, Modal_Review, Wireframe } from "../Item/ItemPage";
 import Context from "../../../components/Context";
-import { ItemType, ReviewType } from "../../../types/item";
-import { CommerceType } from "../../../types/user";
+import { ItemType } from "../../../types/item";
+import { CommerceType, ScheduleType } from "../../../types/user";
 import { toggleMarketFavorite } from "../../../api/general";
-
-const shop = {
-  __v: 0,
-  _id: "6610ecc7b708f619350648fd",
-  categories: ["service", "others"],
-  createdAt: "2024-04-06T06:33:43.215Z",
-  description: "Description of something else idk what to say",
-  favorites: ["661063ab145f8b0afaf3655d", "661063ab145f8b0afaf3655d"],
-  images: [
-    {
-      _id: "66eb3807b5ef1a213108dbe1",
-      public_id: "cixcmzbwzrsmahnjeuxx",
-      secure_url:
-        "https://res.cloudinary.com/dhp2q7rls/image/upload/v1712385223/cixcmzbwzrsmahnjeuxx.jpg",
-    },
-    {
-      _id: "66eb3807b5ef1a213108dbe2",
-      public_id: "tbmzikwg66c19sejsx7j",
-      secure_url:
-        "https://res.cloudinary.com/dhp2q7rls/image/upload/v1712385223/tbmzikwg66c19sejsx7j.jpg",
-    },
-  ],
-  name: "Item 01",
-  owner_id: "6610741e6990c28694b205f2",
-  price: "39.99",
-  reviews: [],
-  updatedAt: "2024-09-17T07:20:00.014Z",
-};
+import moment from "moment";
 
 type Props = NativeStackScreenProps<ScreensType, "ShopPage">;
 const ShopPage = ({ navigation, route }: Props) => {
   const { userData } = useContext(Context);
-  const [openBtn, setOpenBtn] = useState(false);
   const [searchBar, setSearchBar] = useState("");
   const [itemsData, setItemsData] = useState([]);
   const [load, setLoad] = useState(false);
@@ -83,35 +38,26 @@ const ShopPage = ({ navigation, route }: Props) => {
   const [modal, setModal] = useState(false);
   const [shop, setShop] = useState<CommerceType | undefined>(undefined);
 
-  const width = useSharedValue(52);
-
-  const toggle = () => {
-    setOpenBtn(!openBtn);
-    // width.value = '100%'
-  };
 
   const toggleModal = () => {
-    setModal(!modal)
+    setModal(!modal);
   };
 
-  useEffect(() => {
-    if (openBtn) {
-      width.value = withTiming(320);
-    } else {
-      width.value = withTiming(52);
-    }
-  }, [openBtn]);
 
   const executeSearch = async (text: string) => {
     setLoad(true);
-    let { status, data } = await searchItems(text,[],shop?._id ?? route.params.id);
+    let { status, data } = await searchItems(
+      text,
+      [],
+      shop?._id ?? route.params.id
+    );
     setLoad(false);
     if (status === 200) {
       setItemsData(data);
     }
   };
 
-  const sendFavorite = async (state:boolean) => {
+  const sendFavorite = async (state: boolean) => {
     if (userData) {
       const info = {
         user_id: userData._id,
@@ -167,16 +113,21 @@ const ShopPage = ({ navigation, route }: Props) => {
       exiting={FadeOut}
     >
       <ScrollView contentContainerStyle={st.ctn}>
-        <ImageDisplay goBack={goBack} images={[{secure_url:shop.logo,public_id:shop.logo_id}]} />
+        <ImageDisplay
+          goBack={goBack}
+          images={[{ secure_url: shop.logo, public_id: shop.logo_id }]}
+        />
         <View style={st.content_ctn}>
           {!reviewOpen ? (
             <ShopInfo
               {...{
-                item: shop,
+                commerce: shop,
                 toggleReview,
                 sendFavorite,
                 searchBar,
-                setSearchBar,itemsData,load
+                setSearchBar,
+                itemsData,
+                load,
               }}
             />
           ) : (
@@ -215,7 +166,9 @@ const ShopPage = ({ navigation, route }: Props) => {
 
 export default ShopPage;
 
-type FindReviewProps = { (item: ItemType|CommerceType, user_id: string): boolean };
+type FindReviewProps = {
+  (item: ItemType | CommerceType, user_id: string): boolean;
+};
 const findReview: FindReviewProps = (item, user_id) => {
   let bool = false;
   item.reviews.find((rev) => {
@@ -225,21 +178,21 @@ const findReview: FindReviewProps = (item, user_id) => {
 };
 
 export const ShopInfo = ({
-  item,
+  commerce,
   sendFavorite,
   toggleReview,
   searchBar,
   setSearchBar,
   itemsData,
-  load
+  load,
 }: {
-  load:boolean
-  item: any;
+  load: boolean;
+  commerce: CommerceType;
   sendFavorite: any;
   toggleReview: any;
-  searchBar: any;
+  searchBar: string;
   setSearchBar: any;
-  itemsData:any;
+  itemsData: ItemType[];
 }) => {
   const [openInfo, setOpenInfo] = useState(false);
   const toggleInfo = () => {
@@ -251,133 +204,134 @@ export const ShopInfo = ({
       exiting={FadeOut}
       style={st.content_ctn_inside}
     >
-      <ItemTitle item={item} sendFavorite={sendFavorite} />
-      <ReviewsBtn {...{ toggleReview, reviews: item.reviews }} />
+      <ItemTitle item={commerce} sendFavorite={sendFavorite} />
+      <ReviewsBtn {...{ toggleReview, reviews: commerce.reviews }} />
       <Pressable
         onPress={toggleInfo}
         style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
       >
         <Text numberOfLines={!openInfo ? 5 : 0} filter={true}>
-          {item.description}
+          {commerce.description}
         </Text>
       </Pressable>
       <Text ff="Bold" fs={16}>
         Categorias
       </Text>
-      <Categories all={false} categ={item.categories} handleCateg={() => {}} />
+      <Categories
+        all={false}
+        categ={commerce.categories}
+        handleCateg={() => {}}
+      />
+      <ScheduleView schedules={commerce.schedules} />
+
       <SearchBar {...{ searchBar, setSearchBar }} />
-      <ItemsCtn data={itemsData} load={load} />
+      <View style={{ marginHorizontal: -12 }}>
+        <ItemsCtn data={itemsData} load={load} />
+      </View>
     </Animated.View>
   );
 };
 
-// const st = StyleSheet.create({
-//   ctn: {
-//     display: "flex",
-//     // gap: 14,
-//     minHeight: wh,
-//   },
-//   img_ctn: {
-//     width: ww,
-//     height: ww,
-//     overflow: "hidden",
-//     position: "relative",
-//   },
-//   back_btn: ({ pressed }) => ({
-//     position: "absolute",
-//     transform: [{ rotate: "180deg" }],
-//     padding: 8,
-//     borderRadius: 12,
-//     backgroundColor: v.prime,
-//     top: 20,
-//     left: 20,
-//     zIndex: 300,
-//     opacity: pressed ? 0.5 : 1,
-//   }),
-//   shop_btn: ({ pressed }) => ({
-//     position: "absolute",
-//     padding: 8,
-//     borderRadius: 12,
-//     backgroundColor: v.prime,
-//     top: 20,
-//     right: 20,
-//     zIndex: 300,
-//     opacity: pressed ? 0.5 : 1,
-//   }),
+const ScheduleView = ({ schedules }: { schedules: ScheduleType[] }) => {
+  const [day, setDay] = useState(moment(new Date()).day());
+  return (
+    <>
+      {schedules.length > 0 ? (
+        <>
+          <Text ff="Bold" fs={16}>
+            Horarios
+          </Text>
+          <View style={{ gap: 12, display: "flex", flexDirection: "row" }}>
+            {schedules.map((sch) => (
+              <ScheduleDay {...{ day, sch, setDay }} key={sch._id} />
+            ))}
+          </View>
+          <View style={{ gap: 12,marginBottom:12}}>
+          {schedules.map((sch) => {
+              if (day === sch.day) return <Schedule sch={sch} key={sch._id} />;
+            })}
+          </View>
+        </>
+      ) : null}
+    </>
+  );
+};
 
-//   img: {
-//     width: "100%",
-//     height: "100%",
-//   },
-//   content_ctn: {
-//     zIndex: 200,
-//     marginTop: -24,
-//     borderTopLeftRadius: 20,
-//     borderTopRightRadius: 20,
-//     flex: 1,
-//     backgroundColor: v.prime,
-//     display: "flex",
-//     gap: 12,
-//     padding: 20,
-//     minHeight: wh - 24,
-//     paddingBottom: 92,
-//   },
-//   top: {
-//     display: "flex",
-//     flexDirection: "row",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//   },
-//   reviews_btn: {
-//     display: "flex",
-//     flexDirection: "row",
-//     alignItems: "center",
-//     gap: 6,
-//   },
-//   btn_ctn: {
-//     display: "flex",
-//     flexDirection: "row",
-//     alignSelf: "flex-end",
-//     // justifyContent: "center",
-//     backgroundColor: v.four,
-//     borderRadius: 12,
-//     // width: 52,
-//     width: 320,
-//     height: 52,
-//     paddingRight: 38,
-//   },
-//   contact_btn: ({ pressed }) => ({
-//     position: "absolute",
-//     alignSelf: "center",
-//     right: 0,
-//     padding: 14,
-//     backgroundColor: v.four,
-//     display: "flex",
-//     flexDirection: "row",
-//     alignItems: "center",
-//     justifyContent: "flex-end",
-//     opacity: pressed ? 0.5 : 1,
-//   }),
-//   abs_ctn: {
-//     display: "flex",
-//     flexDirection: "row",
-//     position: "absolute",
-//   },
+const Schedule = ({ sch }: { sch: ScheduleType }) => {
+  return (
+    <View
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 12,
+        alignItems: "center",
+      }}
+    >
+      <Text ff="Bold" fs={12}>
+        De
+      </Text>
+      <View>
+        <Text fs={12}>{moment(sch.since).format("hh:mma")}</Text>
+      </View>
+      <Text ff="Bold" fs={12}>
+        Hasta
+      </Text>
+      <View>
+        <Text fs={12}>{moment(sch.until).format("hh:mma")}</Text>
+      </View>
+    </View>
+  );
+};
 
-//   icon: {
-//     padding: 14,
-//     // position:'absolute',
-//   },
-//   x: {
-//     borderRadius: 12,
-//     // width:'100%',
-//     // marginTop: "auto",
-//     alignSelf: "flex-end",
-//     width: 52,
-//     height: 52,
-//     overflow: "hidden",
-//     position: "absolute",
-//     bottom: 20,
-//     right: 20,
-//   },
-// });
+const ScheduleDay = ({
+  sch,
+  day,
+  setDay,
+}: {
+  sch: ScheduleType;
+  day: number;
+  setDay: Dispatch<number>;
+}) => {
+  return (
+    <Pressable
+      onPress={() => {
+        setDay(sch.day);
+      }}
+      style={({ pressed }) => ({
+        borderRadius: 6,
+        padding: 8,
+        backgroundColor: day === sch.day ? v.four : v.prime,
+        borderWidth: 1,
+        borderColor: v.four,
+        opacity: pressed ? 0.5 : 1,
+        // maxWidth:40
+      })}
+    >
+      <Text style={{ color: day !== sch.day ? v.four : v.prime }} fs={12}>
+        {traslateDay(sch.day)}
+      </Text>
+    </Pressable>
+  );
+};
+
+const traslateDay = (num: number) => {
+  switch (num) {
+    case 1:
+      return "Lun";
+    case 2:
+      return "Mar";
+    case 3:
+      return "Mie";
+    case 4:
+      return "Jue";
+    case 5:
+      return "Vie";
+    case 6:
+      return "Sab";
+    case 7:
+      return "Dom";
+
+    default:
+      break;
+  }
+};

@@ -68,7 +68,8 @@ export const stl_home = StyleSheet.create({
   filter_ctn: {
     position: "relative",
     width: "100%",
-    height: 90,
+    height: 135,
+    // height: 90,
     overflow: "hidden",
   },
   filter_item: {
