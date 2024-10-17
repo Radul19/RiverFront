@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "River",
-    "slug": "River",
+    "slug": "river-front-ts",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
