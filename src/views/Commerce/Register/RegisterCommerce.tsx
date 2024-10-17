@@ -28,7 +28,7 @@ import {
   Input,
   regex_email,
   regex_phone,
-  regex_textnum,
+  regex_textnum2,
 } from "../../../components/Inputs";
 import moment from "moment";
 import Context from "../../../components/Context";
@@ -231,7 +231,7 @@ export const InfoCommerce = ({
             set={setInputs}
             name="name"
             placeholder="Nombre de empresa"
-            regex={regex_textnum}
+            regex={regex_textnum2}
             initialValue={inputs.name}
           />
           <Input

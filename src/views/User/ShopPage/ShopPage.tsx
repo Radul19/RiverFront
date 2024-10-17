@@ -214,13 +214,12 @@ export const ShopInfo = ({
           {commerce.description}
         </Text>
       </Pressable>
-      <Text ff="Bold" fs={16}>
-        Categorias
-      </Text>
       <Categories
         all={false}
         categ={commerce.categories}
         handleCateg={() => {}}
+        delivery={true}
+        // delivery={commerce.delivery}
       />
       <ScheduleView schedules={commerce.schedules} />
 
@@ -233,7 +232,7 @@ export const ShopInfo = ({
 };
 
 const ScheduleView = ({ schedules }: { schedules: ScheduleType[] }) => {
-  const [day, setDay] = useState(moment(new Date()).day());
+  const [day, setDay] = useState<number|undefined>(moment(new Date()).day());
   return (
     <>
       {schedules.length > 0 ? (
@@ -289,13 +288,14 @@ const ScheduleDay = ({
   setDay,
 }: {
   sch: ScheduleType;
-  day: number;
-  setDay: Dispatch<number>;
+  day?: number;
+  setDay: Dispatch<number|undefined>;
 }) => {
   return (
     <Pressable
       onPress={() => {
-        setDay(sch.day);
+        if(day === sch.day) setDay(undefined)
+        else setDay(sch.day);
       }}
       style={({ pressed }) => ({
         borderRadius: 6,

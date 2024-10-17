@@ -1,10 +1,4 @@
-import {
-  View,
-  StyleSheet,
-  Image,
-  ScrollView,
-  Pressable,
-} from "react-native";
+import { View, StyleSheet, Image, ScrollView, Pressable } from "react-native";
 import React, { FC, PropsWithChildren } from "react";
 // import img from "../images/item.png";
 import Text from "./Text";
@@ -13,6 +7,7 @@ import {
   IconCheck,
   IconCircleLine,
   IconCPU,
+  IconDelivery,
   IconDots,
   IconDrop,
   IconHamburguer,
@@ -30,19 +25,24 @@ import { useNavigation } from "@react-navigation/native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { v, stB, ww } from "./stylesVar";
 import { ItemType } from "../types/item";
-import { NavType } from "../types/screens"
+import { NavType } from "../types/screens";
 import { CommerceType } from "../types/user";
 
-
 type ItemsCtnProps = {
-  data: ItemType[],
-  load?: boolean,
-  markets?: boolean,
-  filter?: { name?: string, status?: number },
-  longPress?: (_id: string) => void
-}
+  data: ItemType[];
+  load?: boolean;
+  markets?: boolean;
+  filter?: { name?: string; status?: number };
+  longPress?: (_id: string) => void;
+};
 
-export const ItemsCtn = ({ data, load, filter, longPress,markets }: ItemsCtnProps) => {
+export const ItemsCtn = ({
+  data,
+  load,
+  filter,
+  longPress,
+  markets,
+}: ItemsCtnProps) => {
   const nav = useNavigation();
   return (
     <>
@@ -61,19 +61,26 @@ export const ItemsCtn = ({ data, load, filter, longPress,markets }: ItemsCtnProp
         }}
       >
         {applyFilter(data, filter).map((item: any) => {
-          if(markets || !item.price){
-            return  <Market market={item} key={item._id} {...{ longPress, nav }} />
-          }else return <Item item={item} key={item._id} {...{ longPress, nav }} />
+          if (markets || !item.price) {
+            return (
+              <Market market={item} key={item._id} {...{ longPress, nav }} />
+            );
+          } else
+            return <Item item={item} key={item._id} {...{ longPress, nav }} />;
         })}
       </Animated.View>
     </>
   );
 };
 
-type ItemProps = { item: ItemType, nav: NavType, longPress?: (_id: string) => void }
-type MarketProps = Omit<ItemProps,'item'>&{
-  market:CommerceType
-}
+type ItemProps = {
+  item: ItemType;
+  nav: NavType;
+  longPress?: (_id: string) => void;
+};
+type MarketProps = Omit<ItemProps, "item"> & {
+  market: CommerceType;
+};
 export const Item = ({ item, nav, longPress }: ItemProps) => {
   const goTo = () => {
     nav.navigate("ItemPage", { item: item });
@@ -90,7 +97,7 @@ export const Item = ({ item, nav, longPress }: ItemProps) => {
       <Text numberOfLines={1}>{item.name}</Text>
       <View style={st.item_bottom}>
         <Text ff="Bold" style={{ fontSize: 16 }}>
-          {Number.parseFloat(item.price).toFixed(2)}
+          ${Number.parseFloat(item.price).toFixed(2)}
         </Text>
         <StarsCtn stars={getStars(item)} />
       </View>
@@ -119,7 +126,12 @@ export const Market = ({ market, nav, longPress }: MarketProps) => {
   );
 };
 
-type MyItemProps = { item: ItemType, add: (_id: string) => void, remove: (_id: string) => void, imSelected: boolean }
+type MyItemProps = {
+  item: ItemType;
+  add: (_id: string) => void;
+  remove: (_id: string) => void;
+  imSelected: boolean;
+};
 export const MyItem = ({ item, add, remove, imSelected }: MyItemProps) => {
   const press = () => {
     if (!imSelected) add(item._id);
@@ -143,7 +155,13 @@ export const MyItem = ({ item, add, remove, imSelected }: MyItemProps) => {
   );
 };
 
-export const StarsCtn = ({ stars, size = 12 }: { stars: number, size?: number }) => {
+export const StarsCtn = ({
+  stars,
+  size = 12,
+}: {
+  stars: number;
+  size?: number;
+}) => {
   return (
     <View
       style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
@@ -169,21 +187,25 @@ const categArray = [
   { name: "others", text: "Otros", icon: IconDots },
 ];
 
-type CategoriesProps = {
-  handleCateg: (categ: string) => void,
-  categ: string[],
-  all?: boolean
-}
+const deli = {name:'delivery',text:"Delivery",icon:IconDelivery}
+
 export const Categories = ({
-  handleCateg = () => { },
+  handleCateg = () => {},
   categ,
   all = true,
-}: CategoriesProps) => {
+  delivery=false,
+}: {
+  handleCateg: (categ: string) => void;
+  categ: string[];
+  all?: boolean;
+  delivery?: boolean;
+}) => {
   return (
     <View
       style={{ position: "relative", height: 80, width: ww, marginLeft: -12 }}
     >
       <ScrollView horizontal={true} contentContainerStyle={st.categ_ctn}>
+        {delivery && <Category {...{ handleCateg, categ:[] }} {...deli} key={1234} />}
         {categArray.map((item, index) => {
           // if (!shop && item === "Tiendas") return null;
           if (all) {
@@ -197,19 +219,26 @@ export const Categories = ({
               );
           }
         })}
+        
       </ScrollView>
     </View>
   );
 };
 
 type Category = {
-  icon: FC<{ size?: number, color?: string }>,
-  text: string,
-  handleCateg: (name: string) => void,
-  categ: string[],
-  name: string
-}
-const Category = ({ icon: Icon, text = "", handleCateg, categ, name }: Category) => {
+  icon: FC<{ size?: number; color?: string }>;
+  text: string;
+  handleCateg: (name: string) => void;
+  categ: string[];
+  name: string;
+};
+const Category = ({
+  icon: Icon,
+  text = "",
+  handleCateg,
+  categ,
+  name,
+}: Category) => {
   return (
     <Pressable
       onPress={() => {
@@ -306,7 +335,13 @@ export const Subtitle = ({ children }: PropsWithChildren) => (
   <Text style={stB.subtitle}>{children}</Text>
 );
 
-export const HeaderBtn = ({ onPress, text }: { onPress?: () => void, text: string }) => {
+export const HeaderBtn = ({
+  onPress,
+  text,
+}: {
+  onPress?: () => void;
+  text: string;
+}) => {
   const nav = useNavigation();
   const goBack = () => {
     if (onPress) {

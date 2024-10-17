@@ -58,7 +58,7 @@ const CodePage = ({ setPage, code, setCode }: CodeProps) => {
           </Animated.View>
         )}
         <Pressable style={st.not_code}>
-          <Text>No tengo ningun codigo</Text>
+          {/* <Text>No tengo ningun codigo</Text> */}
         </Pressable>
       </View>
     // </Scroll>

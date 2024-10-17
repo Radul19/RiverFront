@@ -5,6 +5,7 @@ import {
   IconBag,
   IconEdit,
   IconGear,
+  IconLoad,
   IconPlusBox,
   IconTrash,
 } from "../../../components/Icons";
@@ -20,7 +21,7 @@ import st from "./style";
 import { deleteItem } from "../../../api/general";
 
 type Props = NativeStackScreenProps<ScreensType, "Inventory">;
-const Commerce = ({ navigation,route }: Props) => {
+const Commerce = ({ navigation, route }: Props) => {
   const { userData } = useContext(Context);
   const [load, setLoad] = useState(false);
   const [itemsData, setItemsData] = useState<ItemType[]>([]);
@@ -49,10 +50,10 @@ const Commerce = ({ navigation,route }: Props) => {
     return () => {
       clearTimeout(tm);
     };
-  }, [searchBar]);
+  }, [searchBar,route.params]);
 
   const goCreateItem = () => {
-    setSelectList([])
+    setSelectList([]);
     navigation.navigate("NewItem", { item: undefined });
   };
   const goDeleteItem = async () => {
@@ -67,7 +68,7 @@ const Commerce = ({ navigation,route }: Props) => {
     }
   };
   const goEditItem = () => {
-    setSelectList([])
+    setSelectList([]);
     let aux = itemsData.find((elm) => elm._id === selectList[0]);
     if (aux !== undefined) {
       navigation.navigate("NewItem", { item: aux });
@@ -99,17 +100,33 @@ const Commerce = ({ navigation,route }: Props) => {
   }, []);
 
   return (
-    <Scroll {...{refreshing,onRefresh}} nav={3}>
+    <Scroll {...{ refreshing, onRefresh }} nav={3}>
       <View style={st.header}>
         <Subtitle>Inventario</Subtitle>
         {selectList.length === 0 && <ViewIconPlus {...{ goCreateItem }} />}
         {selectList.length === 1 && (
           <View style={{ display: "flex", flexDirection: "row" }}>
             <ViewIconEdit {...{ goEditItem }} />
-            <ViewIconDelete {...{ goDeleteItem }} />
+            {load ? (
+              <View style={{ width: 24 }}>
+                <IconLoad size={20} />
+              </View>
+            ) : (
+              <ViewIconDelete {...{ goDeleteItem }} />
+            )}
           </View>
         )}
-        {selectList.length >= 2 && <ViewIconDelete {...{ goDeleteItem }} />}
+        {selectList.length >= 2 && (
+          <>
+            {load ? (
+              <View style={{ width: 24 }}>
+                <IconLoad size={20} />
+              </View>
+            ) : (
+              <ViewIconDelete {...{ goDeleteItem }} />
+            )}
+          </>
+        )}
       </View>
       <SearchBar {...{ setSearchBar, searchBar }} />
       {/* <MyItemsCtn

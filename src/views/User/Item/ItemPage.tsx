@@ -214,9 +214,6 @@ export const ItemInfo = ({
           {item.description}
         </Text>
       </Pressable>
-      <Text ff="Bold" fs={16}>
-        Categorias
-      </Text>
       <Categories all={false} categ={item.categories} handleCateg={() => {}} />
     </Animated.View>
   );

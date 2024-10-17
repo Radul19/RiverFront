@@ -386,6 +386,7 @@ export const regex_phone = /^[0-9-]+$/;
 export const regex_price = /^[0-9]+[.]?[0-9]*$/;
 export const regex_text = /^[à-üÀ-Üa-zA-Z ]+$/;
 export const regex_textnum = /^[à-üÀ-Üa-zA-Z0-9 ]*$/;
+export const regex_textnum2 = /^[à-üÀ-Üa-zA-Z0-9'@ ]*$/;
 export const regex_email = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
 /**

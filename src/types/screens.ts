@@ -13,7 +13,7 @@ export type ScreensType = {
     Register: undefined,
     RegisterCommerce: undefined,
     Favorites: undefined,
-    Commerce: undefined,
+    Commerce: {search?:boolean} | undefined,
     ShopPage: {shop?:CommerceType,id?:string},
     EditItem: {
         name: string,

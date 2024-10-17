@@ -76,10 +76,10 @@ const Home = () => {
     y.value = withSpring(val ? 0 : -155, springTime);
   };
 
-  const executeSearch = async () => {
-    setLoad(true);
+  const executeSearch = async ({load=false}:{load?:false}) => {
+    if(load) setLoad(true);
     let { status, data } = await searchItems(searchBar, categ);
-    setLoad(false);
+    if(load) setLoad(false);
     if (status === 200) {
       setItemsData(data);
     }
@@ -88,7 +88,7 @@ const Home = () => {
 
   useEffect(() => {
     let t = setTimeout(() => {
-      executeSearch();
+      executeSearch({});
     }, 700);
 
     return () => {
@@ -99,12 +99,9 @@ const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    let { status, data } = await searchItems(searchBar, categ);
+    await executeSearch({load:false})
     setRefreshing(false);
-    if (status === 200) {
-      setItemsData(data);
-    }
-  }, []);
+  }, [searchBar, categ]);
 
   return (
     <Scroll {...{ refreshing, onRefresh }} nav={1}>

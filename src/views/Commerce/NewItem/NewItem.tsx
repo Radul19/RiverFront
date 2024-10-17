@@ -64,7 +64,7 @@ const NewItem = ({ navigation, route }: Props) => {
     setInputs(undefined);
   };
   const goToCommerce = () => {
-    navigation.navigate("Commerce");
+    navigation.navigate("Commerce",{search:true});
   };
 
   const contextValues = {
@@ -96,7 +96,6 @@ export default NewItem;
 const IMG_ERROR_MSG =
   "Ha ocurrido un error al intentar seleccionar la imagen, intente nuevamente";
 
-type FormProps = {};
 
 export const Form = () => {
   const { setPage, inputs, setInputs, categ, setCateg } =
@@ -285,28 +284,7 @@ const ErrorText = ({ text }: { text?: string }) => {
   );
 };
 
-const item2 = {
-  name: "Test 01",
-  price: "12.99",
-  description:
-    "Antes de ingresar a los círculos encontramos la Selva, el Coliseo y la Colina donde Dante se encuentra perdido en el medio del camino de nuestra vida: detrás de la colina se encuentra la ciudad de Jerusalén, debajo de la cual se imagina cavada la inmensa vorágine del Infierno. Entra entonces por la Puerta del Infierno y penetra así en el Ante-infierno. Superando el río Aqueronte en la barca de Caronte entra en el verdadero Infierno. Este infierno es un lugar infinito, cuantas más personas entren a este lugar, más crece y así hasta el fin de los tiempos sin ningún límite",
-  categories: ["home", "clean"],
-  images: [img, img, img],
-  _id: "_",
-  owner_id: "_",
-  favorites: [],
-  reviews: [],
-  createdAt: "",
-  updatedAt: "",
-};
 
-type PrevType = {
-  item: ItemType;
-  navigation: NavType;
-  resetAll: () => void;
-  goBack: () => void;
-  edit?: boolean;
-};
 export const Preview = ({ goToCommerce }: { goToCommerce: () => void }) => {
   const { userData } = useContext(Context);
   const { categ, resetAll, setPage, inputs } = useContext(NewItemContext);
