@@ -37,7 +37,7 @@ import { v, ww, wh } from "./stylesVar";
 import Text from "./Text";
 import "moment/locale/es";
 import { ImageType, ItemType, ReviewType } from "../types/item";
-import { CommerceType, UserType } from "../types/user";
+import { CommerceType, SocialType, UserType } from "../types/user";
 import Context from "./Context";
 import {
   sendWhatsApp,
@@ -47,7 +47,15 @@ import {
   openTelegram,
 } from "../helpers/msgW";
 
-export const ContactBtn = ({ market = false }) => {
+export const ContactBtn = ({
+  market = false,
+  socials,
+  phone,
+}: {
+  market?: boolean;
+  socials?: SocialType;
+  phone?: string;
+}) => {
   const [open, setOpen] = useState(false);
 
   const width = useSharedValue(52);
@@ -59,39 +67,55 @@ export const ContactBtn = ({ market = false }) => {
     setOpen(!open);
   };
   const toWhatsapp = () => {
-    sendWhatsApp("+5804146382366", "");
+    // sendWhatsApp("+5804146382366", "");
+    if (socials?.whatsapp) sendWhatsApp(socials.whatsapp, "");
   };
   const toSMS = () => {
-    sendSMS("Hello!", "+5804146767043");
+    // sendSMS("Hello!", "+5804146767043");
+    if (phone) sendSMS("", phone);
   };
   const toInstagram = () => {
-    openIg("belibae_");
+    // openIg("belibae_");
+    if (socials?.instagram) openIg(socials.instagram);
   };
   const toMessenger = () => {
-    openMessenger("albelisg.garcia");
+    // openMessenger("albelisg.garcia");
+    if (socials?.messenger) openMessenger(socials.messenger);
   };
   const toTelegram = () => {
-    openTelegram("OceonKey", "hello");
+    if (socials?.telegram) openTelegram(socials.telegram, "");
+    // openTelegram("OceonKey", "hello");
   };
 
   return (
     <Animated.View style={[st.wide_ctn, { width }]}>
       <View style={st.btn_ctn}>
-        <Pressable style={st.icon} onPress={toTelegram}>
-          <IconTelegram color={v.prime} />
-        </Pressable>
-        <Pressable style={st.icon} onPress={toWhatsapp}>
-          <IconWhatsapp color={v.prime} />
-        </Pressable>
-        <Pressable style={st.icon} onPress={toMessenger}>
-          <IconMessenger color={v.prime} />
-        </Pressable>
-        <Pressable style={st.icon} onPress={toInstagram}>
-          <IconInstagram color={v.prime} />
-        </Pressable>
-        <Pressable style={st.icon} onPress={toSMS}>
-          <IconBubble color={v.prime} />
-        </Pressable>
+        {socials?.telegram && (
+          <Pressable style={st.icon} onPress={toTelegram}>
+            <IconTelegram color={v.prime} />
+          </Pressable>
+        )}
+        {socials?.instagram && (
+          <Pressable style={st.icon} onPress={toInstagram}>
+            <IconInstagram color={v.prime} />
+          </Pressable>
+        )}
+        {socials?.whatsapp && (
+          <Pressable style={st.icon} onPress={toWhatsapp}>
+            <IconWhatsapp color={v.prime} />
+          </Pressable>
+        )}
+        {socials?.messenger && (
+          <Pressable style={st.icon} onPress={toMessenger}>
+            <IconMessenger color={v.prime} />
+          </Pressable>
+        )}
+
+        {phone && (
+          <Pressable style={st.icon} onPress={toSMS}>
+            <IconBubble color={v.prime} />
+          </Pressable>
+        )}
 
         {market ? (
           <Pressable style={st.contact_btn} onPress={toggle}>
@@ -151,15 +175,14 @@ export const ReviewsBtn = ({
 export const ImageDisplay = ({
   images = [],
   goBack = undefined,
-  // stall,
-}: {
+}: // stall,
+{
   images: ImageType[];
   goBack?: () => void;
   // stall?: string;
 }) => {
   const pos = useSharedValue(0);
   const position = useSharedValue(0);
-
 
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {
@@ -252,7 +275,7 @@ export const ItemTitle = ({
   item,
 }: {
   sendFavorite?: (status: boolean) => Promise<void>;
-  item: ItemType|CommerceType;
+  item: ItemType | CommerceType;
 }) => {
   const { userData } = useContext(Context);
   return (

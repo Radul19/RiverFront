@@ -33,7 +33,7 @@ export type CommerceType = {
     updatedAt?: string,
 }
 
-type SocialType = {
+export type SocialType = {
     telegram?: string,
     whatsapp?: string,
     messenger?: string,

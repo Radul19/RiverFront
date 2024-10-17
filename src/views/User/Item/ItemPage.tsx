@@ -164,7 +164,16 @@ const ItemPage = ({ navigation, route }: Props) => {
       ) : (
         <>
           {!reviewOpen ? (
-            <ContactBtn />
+            <ContactBtn
+              socials={
+                typeof item.commerce === "object"
+                  ? item.commerce.socials
+                  : undefined
+              }
+              phone={
+                typeof item.commerce === "object"
+                  ? item.commerce.phone : undefined
+              }/>
           ) : (
             <CommentBtn
               {...{ toggleModal }}
@@ -420,21 +429,19 @@ const StarRev = ({ stars, value, setStars }: StarRevProps) => {
 const OwnerDisplay = ({
   commerce,
 }: {
-  commerce: string | { logo: string; name: string,_id:string };
+  commerce: string | { logo: string; name: string; _id: string };
 }) => {
   if (typeof commerce === "string") return null;
 
-  
-  
-  
   const nav = useNavigation();
   const goShopPage = () => {
     nav.navigate("ShopPage", { id: commerce._id });
   };
-  if (typeof commerce === "object") return (
+  if (typeof commerce === "object")
+    return (
       <Pressable
-      onPress={goShopPage}
-        style={({pressed}) => ({
+        onPress={goShopPage}
+        style={({ pressed }) => ({
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
@@ -447,7 +454,9 @@ const OwnerDisplay = ({
           src={commerce.logo}
           style={{ height: 20, width: 20, borderRadius: 100 }}
         />
-        <Text fs={12} style={{color:"#404040"}}  >{commerce.name}</Text>
+        <Text fs={12} style={{ color: "#404040" }}>
+          {commerce.name}
+        </Text>
       </Pressable>
     );
 };

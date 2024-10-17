@@ -1,4 +1,4 @@
-import { ScheduleType, UserType } from "./user"
+import { ScheduleType, SocialType, UserType } from "./user"
 
 export type ImageType = {
     secure_url: string,
@@ -14,6 +14,8 @@ export type ItemType = {
         name:string,
         logo:string,
         schedules:ScheduleType[],
+        socials:SocialType,
+        phone:string,
         _id:string
     },
     categories: string[],
